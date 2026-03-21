@@ -1,0 +1,42 @@
+# Nakkas
+
+> MCP server that turns AI into an SVG artist. One flexible rendering engine, AI decides everything via JSON config. Produces animated, production-ready SVGs with mathematical curves, pattern layouts and filter effects.
+
+## What It Does
+
+Nakkas exposes three MCP tools:
+
+- `render_svg` takes a structured JSON config describing an SVG scene and returns a valid SVG string plus design analysis notes. No templates, no presets. The AI is the creative director.
+- `preview` takes rendered content, renders it to a PNG image (base64), and returns it for visual inspection and iteration.
+- `save` takes rendered content and saves to disk as SVG (text) or PNG (raster). Auto-increments filename to prevent overwriting.
+
+## Key Links
+
+- README: https://github.com/arikusi/nakkas/blob/main/README.md
+- Full documentation (single file for LLM context): https://github.com/arikusi/nakkas/blob/main/llms-full.txt
+- npm package: https://www.npmjs.com/package/nakkas
+- Source code: https://github.com/arikusi/nakkas
+
+## Quick Install
+
+```json
+{ "mcpServers": { "nakkas": { "command": "npx", "args": ["-y", "nakkas@latest"] } } }
+```
+
+## Core Capabilities
+
+- Shapes: rect, circle, ellipse, line, polyline, polygon, path, image
+- Text: positioned text, tspan spans, text along path
+- Pattern layouts: radial-group, arc-group, grid-group, scatter-group, path-group
+- Parametric curves: rose, heart, star, lissajous, spiral, superformula, epitrochoid, hypotrochoid, wave
+- Gradients: linearGradient, radialGradient (with animated color stops)
+- SVG pattern tile fills for repeating textures
+- Filter presets: glow, neon, blur, drop-shadow, glitch, chromatic-aberration, noise, outline, inner-shadow, emboss, grayscale, sepia, invert, saturate, hue-rotate (plus raw filter primitives)
+- CSS @keyframes animations (opacity, transform, fill, stroke, stroke-dashoffset draw-on and more)
+- SMIL animations (path morphing, motion path, animateTransform)
+- Groups, symbols, use for element instancing
+- ClipPath, mask for advanced compositing
+
+## Output
+
+Pure declarative SVG: no JavaScript, no event handler injection. Works in GitHub READMEs, web pages, design tools, and anywhere SVG renders.

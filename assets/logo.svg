@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="100">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff1a6d">
+      <animate attributeName="stop-color" values="#ff1a6d;#4d8dff;#3ddc84;#b366ff;#ff1a6d" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#4d8dff">
+      <animate attributeName="stop-color" values="#4d8dff;#3ddc84;#b366ff;#ff1a6d;#4d8dff" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4d8dff">
+      <animate attributeName="stop-color" values="#4d8dff;#3ddc84;#b366ff;#ff1a6d;#4d8dff" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#3ddc84">
+      <animate attributeName="stop-color" values="#3ddc84;#b366ff;#ff1a6d;#4d8dff;#3ddc84" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3ddc84">
+      <animate attributeName="stop-color" values="#3ddc84;#b366ff;#ff1a6d;#4d8dff;#3ddc84" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#b366ff">
+      <animate attributeName="stop-color" values="#b366ff;#ff1a6d;#4d8dff;#3ddc84;#b366ff" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="g4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b366ff">
+      <animate attributeName="stop-color" values="#b366ff;#ff1a6d;#4d8dff;#3ddc84;#b366ff" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#ff1a6d">
+      <animate attributeName="stop-color" values="#ff1a6d;#4d8dff;#3ddc84;#b366ff;#ff1a6d" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="g5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff1a6d">
+      <animate attributeName="stop-color" values="#ff1a6d;#3ddc84;#b366ff;#4d8dff;#ff1a6d" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#3ddc84">
+      <animate attributeName="stop-color" values="#3ddc84;#b366ff;#4d8dff;#ff1a6d;#3ddc84" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="g6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4d8dff">
+      <animate attributeName="stop-color" values="#4d8dff;#b366ff;#ff1a6d;#3ddc84;#4d8dff" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#b366ff">
+      <animate attributeName="stop-color" values="#b366ff;#ff1a6d;#3ddc84;#4d8dff;#b366ff" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+  </defs>
+  <text x="230" y="62" font-family="Courier New, monospace" font-size="56" font-weight="bold" letter-spacing="14" text-anchor="middle"><tspan fill="url(#g1)">n</tspan><tspan fill="url(#g2)">a</tspan><tspan fill="url(#g3)">k</tspan><tspan fill="url(#g4)">k</tspan><tspan fill="url(#g5)">a</tspan><tspan fill="url(#g6)">s</tspan></text>
+</svg>

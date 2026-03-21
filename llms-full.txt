@@ -1,0 +1,831 @@
+# Nakkas: Full Documentation
+
+MCP server that turns AI into an SVG artist. Two tools, one schema, infinite SVG designs.
+
+## Overview
+
+Nakkas exposes three MCP tools:
+
+- **`render_svg`** takes a JSON configuration object (SVGConfig) and returns a complete SVG XML string plus design analysis notes. The AI constructs the config from natural language. No hardcoded designs. No templates. The AI is the creative director.
+- **`preview`** takes rendered content, renders it to a transparent PNG image (base64), and returns it so the AI can visually inspect and iterate.
+- **`save`** takes rendered content and saves it to disk. Supports text (SVG) and raster (PNG) formats. Auto-increments filename to prevent overwriting.
+
+**Use cases**: GitHub profile READMEs, web page graphics, UI components, data visualizations, animated badges, terminal-style logos, icons, illustrations, presentation slides, design exports.
+
+## Installation
+
+```json
+{
+  "mcpServers": {
+    "nakkas": {
+      "command": "npx",
+      "args": ["-y", "nakkas@latest"]
+    }
+  }
+}
+```
+
+Add to Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS), Cursor config, Zed config, or any MCP-compatible client.
+
+Claude Code CLI: `claude mcp add nakkas npx nakkas@latest`
+
+## The preview Tool
+
+**Input**:
+```typescript
+{
+  content: string,           // SVG string to render
+  format?: "svg" | "html",  // auto-detected if omitted; only "svg" is currently supported
+  width?: number,            // optional render width in pixels; defaults to SVG's own width
+}
+```
+**Output**: `{ type: "image", data: "<base64>", mimeType: "image/png" }`, a transparent PNG
+
+**Notes**:
+- Background is transparent by default (no background color in output PNG)
+- CSS animations and SMIL are rendered as a static t=0 snapshot (motion not captured in PNG)
+- Use in a render → preview → revise loop for AI-driven iterative design
+
+**Typical workflow**:
+```
+1. render_svg({ canvas, elements, animations }) → SVG string
+2. preview({ content: svgString }) → see the PNG
+3. Revise config based on visual inspection → render_svg again
+4. Repeat until satisfied
+```
+
+---
+
+## The save Tool
+
+**Input**: content (string), outputPath (string), format ("auto" | "svg" | "png"), optional width (number)
+**Output**: The actual saved file path
+
+Saves rendered content to disk. The format parameter controls how content is written:
+- `auto` (default): infers from file extension. `.svg` saves as text, `.png` renders to raster image.
+- `svg`: saves content as UTF-8 text file
+- `png`: renders SVG content to a PNG image using resvg, then saves the binary
+
+If the file already exists, a numeric counter is appended: `design.svg` becomes `design-1.svg`, then `design-2.svg`. The actual saved path is always returned.
+
+```json
+{ "content": "<svg ...>...</svg>", "outputPath": "./design.svg", "format": "auto" }
+{ "content": "<svg ...>...</svg>", "outputPath": "./design.png", "format": "png", "width": 800 }
+```
+
+---
+
+## Design Analysis
+
+After rendering, `render_svg` automatically analyzes the config and may return design notes alongside the SVG string. These notes flag common issues:
+
+- Too many concurrent animations (more than 4)
+- Scale transforms applied to group containers (inconsistent browser behavior)
+- Missing transformBox on elements with scale or rotate animations
+- Large SVG output size (over 50kb)
+- High element count (over 200 expanded elements)
+- Heavily shared cssClass values (limits per-element timing control)
+
+These notes appear in the response as a second text content block labeled "Design notes". Read and address them during iteration.
+
+---
+
+## The render_svg Tool
+
+**Input**: SVGConfig object (validated against Zod schema)
+**Output**: Complete SVG XML string, no `<?xml?>` declaration, plus optional design analysis notes
+
+## SVGConfig Schema
+
+### Canvas (required)
+
+```typescript
+canvas: {
+  width: number | string,        // 800 or "100%"
+  height: number | string,       // 400 or "50vh"
+  viewBox?: string,              // "0 0 800 400", internal coordinate system
+  preserveAspectRatio?: string,  // "xMidYMid meet" (default) | "xMidYMid slice" | "none"
+  background?: string,           // "#111111" | "transparent"
+  xmlns?: string,                // default "http://www.w3.org/2000/svg"
+}
+```
+
+### Defs (optional, reusable definitions)
+
+```typescript
+defs?: {
+  gradients?: Gradient[],
+  filters?: Filter[],
+  clipPaths?: ClipPath[],
+  masks?: Mask[],
+  symbols?: Symbol[],
+  paths?: { id: string, d: string }[]  // invisible paths for textPath elements
+}
+```
+
+### Elements (required, min 1)
+
+Array of renderable elements in draw order (first = bottom, last = top):
+- Shape types: `rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `image`
+- Text types: `text`, `textPath`
+- Container types: `group`, `use`
+- Pattern types: `radial-group`, `arc-group`, `grid-group`, `scatter-group`, `path-group`, `parametric`
+
+### Animations (optional)
+
+CSS @keyframes definitions. Elements target animations via matching `cssClass`.
+
+## Shape Elements
+
+All shapes share these presentation attributes:
+```typescript
+{
+  id?: string,
+  cssClass?: string,              // matches animation name for CSS targeting
+  fill?: string,                  // "#rrggbb" | "none" | "url(#gradientId)"
+  fillOpacity?: number,           // 0–1
+  fillRule?: "nonzero" | "evenodd",
+  stroke?: string,
+  strokeWidth?: number,
+  strokeOpacity?: number,
+  strokeLinecap?: "butt" | "round" | "square",
+  strokeLinejoin?: "miter" | "round" | "bevel",
+  strokeDasharray?: string,       // "10 5" for dashed; animatable for draw-on
+  strokeDashoffset?: number,      // start offset; animate to 0 for draw-on effect
+  opacity?: number,               // 0–1
+  visibility?: "visible" | "hidden",
+  filter?: string,                // "url(#filterId)"
+  clipPath?: string,              // "url(#clipId)"
+  mask?: string,                  // "url(#maskId)"
+  transform?: string,             // "rotate(45)" "translate(100,50)" "scale(1.5)"
+  transformBox?: "fill-box" | "view-box",  // use "fill-box" for CSS transform-origin
+  transformOrigin?: string,       // "center", requires transformBox="fill-box"
+  style?: string,                 // inline CSS override
+  smilAnimations?: SMILAnimation[]
+}
+```
+
+### rect
+```typescript
+{ type: "rect", width: number, height: number, x?: number, y?: number, rx?: number, ry?: number }
+```
+
+### circle
+```typescript
+{ type: "circle", r: number, cx?: number, cy?: number }
+```
+
+### ellipse
+```typescript
+{ type: "ellipse", rx: number, ry: number, cx?: number, cy?: number }
+```
+
+### line
+```typescript
+{ type: "line", x1: number, y1: number, x2: number, y2: number }
+```
+
+### polyline
+```typescript
+{ type: "polyline", points: string }  // "10,20 50,80 90,20"
+```
+
+### polygon
+```typescript
+{ type: "polygon", points: string }   // auto-closes
+```
+
+### path
+```typescript
+{ type: "path", d: string }  // SVG path commands: M L H V C Q A Z
+// For SMIL morphing: from/to paths must have identical command sequence
+```
+
+### image
+```typescript
+{ type: "image", href: string, width: number, height: number, x?: number, y?: number, preserveAspectRatio?: string }
+// href: URL or data:image/png;base64,... for embedded rasters
+// preserveAspectRatio: "xMidYMid meet" | "xMidYMid slice" | "none"
+```
+
+## Text Elements
+
+### text
+```typescript
+{
+  type: "text",
+  content: string | (string | Tspan)[],
+  x?: number, y?: number,
+  fontFamily?: string,     // "Arial" | "monospace" | any CSS font-family
+  fontSize?: number,
+  fontWeight?: "normal" | "bold" | number,
+  fontStyle?: "normal" | "italic" | "oblique",
+  textAnchor?: "start" | "middle" | "end",
+  dominantBaseline?: "auto" | "middle" | "central" | "hanging",
+  letterSpacing?: number,
+  // + all shared presentation attributes
+}
+```
+
+### textPath (text along a curve)
+```typescript
+{
+  type: "textPath",
+  pathId: string,      // references a path defined in defs.paths
+  text: string,
+  startOffset?: number | string,  // number = SVG units, "50%" = center
+  method?: "align" | "stretch",
+  // + shared presentation attributes
+}
+```
+
+### Tspan (inline text segment)
+```typescript
+{
+  text: string,
+  x?: number, y?: number,  // absolute position
+  dx?: number, dy?: number, // relative offset (dy for line breaks)
+  fill?: string, fontFamily?: string, fontSize?: number,
+  fontWeight?: ..., letterSpacing?: number, textAnchor?: ...,
+  dominantBaseline?: ..., rotate?: number | string,
+}
+```
+
+## Groups and Instancing
+
+### group
+```typescript
+{
+  type: "group",
+  children: LeafElement[],  // shapes, text, use. No nested groups
+  // + all shared presentation attributes applied to all children
+}
+```
+Note: groups cannot be nested. Use multiple top-level groups with coordinated transforms for layering.
+
+### use (element instancing)
+```typescript
+{
+  type: "use",
+  href: string,       // "#symbolId" or "#anyElementId"
+  x?: number, y?: number,
+  width?: number, height?: number,  // override for symbols
+  // + shared presentation attributes
+}
+```
+
+### Symbol (reusable template in defs)
+```typescript
+{
+  id: string,
+  viewBox?: string,
+  preserveAspectRatio?: string,
+  overflow?: "visible" | "hidden",
+  children: (ShapeElement | TextElement)[]
+}
+```
+
+## Gradients
+
+### linearGradient
+```typescript
+{
+  type: "linearGradient",
+  id: string,
+  x1?: number | string, y1?: number | string,  // 0–1 (objectBoundingBox)
+  x2?: number | string, y2?: number | string,  // x2=1 → horizontal, y2=1 → vertical
+  gradientUnits?: "objectBoundingBox" | "userSpaceOnUse",
+  gradientTransform?: string,  // "rotate(45)" for diagonal
+  spreadMethod?: "pad" | "reflect" | "repeat",
+  href?: string,  // inherit from another gradient
+  stops: GradientStop[]
+}
+```
+
+### radialGradient
+```typescript
+{
+  type: "radialGradient",
+  id: string,
+  cx?: number | string, cy?: number | string,  // center (default 0.5)
+  r?: number | string,                          // radius (default 0.5)
+  fx?: number | string, fy?: number | string,  // focal point
+  fr?: number | string,                         // focal radius
+  gradientUnits?: ..., gradientTransform?: ..., spreadMethod?: ...,
+  stops: GradientStop[]
+}
+```
+
+### GradientStop
+```typescript
+{
+  offset: number | string,   // 0–1 (number) or "0%"–"100%" (string)
+  color: string,             // "#rrggbb" or "#rrggbbaa"
+  opacity?: number,          // 0–1
+  smilAnimations?: SMILAnimation[]  // animate stop-color for color cycling
+}
+```
+
+## Filters
+
+### Preset Filters
+
+```typescript
+{
+  type: "preset",
+  id: string,
+  preset: "glow" | "neon" | "blur" | "drop-shadow" | "glitch" |
+          "grayscale" | "sepia" | "invert" | "saturate" | "hue-rotate",
+  stdDeviation?: number,   // blur intensity
+  color?: string,          // glow/neon/drop-shadow color
+  offsetX?: number,        // drop-shadow X offset
+  offsetY?: number,        // drop-shadow Y offset
+  value?: number,          // grayscale/saturate/hue-rotate value
+  expand?: boolean,        // true = large filter region for overflow effects
+}
+```
+
+**Preset details:**
+- `glow`: Soft halo. `stdDeviation` 2–30, `color` for colored glow
+- `neon`: Intense bright glow. `stdDeviation` 5–20, `color` for colored neon
+- `blur`: Simple Gaussian blur. `stdDeviation` 3–20
+- `drop-shadow`: Shadow offset. `offsetX/Y` 4–15, `stdDeviation` 2–8, `color`
+- `glitch`: Turbulence displacement. `stdDeviation` controls distortion scale. Animated by default.
+- `grayscale`: `value` 0–1 (1 = full grayscale)
+- `sepia`: Full sepia matrix, no params needed
+- `invert`: Inverts all colors
+- `saturate`: `value` 0 = gray, 1 = normal, 2+ = oversaturated
+- `hue-rotate`: `value` = degrees (0–360)
+
+### Raw Filter Primitives
+
+```typescript
+{
+  type: "raw",
+  id: string,
+  filterRegion?: { x?: string, y?: string, width?: string, height?: string },
+  primitives: FilterPrimitive[]  // chained via result/in/in2
+}
+```
+
+Supported primitives: `feGaussianBlur`, `feDropShadow`, `feColorMatrix`, `feTurbulence`, `feDisplacementMap`, `feOffset`, `feFlood`, `feComposite`, `feBlend`, `feMerge`, `feComponentTransfer`
+
+## Clip Paths and Masks
+
+### clipPath
+```typescript
+{
+  id: string,
+  clipPathUnits?: "userSpaceOnUse" | "objectBoundingBox",
+  children: ShapeElement[]  // shapes define the clipping region
+}
+// Reference: clipPath="url(#id)" on any element
+```
+
+### mask
+```typescript
+{
+  id: string,
+  maskUnits?: "userSpaceOnUse" | "objectBoundingBox",
+  maskContentUnits?: "userSpaceOnUse" | "objectBoundingBox",
+  x?: string, y?: string, width?: string, height?: string,
+  children: (ShapeElement | TextElement)[]
+  // White = fully visible, Black = fully transparent
+}
+// Reference: mask="url(#id)" on any element
+// Tip: radial gradient (white center → black edge) on a circle = spotlight effect
+```
+
+## CSS Animations
+
+Define in `config.animations[]`, target elements via matching `cssClass`:
+
+```typescript
+{
+  name: string,             // animation identifier; element uses cssClass="name"
+  duration: string,         // "2s", "500ms"
+  timingFunction?: string,  // "ease" (default), "linear", "cubic-bezier(...)"
+  delay?: string,           // "0.5s"
+  iterationCount?: number | "infinite",
+  direction?: "normal" | "reverse" | "alternate" | "alternate-reverse",
+  fillMode?: "none" | "forwards" | "backwards" | "both",
+  keyframes: [              // min 2
+    {
+      offset: number | "from" | "to",  // 0–100 (%) or "from"/"to"
+      properties: Record<string, string>  // CSS property: value
+    }
+  ]
+}
+```
+
+**CSS property keys**: camelCase (`strokeDashoffset`) or kebab-case (`stroke-dashoffset`). Both work.
+
+**For rotation/scaling**: always add `transformBox: "fill-box"` and `transformOrigin: "center"` to the element to ensure the transform origin is the element center, not the SVG viewport origin.
+
+**Draw-on animation pattern:**
+1. Set `strokeDasharray` = total path length on element
+2. Set `strokeDashoffset` = same value (total path length)
+3. Animate `strokeDashoffset` from that value to 0
+
+## SMIL Animations
+
+Defined inline on elements via `smilAnimations: []`. Three types:
+
+### animate
+```typescript
+{
+  kind: "animate",
+  attributeName: string,   // "d" (path morphing), "r", "cx", "opacity", "stop-color", etc.
+  from?: string,
+  to?: string,
+  values?: string,         // semicolon-separated: "0;1;0"
+  keyTimes?: string,       // semicolon-separated: "0;0.5;1" (required for 3+ values)
+  dur: string,
+  repeatCount?: number | "indefinite",
+  begin?: string,          // "0s" | "1s" | "otherId.end"
+  calcMode?: "linear" | "discrete" | "paced" | "spline",
+  additive?: "replace" | "sum",
+  accumulate?: "none" | "sum",
+  fill?: "freeze" | "remove"
+}
+```
+
+**Path morphing**: `attributeName: "d"`. From/to paths must have IDENTICAL command types and counts. Only coordinates can differ.
+
+### animateTransform
+```typescript
+{
+  kind: "animateTransform",
+  type: "translate" | "scale" | "rotate" | "skewX" | "skewY",
+  from?: string,    // "0 cx cy" for rotate with center point
+  to?: string,
+  values?: string,
+  keyTimes?: string,
+  dur: string,
+  repeatCount?: number | "indefinite",
+  begin?: string,
+  additive?: "replace" | "sum",
+  fill?: "freeze" | "remove"
+}
+```
+
+### animateMotion
+```typescript
+{
+  kind: "animateMotion",
+  path: string,           // SVG path data for the motion trajectory
+  dur: string,
+  repeatCount?: number | "indefinite",
+  rotate?: number | "auto" | "auto-reverse",  // "auto" faces forward along path
+  keyTimes?: string,
+  keyPoints?: string,     // "0;0.3;0.7;1" to control speed along path
+  begin?: string,
+  fill?: "freeze" | "remove",
+  calcMode?: "paced" | "linear" | "spline" | "discrete"
+}
+```
+
+## Compatibility Notes
+
+| Context | CSS @keyframes | SMIL | Custom fonts | onclick |
+|---------|---------------|------|-------------|---------|
+| GitHub README `<img>` | ✅ | ✅ | ❌ | ❌ |
+| Web page `<img>` | ✅ | ✅ | ❌ | ❌ |
+| Web page inline SVG | ✅ | ✅ | ✅ | ✅ |
+| Design tool / static file | ✅ | ✅ | depends | depends |
+
+**SMIL `begin="click"`**: works in inline SVG, not in `<img>` contexts.
+**Custom fonts**: work when loaded in the rendering environment (via CSS `@font-face` on the host page).
+**data:image/ URIs**: fully supported for embedded raster images.
+
+## Tech Stack
+
+- TypeScript + Node.js 18+
+- @modelcontextprotocol/sdk
+- zod (schema validation + type generation)
+- Pure XML string construction.no SVG library dependencies
+- Vitest test suite (280 tests)
+
+## Pattern Elements
+
+### radial-group
+
+Places N copies of one child element around a full circle. Each copy is wrapped in a `<g transform="translate(x,y) rotate(angle)">` so the child's own coordinates stay at origin.
+
+```typescript
+{
+  type: "radial-group",
+  cx: number,           // center X of the arrangement
+  cy: number,           // center Y
+  count: number,        // copies to place (2–72)
+  radius: number,       // distance from center to each child's anchor point
+  startAngle?: number,  // degrees for first item (-90 = top, default)
+  rotateChildren?: boolean,  // rotate each child to face outward (default true)
+  child: LeafElement,   // template, use cx=0, cy=0 for circles/ellipses
+}
+```
+
+Example,flower with 8 petals:
+```json
+{
+  "type": "radial-group", "cx": 200, "cy": 200, "count": 8, "radius": 80,
+  "child": { "type": "ellipse", "cx": 0, "cy": 0, "rx": 40, "ry": 14, "fill": "#ff3366" }
+}
+```
+
+### grid-group
+
+Places N copies of one child element in an M×N rectangular grid. Each copy is in a `<g transform="translate(x,y)">`.
+
+```typescript
+{
+  type: "grid-group",
+  x?: number,           // top-left anchor X (default 0)
+  y?: number,           // top-left anchor Y (default 0)
+  cols: number,         // columns (1–200)
+  rows: number,         // rows (1–200)
+  colSpacing: number,   // horizontal distance between cell centers
+  rowSpacing: number,   // vertical distance between cell centers
+  child: LeafElement,   // template, use cx=0, cy=0 or x=0, y=0
+}
+```
+
+Example,10×10 dot grid:
+```json
+{
+  "type": "grid-group", "x": 25, "y": 25, "cols": 10, "rows": 10,
+  "colSpacing": 24, "rowSpacing": 24,
+  "child": { "type": "circle", "cx": 0, "cy": 0, "r": 4, "fill": "#e4a700" }
+}
+```
+
+### arc-group
+
+Places N copies of one child along a circular arc (partial circle). Like radial-group but only covers the angle range from startAngle to endAngle. The endpoints are inclusive.
+
+```typescript
+{
+  type: "arc-group",
+  cx: number, cy: number,
+  radius: number,
+  count: number,            // copies along the arc (1 to 72)
+  startAngle: number,       // starting angle in degrees
+  endAngle: number,         // ending angle in degrees
+  rotateChildren?: boolean, // default true
+  child: LeafElement,
+}
+```
+
+Example: semicircle arrangement from top to bottom right:
+```json
+{
+  "type": "arc-group", "cx": 200, "cy": 200, "radius": 80,
+  "count": 5, "startAngle": -90, "endAngle": 90,
+  "child": { "type": "circle", "cx": 0, "cy": 0, "r": 8, "fill": "#ff6600" }
+}
+```
+
+### scatter-group
+
+Scatters N copies of one child at deterministic random positions within a bounding box. The same seed always produces the same arrangement.
+
+```typescript
+{
+  type: "scatter-group",
+  x?: number, y?: number,   // bounding box origin (default 0, 0)
+  width: number,             // bounding box width
+  height: number,            // bounding box height
+  count: number,             // 1 to 500
+  seed: number,              // integer seed for the random generator
+  child: LeafElement,
+}
+```
+
+Example: starfield:
+```json
+{
+  "type": "scatter-group", "width": 400, "height": 400, "count": 80, "seed": 42,
+  "child": { "type": "circle", "cx": 0, "cy": 0, "r": 1.5, "fill": "#ffffff", "opacity": 0.8 }
+}
+```
+
+### path-group
+
+Distributes N copies of one child evenly along a polyline defined by waypoints. Children can optionally rotate to follow the tangent direction.
+
+```typescript
+{
+  type: "path-group",
+  waypoints: Array<{ x: number; y: number }>,  // at least 2 points
+  count: number,              // 1 to 200
+  rotateChildren?: boolean,   // default true (align to path tangent)
+  child: LeafElement,
+}
+```
+
+Example: beads along a curve:
+```json
+{
+  "type": "path-group", "count": 10,
+  "waypoints": [{"x": 50, "y": 300}, {"x": 200, "y": 50}, {"x": 350, "y": 300}],
+  "child": { "type": "circle", "cx": 0, "cy": 0, "r": 6, "fill": "#00ccff" }
+}
+```
+
+### parametric
+
+Generates a mathematical curve as an SVG path. The server computes all coordinates. The AI only provides the function name and parameters.
+
+```typescript
+{
+  type: "parametric",
+  fn: "rose" | "lissajous" | "spiral" | "heart" | "star" |
+      "superformula" | "epitrochoid" | "hypotrochoid",
+  cx?: number,    // center X (default 0)
+  cy?: number,    // center Y (default 0)
+  scale?: number, // overall size in SVG units (default 80)
+  // Function-specific params (see below)
+  steps?: number,   // path smoothness (default 360)
+  closed?: boolean, // close path with Z (default: true for most curves)
+}
+```
+
+Function parameters:
+
+| fn | Key params | Description |
+|----|-----------|-------------|
+| `rose` | `k` | Rhodonea: k=3→3 petals, k=4→8 petals, k=5→5 petals |
+| `heart` | `scale` | Classic parametric heart curve |
+| `star` | `points`, `innerRadius` | Regular star polygon |
+| `lissajous` | `freqA`, `freqB`, `delta`, `scaleX`, `scaleY` | Harmonic oscillation figure |
+| `spiral` | `spiralType`, `turns`, `growth` | Archimedean or logarithmic spiral |
+| `superformula` | `m`, `n1`, `n2`, `n3` | Gielis formula (generalizes many natural shapes) |
+| `epitrochoid` | `R`, `r`, `d` | Outer spirograph curve |
+| `hypotrochoid` | `R`, `r`, `d` | Inner spirograph curve |
+| `wave` | `width`, `amplitude`, `frequency`, `phase` | Sine wave path |
+
+Example,5-petal rose:
+```json
+{ "type": "parametric", "fn": "rose", "cx": 200, "cy": 200, "k": 5, "scale": 90,
+  "fill": "none", "stroke": "#ff6600", "strokeWidth": 2 }
+```
+
+## New Filter Presets
+
+### chromatic-aberration
+
+Splits RGB channels: red shifts left, blue shifts right, green stays centered.
+
+```json
+{ "type": "preset", "id": "ca", "preset": "chromatic-aberration", "value": 4 }
+```
+
+`value` = channel offset in SVG units (default 3). Uses overflow filter region automatically.
+
+### noise
+
+Overlays a fine grain texture using `feTurbulence`.
+
+```json
+{ "type": "preset", "id": "grain", "preset": "noise", "value": 0.3 }
+```
+
+`value` = grain opacity from 0 to 1 (default 0.25).
+
+### outline
+
+Draws a colored outline around the element using feMorphology dilation.
+
+```json
+{ "type": "preset", "id": "border", "preset": "outline", "color": "#ff0000", "value": 3 }
+```
+
+`color` = outline color (default black). `value` = outline thickness in SVG units (default 2).
+
+### inner-shadow
+
+Renders a shadow inside the element boundary.
+
+```json
+{ "type": "preset", "id": "inset", "preset": "inner-shadow", "color": "#000000", "stdDeviation": 4, "value": 0.6 }
+```
+
+`color` = shadow color (default black). `stdDeviation` = blur radius (default 4). `value` = shadow opacity (default 0.5).
+
+### emboss
+
+Creates a 3D relief effect using directional highlight and shadow layers.
+
+```json
+{ "type": "preset", "id": "raised", "preset": "emboss", "stdDeviation": 2, "value": 1.5 }
+```
+
+`stdDeviation` = depth of the shading (default 2). `value` = shading intensity multiplier (default 1.5).
+
+## SVG Pattern Fills
+
+Define a repeating tile pattern in defs.patterns and use it as a fill on any element.
+
+```json
+"defs": {
+  "patterns": [{
+    "id": "polkaDots",
+    "width": 24, "height": 24,
+    "children": [
+      { "type": "circle", "cx": 12, "cy": 12, "r": 4, "fill": "#666" }
+    ]
+  }]
+}
+```
+
+Reference with `fill: "url(#polkaDots)"` on any shape or text element. The tile repeats to fill the entire bounding area.
+
+Pattern properties:
+- `id` (required): unique identifier
+- `width`, `height` (required): tile dimensions in SVG units
+- `x`, `y` (optional): tile offset, default 0
+- `patternUnits` (optional): 'userSpaceOnUse' (default) or 'objectBoundingBox'
+- `patternTransform` (optional): transform string such as 'rotate(45)' for diagonal patterns
+- `children` (required): shapes and text that make up one tile
+
+## Examples
+
+### Animated Draw-On Circle
+
+```json
+{
+  "canvas": { "width": 200, "height": 200, "background": "transparent" },
+  "elements": [{
+    "type": "circle",
+    "cx": 100, "cy": 100, "r": 70,
+    "fill": "none",
+    "stroke": "#00ffcc",
+    "strokeWidth": 3,
+    "strokeDasharray": "440",
+    "strokeDashoffset": "440",
+    "cssClass": "draw"
+  }],
+  "animations": [{
+    "name": "draw",
+    "duration": "1.5s",
+    "timingFunction": "ease-in-out",
+    "fillMode": "forwards",
+    "keyframes": [
+      { "offset": "from", "properties": { "strokeDashoffset": "440" } },
+      { "offset": "to",   "properties": { "strokeDashoffset": "0" } }
+    ]
+  }]
+}
+```
+
+### Neon Glowing Text
+
+```json
+{
+  "canvas": { "width": 400, "height": 100, "background": "#000000" },
+  "defs": {
+    "filters": [{ "type": "preset", "id": "neon", "preset": "neon", "color": "#ff00aa", "stdDeviation": 8 }]
+  },
+  "elements": [{
+    "type": "text",
+    "content": "NAKKAS",
+    "x": 200, "y": 65,
+    "textAnchor": "middle",
+    "fill": "#ff00aa",
+    "fontSize": 48,
+    "fontFamily": "Arial",
+    "fontWeight": "bold",
+    "filter": "url(#neon)"
+  }]
+}
+```
+
+### Color-Cycling Gradient
+
+```json
+{
+  "canvas": { "width": 300, "height": 100, "background": "transparent" },
+  "defs": {
+    "gradients": [{
+      "type": "linearGradient",
+      "id": "cycle",
+      "x1": 0, "y1": 0, "x2": 1, "y2": 0,
+      "stops": [
+        {
+          "offset": 0, "color": "#ff0000",
+          "smilAnimations": [{ "kind": "animate", "attributeName": "stop-color", "values": "#ff0000;#00ff00;#0000ff;#ff0000", "dur": "3s", "repeatCount": "indefinite" }]
+        },
+        {
+          "offset": 1, "color": "#0000ff",
+          "smilAnimations": [{ "kind": "animate", "attributeName": "stop-color", "values": "#0000ff;#ff0000;#00ff00;#0000ff", "dur": "3s", "repeatCount": "indefinite" }]
+        }
+      ]
+    }]
+  },
+  "elements": [{ "type": "rect", "width": 300, "height": 100, "fill": "url(#cycle)" }]
+}
+```
+
+## Author
+
+Built by arikusi (https://github.com/arikusi). MIT License.

@@ -1,0 +1,57 @@
+{
+  "name": "nakkas",
+  "version": "0.1.0",
+  "description": "MCP server that turns AI into an SVG artist — one flexible rendering engine, AI decides everything",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "nakkas": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "llms.txt",
+    "llms-full.txt"
+  ],
+  "scripts": {
+    "build": "tsc && chmod 755 dist/index.js",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run test:run && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@resvg/resvg-js": "^2.6.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@vitest/coverage-v8": "^3.0.9",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "svg",
+    "animation",
+    "ai",
+    "modelcontextprotocol",
+    "vector",
+    "generative"
+  ],
+  "author": "arikusi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arikusi/nakkas.git"
+  },
+  "homepage": "https://github.com/arikusi/nakkas#readme",
+  "bugs": {
+    "url": "https://github.com/arikusi/nakkas/issues"
+  }
+}
