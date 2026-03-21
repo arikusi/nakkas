@@ -1,10 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+- Reduced tool description from ~1.8k to ~311 tokens. Total tool context now ~636 tokens.
+
 ## 0.1.1
 
-- Reduced total tool context from ~30k tokens to ~636 tokens (schema: 325, description: 311).
+- Reduced MCP tool schema from ~28k to ~325 tokens.
 - Decoupled tool registration schema from runtime validation. AI sees a compact schema, handler validates with the full schema and returns detailed error messages.
-- Moved detailed documentation to llms.txt/llms-full.txt, keeping the tool description minimal.
 
 ## 0.1.0
 
