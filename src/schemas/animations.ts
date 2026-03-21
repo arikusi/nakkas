@@ -28,7 +28,7 @@ export const CSSKeyframeSchema = z.object({
   offset: z
     .union([z.number().min(0).max(100), z.enum(["from", "to"])])
     .describe(
-      "Keyframe position: 0–100 (percentage), 'from' (= 0), or 'to' (= 100)"
+      "Keyframe position: 0-100 (percentage) or 0-1 (fractional), or 'from'/'to'"
     ),
   properties: z
     .record(z.string(), z.string())

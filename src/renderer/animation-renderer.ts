@@ -52,7 +52,11 @@ function safeCSSIdent(name: string): string {
 
 /** Render a single keyframe stop: "0% { prop: val; ... }" */
 function renderKeyframeStop(kf: CSSKeyframe): string {
-  const position = typeof kf.offset === "number" ? `${num(kf.offset)}%` : kf.offset;
+  // Accept both 0-1 (fractional) and 0-100 (percentage) ranges
+  const pct = typeof kf.offset === "number"
+    ? (kf.offset <= 1 && kf.offset > 0 ? kf.offset * 100 : kf.offset)
+    : undefined;
+  const position = pct !== undefined ? `${num(pct)}%` : kf.offset;
   const declarations = Object.entries(kf.properties)
     .map(([prop, val]) => `${toKebabCase(prop)}:${safeCSSValue(val)}`)
     .join(";");
