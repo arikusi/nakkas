@@ -80,6 +80,13 @@ server.registerTool(
 
 **Animations:** CSS @keyframes via animations array. Set cssClass on element matching animation name. For transforms add transformBox="fill-box" transformOrigin="center". SMIL via smilAnimations on elements (animate, animateTransform, animateMotion).
 
+**Critical format rules:**
+- Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial"). Each needs id, stops (array with offset 0-1, color).
+- Filter type must be "preset" with a "preset" field: {"type":"preset","id":"myGlow","preset":"glow","stdDeviation":8,"color":"#ff00ff"}
+- Keyframe offset: use "from"/"to" or percentage number 0-100 (not "0%"/"100%").
+- Colors: hex only (#rrggbb or #rrggbbaa). No rgb(), no named colors.
+- Every element needs "type" field. circle needs r, rect needs width+height, path needs d.
+
 **Output:** Pure SVG XML. No JavaScript. CSS @keyframes + SMIL only.`.trim(),
     inputSchema: SVGConfigSlimSchema,
   },
@@ -95,7 +102,7 @@ server.registerTool(
           content: [
             {
               type: "text" as const,
-              text: `Config validation failed:\n${formatted}\n\nCommon fixes:\n- Missing required fields (canvas.width/height; rect needs width/height; circle needs r; path needs d)\n- Invalid hex color (must be #rrggbb or #rrggbbaa)\n- Gradient/filter id referenced before being defined in defs\n- Gradient needs at least 2 stops`,
+              text: `Config validation failed:\n${formatted}\n\nCommon fixes:\n- Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial")\n- Filter needs type:"preset" with preset field: {"type":"preset","id":"x","preset":"glow","stdDeviation":8,"color":"#ff00ff"}\n- Keyframe offset: "from"/"to" or number 0-100 (not "0%"/"100%")\n- Colors: hex only (#rrggbb or #rrggbbaa), no rgb() or named colors\n- Every element needs "type". circle needs r, rect needs width+height, path needs d\n- Gradient needs at least 2 stops with offset (0-1) and color`,
             },
           ],
           isError: true,
