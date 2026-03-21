@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Fixed keyframe offset bug: values 0-1 (fractional) now correctly map to 0%-100%. Previously 1 became 1% instead of 100%.
+- Added critical format rules to tool description to reduce first-attempt validation errors.
+
 ## 0.1.2
 
 - Reduced tool description from ~1.8k to ~311 tokens. Total tool context now ~636 tokens.

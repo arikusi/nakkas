@@ -1,6 +1,6 @@
 {
   "name": "nakkas",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "MCP server that turns AI into an SVG artist. One rendering engine, AI decides everything.",
   "type": "module",
   "main": "./dist/index.js",
