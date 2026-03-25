@@ -9,8 +9,23 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/nakkas"><img src="https://img.shields.io/npm/v/nakkas" alt="npm version" /></a>
-  <a href="https://github.com/arikusi/nakkas/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/nakkas" alt="license" /></a>
   <a href="https://www.npmjs.com/package/nakkas"><img src="https://img.shields.io/npm/dm/nakkas" alt="downloads" /></a>
+  <a href="https://github.com/arikusi/nakkas/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/nakkas" alt="license" /></a>
+  <a href="https://github.com/arikusi/arikusi-marketplace"><img src="https://img.shields.io/badge/marketplace-arikusi-orange.svg" alt="Marketplace" /></a>
+</p>
+
+<p align="center">
+  Listed on <a href="https://glama.ai/mcp/servers/arikusi/nakkas"><strong>Glama</strong></a> and <a href="https://lobehub.com/mcp/arikusi-nakkas"><strong>LobeHub</strong></a>.
+</p>
+
+<p align="center">
+  <a href="https://lobehub.com/mcp/arikusi-nakkas"><img src="https://lobehub.com/badge/mcp/arikusi-nakkas" alt="LobeHub" /></a>
+</p>
+
+<p align="center">
+  <a href="https://glama.ai/mcp/servers/arikusi/nakkas">
+    <img width="380" height="200" src="https://glama.ai/mcp/servers/arikusi/nakkas/badge" alt="Glama Badge" />
+  </a>
 </p>
 
 > *nakkaş* means painter/artist in Turkish (old).

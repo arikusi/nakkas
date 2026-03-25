@@ -7,5 +7,6 @@ coverage/
 .DS_Store
 claude_desktop_config.json
 .claude/
+.mcpregistry_*
 tahir/
 CLAUDE.md
