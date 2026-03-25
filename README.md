@@ -11,6 +11,12 @@
   <a href="https://www.npmjs.com/package/nakkas"><img src="https://img.shields.io/npm/v/nakkas" alt="npm version" /></a>
   <a href="https://github.com/arikusi/nakkas/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/nakkas" alt="license" /></a>
   <a href="https://www.npmjs.com/package/nakkas"><img src="https://img.shields.io/npm/dm/nakkas" alt="downloads" /></a>
+  <a href="https://glama.ai/mcp/servers/arikusi/nakkas"><img src="https://glama.ai/mcp/servers/arikusi/nakkas/badges/score.svg" alt="Glama" /></a>
+  <a href="https://github.com/arikusi/arikusi-marketplace"><img src="https://img.shields.io/badge/marketplace-arikusi-orange.svg" alt="Marketplace" /></a>
+</p>
+
+<p align="center">
+  Listed on <a href="https://glama.ai/mcp/servers/arikusi/nakkas"><strong>Glama</strong></a> and <a href="https://github.com/arikusi/arikusi-marketplace">arikusi-marketplace</a>.
 </p>
 
 > *nakkaş* means painter/artist in Turkish (old).

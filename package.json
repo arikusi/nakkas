@@ -1,6 +1,7 @@
 {
   "name": "nakkas",
-  "version": "0.1.3",
+  "version": "0.1.4",
+  "mcpName": "io.github.arikusi/nakkas",
   "description": "MCP server that turns AI into an SVG artist. One rendering engine, AI decides everything.",
   "type": "module",
   "main": "./dist/index.js",
@@ -10,7 +11,8 @@
   "files": [
     "dist",
     "llms.txt",
-    "llms-full.txt"
+    "llms-full.txt",
+    "server.json"
   ],
   "scripts": {
     "build": "tsc && chmod 755 dist/index.js",
