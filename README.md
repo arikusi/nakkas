@@ -15,10 +15,11 @@
 </p>
 
 <p align="center">
-  Listed on <a href="https://glama.ai/mcp/servers/arikusi/nakkas"><strong>Glama</strong></a> and <a href="https://lobehub.com/mcp/arikusi-nakkas"><strong>LobeHub</strong></a>.
+  Officially listed on the <a href="https://registry.modelcontextprotocol.io/?q=io.github.arikusi/nakkas"><strong>MCP Registry</strong></a>, <a href="https://glama.ai/mcp/servers/arikusi/nakkas"><strong>Glama</strong></a>, <a href="https://lobehub.com/mcp/arikusi-nakkas"><strong>LobeHub</strong></a>, and <a href="https://www.pulsemcp.com/servers/arikusi-nakkas"><strong>PulseMCP</strong></a>.
 </p>
 
 <p align="center">
+  <a href="https://registry.modelcontextprotocol.io/?q=io.github.arikusi/nakkas"><img src="https://img.shields.io/badge/Official_MCP_Registry-active-brightgreen" alt="Official MCP Registry" /></a>
   <a href="https://lobehub.com/mcp/arikusi-nakkas"><img src="https://lobehub.com/badge/mcp/arikusi-nakkas" alt="LobeHub" /></a>
 </p>
 
