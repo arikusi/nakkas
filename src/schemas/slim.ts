@@ -27,7 +27,7 @@ export const SVGConfigSlimSchema = z.object({
     patterns: z.array(z.any()).optional(),
   }).optional(),
 
-  elements: z.array(z.any()).min(1),
+  elements: z.array(z.any()),
 
   animations: z.array(z.object({
     name: z.string(),
@@ -35,7 +35,7 @@ export const SVGConfigSlimSchema = z.object({
     keyframes: z.array(z.object({
       offset: z.union([z.number(), z.string()]),
       properties: z.record(z.string(), z.string()),
-    })).min(2),
+    })),
     timingFunction: z.string().optional(),
     iterationCount: z.union([z.number(), z.string()]).optional(),
     direction: z.string().optional(),

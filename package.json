@@ -1,6 +1,6 @@
 {
   "name": "nakkas",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "mcpName": "io.github.arikusi/nakkas",
   "description": "MCP server that turns AI into an SVG artist. One rendering engine, AI decides everything.",
   "type": "module",

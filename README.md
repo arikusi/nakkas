@@ -21,6 +21,7 @@
 <p align="center">
   <a href="https://registry.modelcontextprotocol.io/?q=io.github.arikusi/nakkas"><img src="https://img.shields.io/badge/Official_MCP_Registry-active-brightgreen" alt="Official MCP Registry" /></a>
   <a href="https://lobehub.com/mcp/arikusi-nakkas"><img src="https://lobehub.com/badge/mcp/arikusi-nakkas" alt="LobeHub" /></a>
+  <a href="https://deepwiki.com/arikusi/nakkas"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" /></a>
 </p>
 
 <p align="center">
@@ -284,13 +285,48 @@ Custom font families are also accepted. They work when the font is available in 
 | Design tool export | ✅ | ✅ | ✅ | — |
 | Static file viewer | ✅ | ✅ | depends | depends |
 
+## Troubleshooting
+
+### "MCP error -32602: Input validation error"
+
+This means the MCP SDK rejected the input before it reached the handler. It usually happens on the first attempt and works on retry. The most common triggers:
+
+* **Gradient type typo.** Use `"linearGradient"` or `"radialGradient"`, not `"linear"` or `"radial"`. This is the single most frequent mistake.
+* **Keyframe offset as string.** Write `0` or `100` (numbers) or `"from"` / `"to"`. Writing `"0%"` or `"100%"` will fail.
+* **Named colors.** Only hex values work: `"#ff0000"`, not `"red"`. No `rgb()` either.
+* **Missing `type` on elements.** Every element object needs a `type` field.
+
+If you're building an MCP client integration and seeing this consistently, the issue is likely in how your client serializes arguments. See [anthropics/claude-code#29104](https://github.com/anthropics/claude-code/issues/29104) for context on known serialization quirks.
+
+### Preview shows a blank or unexpected image
+
+The preview tool renders a static snapshot at t=0. Animations are not captured. What you see is the SVG's initial state before any CSS or SMIL animation starts.
+
+If the image is completely blank:
+
+* Check that your elements have `fill` or `stroke` set. A shape without fill on a transparent canvas is invisible.
+* Check coordinates. An element at `x: 2000` on an `800px` wide canvas is simply off-screen.
+* If using `filter: "url(#myFilter)"`, make sure `myFilter` is actually defined in `defs.filters`.
+
+### Animations not working on GitHub
+
+GitHub READMEs render SVG through `<img>` tags, which strips JavaScript but keeps CSS and SMIL. If your animation works locally but not on GitHub:
+
+* Avoid `<script>` or event handlers (`onclick`, `onmouseover`). These are removed.
+* External fonts won't load. Stick to system fonts: `Arial`, `Courier New`, `Georgia`, `monospace`, `sans-serif`.
+* CSS `@import` for fonts is blocked. If you need a specific font, use inline `<text>` with a system fallback.
+
+### Large SVG output
+
+If `render_svg` returns a warning about file size (over 50kb), the parametric curves or pattern groups are probably generating too many elements. Reduce `steps` on parametric curves or `count` on pattern groups. A grid-group with `cols: 50, rows: 50` produces 2500 elements, which adds up fast.
+
 ## Tech Stack
 
-- TypeScript + Node.js 18+
-- `@modelcontextprotocol/sdk` (MCP server)
-- `zod` (schema validation and AI type guidance)
-- No external SVG libraries, pure XML construction
-- Vitest (280 tests)
+* TypeScript + Node.js 18+
+* `@modelcontextprotocol/sdk` (MCP server)
+* `zod` (schema validation and AI type guidance)
+* No external SVG libraries, pure XML construction
+* Vitest (280 tests)
 
 ## License
 
