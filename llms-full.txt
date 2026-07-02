@@ -6,9 +6,9 @@ MCP server that turns AI into an SVG artist. Two tools, one schema, infinite SVG
 
 Nakkas exposes three MCP tools:
 
-- **`render_svg`** takes a JSON configuration object (SVGConfig) and returns a complete SVG XML string plus design analysis notes. The AI constructs the config from natural language. No hardcoded designs. No templates. The AI is the creative director.
-- **`preview`** takes rendered content, renders it to a transparent PNG image (base64), and returns it so the AI can visually inspect and iterate.
-- **`save`** takes rendered content and saves it to disk. Supports text (SVG) and raster (PNG) formats. Auto-increments filename to prevent overwriting.
+* **`render_svg`** takes a JSON configuration object (SVGConfig) and returns a complete SVG XML string plus design analysis notes. The AI constructs the config from natural language. No hardcoded designs. No templates. The AI is the creative director.
+* **`preview`** takes rendered content, renders it to a transparent PNG image (base64), and returns it so the AI can visually inspect and iterate.
+* **`save`** takes rendered content and saves it to disk. Supports text (SVG) and raster (PNG) formats. Auto-increments filename to prevent overwriting.
 
 **Use cases**: GitHub profile READMEs, web page graphics, UI components, data visualizations, animated badges, terminal-style logos, icons, illustrations, presentation slides, design exports.
 
@@ -42,9 +42,9 @@ Claude Code CLI: `claude mcp add nakkas npx nakkas@latest`
 **Output**: `{ type: "image", data: "<base64>", mimeType: "image/png" }`, a transparent PNG
 
 **Notes**:
-- Background is transparent by default (no background color in output PNG)
-- CSS animations and SMIL are rendered as a static t=0 snapshot (motion not captured in PNG)
-- Use in a render → preview → revise loop for AI-driven iterative design
+* Background is transparent by default (no background color in output PNG)
+* CSS animations and SMIL are rendered as a static t=0 snapshot (motion not captured in PNG)
+* Use in a render → preview → revise loop for AI-driven iterative design
 
 **Typical workflow**:
 ```
@@ -62,9 +62,9 @@ Claude Code CLI: `claude mcp add nakkas npx nakkas@latest`
 **Output**: The actual saved file path
 
 Saves rendered content to disk. The format parameter controls how content is written:
-- `auto` (default): infers from file extension. `.svg` saves as text, `.png` renders to raster image.
-- `svg`: saves content as UTF-8 text file
-- `png`: renders SVG content to a PNG image using resvg, then saves the binary
+* `auto` (default): infers from file extension. `.svg` saves as text, `.png` renders to raster image.
+* `svg`: saves content as UTF-8 text file
+* `png`: renders SVG content to a PNG image using resvg, then saves the binary
 
 If the file already exists, a numeric counter is appended: `design.svg` becomes `design-1.svg`, then `design-2.svg`. The actual saved path is always returned.
 
@@ -79,12 +79,12 @@ If the file already exists, a numeric counter is appended: `design.svg` becomes 
 
 After rendering, `render_svg` automatically analyzes the config and may return design notes alongside the SVG string. These notes flag common issues:
 
-- Too many concurrent animations (more than 4)
-- Scale transforms applied to group containers (inconsistent browser behavior)
-- Missing transformBox on elements with scale or rotate animations
-- Large SVG output size (over 50kb)
-- High element count (over 200 expanded elements)
-- Heavily shared cssClass values (limits per-element timing control)
+* Too many concurrent animations (more than 4)
+* Scale transforms applied to group containers (inconsistent browser behavior)
+* Missing transformBox on elements with scale or rotate animations
+* Large SVG output size (over 50kb)
+* High element count (over 200 expanded elements)
+* Heavily shared cssClass values (limits per-element timing control)
 
 These notes appear in the response as a second text content block labeled "Design notes". Read and address them during iteration.
 
@@ -126,10 +126,10 @@ defs?: {
 ### Elements (required, min 1)
 
 Array of renderable elements in draw order (first = bottom, last = top):
-- Shape types: `rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `image`
-- Text types: `text`, `textPath`
-- Container types: `group`, `use`
-- Pattern types: `radial-group`, `arc-group`, `grid-group`, `scatter-group`, `path-group`, `parametric`
+* Shape types: `rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `image`
+* Text types: `text`, `textPath`
+* Container types: `group`, `use`
+* Pattern types: `radial-group`, `arc-group`, `grid-group`, `scatter-group`, `path-group`, `parametric`
 
 ### Animations (optional)
 
@@ -216,7 +216,7 @@ All shapes share these presentation attributes:
   type: "text",
   content: string | (string | Tspan)[],
   x?: number, y?: number,
-  fontFamily?: string,     // "Arial" | "monospace" | any CSS font-family
+  fontFamily?: string,     // prefer generics: "monospace" | "sans-serif" | "serif", or "Georgia, serif" with fallback
   fontSize?: number,
   fontWeight?: "normal" | "bold" | number,
   fontStyle?: "normal" | "italic" | "oblique",
@@ -346,16 +346,16 @@ Note: groups cannot be nested. Use multiple top-level groups with coordinated tr
 ```
 
 **Preset details:**
-- `glow`: Soft halo. `stdDeviation` 2–30, `color` for colored glow
-- `neon`: Intense bright glow. `stdDeviation` 5–20, `color` for colored neon
-- `blur`: Simple Gaussian blur. `stdDeviation` 3–20
-- `drop-shadow`: Shadow offset. `offsetX/Y` 4–15, `stdDeviation` 2–8, `color`
-- `glitch`: Turbulence displacement. `stdDeviation` controls distortion scale. Animated by default.
-- `grayscale`: `value` 0–1 (1 = full grayscale)
-- `sepia`: Full sepia matrix, no params needed
-- `invert`: Inverts all colors
-- `saturate`: `value` 0 = gray, 1 = normal, 2+ = oversaturated
-- `hue-rotate`: `value` = degrees (0–360)
+* `glow`: Soft halo. `stdDeviation` 2–30, `color` for colored glow
+* `neon`: Intense bright glow. `stdDeviation` 5–20, `color` for colored neon
+* `blur`: Simple Gaussian blur. `stdDeviation` 3–20
+* `drop-shadow`: Shadow offset. `offsetX/Y` 4–15, `stdDeviation` 2–8, `color`
+* `glitch`: Turbulence displacement. `stdDeviation` controls distortion scale. Animated by default.
+* `grayscale`: `value` 0–1 (1 = full grayscale)
+* `sepia`: Full sepia matrix, no params needed
+* `invert`: Inverts all colors
+* `saturate`: `value` 0 = gray, 1 = normal, 2+ = oversaturated
+* `hue-rotate`: `value` = degrees (0–360)
 
 ### Raw Filter Primitives
 
@@ -498,13 +498,21 @@ Defined inline on elements via `smilAnimations: []`. Three types:
 **Custom fonts**: work when loaded in the rendering environment (via CSS `@font-face` on the host page).
 **data:image/ URIs**: fully supported for embedded raster images.
 
+## Fonts and Preview Fidelity
+
+Prefer CSS generic families (sans-serif, serif, monospace) or a named font with a generic fallback ("Georgia, serif"). In preview and PNG save, generic families are resolved through the operating system font mapping (fontconfig on Linux), so the rasterized preview matches what a browser on that machine shows. Named fonts like Arial do not exist on most Linux systems.
+
+## Validation Errors
+
+When a config fails validation, the error names the exact failing field (for example elements.1.content: Required) and appends a field reference for the failing element type. Field names that differ from raw SVG: text elements put their string in "content" (textPath uses "text" plus "pathId"), groups use "children", pattern groups take a single "child".
+
 ## Tech Stack
 
-- TypeScript + Node.js 18+
-- @modelcontextprotocol/sdk
-- zod (schema validation + type generation)
-- Pure XML string construction.no SVG library dependencies
-- Vitest test suite (280 tests)
+* TypeScript + Node.js 18+
+* @modelcontextprotocol/sdk
+* zod (schema validation + type generation)
+* Pure XML string construction.no SVG library dependencies
+* Vitest test suite (296 tests)
 
 ## Pattern Elements
 
@@ -741,12 +749,12 @@ Define a repeating tile pattern in defs.patterns and use it as a fill on any ele
 Reference with `fill: "url(#polkaDots)"` on any shape or text element. The tile repeats to fill the entire bounding area.
 
 Pattern properties:
-- `id` (required): unique identifier
-- `width`, `height` (required): tile dimensions in SVG units
-- `x`, `y` (optional): tile offset, default 0
-- `patternUnits` (optional): 'userSpaceOnUse' (default) or 'objectBoundingBox'
-- `patternTransform` (optional): transform string such as 'rotate(45)' for diagonal patterns
-- `children` (required): shapes and text that make up one tile
+* `id` (required): unique identifier
+* `width`, `height` (required): tile dimensions in SVG units
+* `x`, `y` (optional): tile offset, default 0
+* `patternUnits` (optional): 'userSpaceOnUse' (default) or 'objectBoundingBox'
+* `patternTransform` (optional): transform string such as 'rotate(45)' for diagonal patterns
+* `children` (required): shapes and text that make up one tile
 
 ## Examples
 
@@ -793,7 +801,7 @@ Pattern properties:
     "textAnchor": "middle",
     "fill": "#ff00aa",
     "fontSize": 48,
-    "fontFamily": "Arial",
+    "fontFamily": "Arial, sans-serif",
     "fontWeight": "bold",
     "filter": "url(#neon)"
   }]

@@ -30,30 +30,33 @@
   </a>
 </p>
 
+Nakkas is an MCP (Model Context Protocol) server that lets AI assistants like Claude create animated SVG graphics from a declarative JSON config: logos, icons, loading spinners, GitHub README banners, badges, and generative art. It renders CSS @keyframes and SMIL animations with no JavaScript, so the output works inside GitHub READMEs and anywhere an `<img>` tag renders SVG. A built-in preview tool rasterizes the SVG to PNG so the AI can see its own work and iterate until the design is right.
+
 > *nakkaş* means painter/artist in Turkish (old).
 
 ```
 "make a neon terminal logo with animated binary digits"
   → AI constructs JSON config
   → nakkas renders to animated SVG
+  → AI previews the PNG, critiques, revises
   → clean animated SVG output
 ```
 
 ## Why
 
-- **One tool, infinite designs.** `render_svg` takes a JSON config. AI fills in everything.
-- **AI-native schema.** Every field has `.describe()` annotations so the model knows what to do.
-- **Pure declarative SVG.** CSS @keyframes + SMIL animations, no JavaScript.
-- **Zero external deps.** No cloud API, no API keys. Runs locally.
+* **One tool, infinite designs.** `render_svg` takes a JSON config. AI fills in everything.
+* **The AI sees its own work.** `preview` rasterizes to PNG so the model can critique and revise instead of designing blind.
+* **Pure declarative SVG.** CSS @keyframes + SMIL animations, no JavaScript. Survives GitHub's camo proxy.
+* **Zero external deps.** No cloud API, no API keys. Runs locally.
 
 ## Install
 
 ### Claude Desktop
 
 Add to your config file:
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Linux: `~/.config/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+* macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+* Linux: `~/.config/Claude/claude_desktop_config.json`
+* Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -182,6 +185,8 @@ After rendering, the response may include design warnings about common issues su
 | `path-group` | `waypoints`, `count`, `child` | Distribute N copies evenly along a polyline |
 | `parametric` | `fn` | Mathematical curve: `rose`, `heart`, `star`, `lissajous`, `spiral`, `superformula`, `epitrochoid`, `hypotrochoid`, `wave` |
 
+Two field names differ from raw SVG on purpose: the string of a `text` element goes in `content` (on `textPath` it is `text`), and validation errors will point you to the exact field if you mix them up. Pattern groups rotate each copy to face outward by default; set `rotateChildren: false` when the child is text or any shape that should stay upright.
+
 ### All Visual Elements (Shared Fields)
 
 ```typescript
@@ -271,9 +276,9 @@ Three SMIL types, defined inline on each element via `smilAnimations: []`:
 
 ### Fonts
 
-System fonts work everywhere without any loading: `Arial`, `Helvetica`, `Courier New`, `Georgia`, `Verdana`, `monospace`, `sans-serif`, `serif`.
+Prefer the CSS generic families: `sans-serif`, `serif`, `monospace`. They resolve to a real font on every platform, both in browsers and in nakkas previews. Named fonts like `Arial` or `Helvetica` only exist on some systems (not on most Linux machines), so a design that depends on them will render differently elsewhere. The safe pattern is a named font with a generic fallback: `"Georgia, serif"`.
 
-Custom font families are also accepted. They work when the font is available in the rendering environment (web page with loaded fonts, design tool, etc.).
+In `preview` and PNG `save`, generic families are resolved through the operating system's own font mapping (fontconfig on Linux), so what the AI sees matches what a browser on that machine would show. Custom font families are accepted and work when the font is available in the rendering environment.
 
 ### Use Cases & Compatibility
 
@@ -296,6 +301,8 @@ This means the MCP SDK rejected the input before it reached the handler. It usua
 * **Named colors.** Only hex values work: `"#ff0000"`, not `"red"`. No `rgb()` either.
 * **Missing `type` on elements.** Every element object needs a `type` field.
 
+Validation errors that reach the handler name the exact failing field (for example `elements.1.content: Required`) and append a field reference for the failing element type, so a retry usually succeeds on the first correction.
+
 If you're building an MCP client integration and seeing this consistently, the issue is likely in how your client serializes arguments. See [anthropics/claude-code#29104](https://github.com/anthropics/claude-code/issues/29104) for context on known serialization quirks.
 
 ### Preview shows a blank or unexpected image
@@ -313,7 +320,7 @@ If the image is completely blank:
 GitHub READMEs render SVG through `<img>` tags, which strips JavaScript but keeps CSS and SMIL. If your animation works locally but not on GitHub:
 
 * Avoid `<script>` or event handlers (`onclick`, `onmouseover`). These are removed.
-* External fonts won't load. Stick to system fonts: `Arial`, `Courier New`, `Georgia`, `monospace`, `sans-serif`.
+* External fonts won't load. Stick to generic families (`monospace`, `sans-serif`, `serif`) or named fonts with a generic fallback.
 * CSS `@import` for fonts is blocked. If you need a specific font, use inline `<text>` with a system fallback.
 
 ### Large SVG output
@@ -326,7 +333,7 @@ If `render_svg` returns a warning about file size (over 50kb), the parametric cu
 * `@modelcontextprotocol/sdk` (MCP server)
 * `zod` (schema validation and AI type guidance)
 * No external SVG libraries, pure XML construction
-* Vitest (280 tests)
+* Vitest (296 tests)
 
 ## License
 
