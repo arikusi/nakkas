@@ -11,7 +11,8 @@
  * - HTML support: scaffolded but not yet implemented (requires playwright)
  */
 
-import { Resvg } from "@resvg/resvg-js";
+import { execFileSync } from "node:child_process";
+import { Resvg, type ResvgRenderOptions } from "@resvg/resvg-js";
 
 // ---------------------------------------------------------------------------
 // Format detection
@@ -31,10 +32,87 @@ export function autoDetectFormat(content: string): PreviewFormat {
 // Renderers
 // ---------------------------------------------------------------------------
 
+/**
+ * Map CSS generic font families to fonts that actually exist per platform.
+ * Without this, resvg substitutes an arbitrary system font for "monospace",
+ * "sans-serif", etc., and the preview no longer matches what the SVG declares.
+ */
+function fcMatch(generic: string): string | undefined {
+  try {
+    const family = execFileSync("fc-match", ["-f", "%{family[0]}", generic], {
+      encoding: "utf8",
+      timeout: 2000,
+    }).trim();
+    return family || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+let cachedFontOptions: NonNullable<ResvgRenderOptions["font"]> | undefined;
+
+export function buildFontOptions(): NonNullable<ResvgRenderOptions["font"]> {
+  if (cachedFontOptions) return cachedFontOptions;
+
+  let fonts: { serif: string; sans: string; mono: string };
+  if (process.platform === "darwin") {
+    fonts = { serif: "Times New Roman", sans: "Helvetica", mono: "Menlo" };
+  } else if (process.platform === "win32") {
+    fonts = { serif: "Times New Roman", sans: "Arial", mono: "Consolas" };
+  } else {
+    // Linux font sets vary wildly; ask fontconfig how the system itself
+    // resolves each generic family instead of hardcoding one distro's fonts.
+    fonts = {
+      serif: fcMatch("serif") ?? "DejaVu Serif",
+      sans: fcMatch("sans-serif") ?? "DejaVu Sans",
+      mono: fcMatch("monospace") ?? "DejaVu Sans Mono",
+    };
+  }
+
+  cachedFontOptions = {
+    loadSystemFonts: true,
+    defaultFontFamily: fonts.sans,
+    serifFamily: fonts.serif,
+    sansSerifFamily: fonts.sans,
+    monospaceFamily: fonts.mono,
+  };
+  return cachedFontOptions;
+}
+
+/**
+ * Replace CSS generic font families with concrete font names before handing
+ * the SVG to resvg. resvg-js 2.x ignores its own serifFamily/monospaceFamily
+ * options, so "monospace" and friends silently fall back to the default font
+ * and the preview stops matching what the SVG declares. Only touches
+ * font-family attributes and CSS declarations, never text content.
+ */
+export function resolveGenericFamilies(svg: string, fonts = buildFontOptions()): string {
+  const map: Record<string, string> = {
+    "sans-serif": fonts.sansSerifFamily ?? "sans-serif",
+    serif: fonts.serifFamily ?? "serif",
+    monospace: fonts.monospaceFamily ?? "monospace",
+    cursive: fonts.sansSerifFamily ?? "cursive",
+    fantasy: fonts.sansSerifFamily ?? "fantasy",
+  };
+  const generic = /\b(sans-serif|monospace|serif|cursive|fantasy)\b/gi;
+  const substitute = (value: string) => value.replace(generic, (k) => map[k.toLowerCase()] ?? k);
+
+  return svg
+    .replace(
+      /(font-family\s*=\s*)(["'])(.*?)\2/gi,
+      (_m, prefix: string, quote: string, value: string) => `${prefix}${quote}${substitute(value)}${quote}`
+    )
+    .replace(
+      /(font-family\s*:\s*)([^;}"'<]+)/gi,
+      (_m, prefix: string, value: string) => `${prefix}${substitute(value)}`
+    );
+}
+
 /** Render an SVG string to a transparent PNG buffer. */
 export function svgToPng(svgString: string, width?: number): Buffer {
-  const opts = width ? { fitTo: { mode: "width" as const, value: width } } : {};
-  const resvg = new Resvg(svgString, opts);
+  const opts: ResvgRenderOptions = { font: buildFontOptions() };
+  if (width) opts.fitTo = { mode: "width", value: width };
+  const resvg = new Resvg(resolveGenericFamilies(svgString), opts);
   const pngData = resvg.render();
   return Buffer.from(pngData.asPng());
 }

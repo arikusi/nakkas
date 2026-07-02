@@ -14,10 +14,11 @@
 import { createRequire } from "node:module";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import { SVGConfigSchema, type AnyElement } from "./schemas/config.js";
 import { SVGConfigSlimSchema } from "./schemas/slim.js";
 import { renderSVG } from "./renderer/svg-renderer.js";
+import { explainConfigError } from "./validation.js";
 import { renderPreview } from "./preview.js";
 import { analyzeConfig } from "./analysis.js";
 import { saveContent } from "./save.js";
@@ -28,13 +29,6 @@ const { version: VERSION } = _require("../package.json") as { version: string };
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/** Format Zod validation errors into a concise, human-readable string. */
-function formatZodError(err: ZodError): string {
-  return err.errors
-    .map((e) => `  • ${e.path.length ? e.path.join(".") : "(root)"}: ${e.message}`)
-    .join("\n");
-}
 
 /** Count all elements recursively (including pattern expansions). */
 function countElements(elements: AnyElement[]): number {
@@ -87,6 +81,12 @@ server.registerTool(
 - Colors: hex only (#rrggbb or #rrggbbaa). No rgb(), no named colors.
 - Every element needs "type" field. circle needs r, rect needs width+height, path needs d.
 
+**Field names that differ from raw SVG:**
+- text: string goes in "content" (not "text"): {"type":"text","x":100,"y":50,"content":"Hello","fontSize":24,"textAnchor":"middle"}
+- textPath: {"type":"textPath","pathId":"idFromDefsPaths","text":"..."} — here the field IS "text".
+- group: {"type":"group","children":[...]} — children are shapes/text/use only, no nested groups.
+- Pattern groups take ONE "child" element drawn at local origin (child uses cx=0/cy=0); set rotateChildren:false to keep text upright.
+
 **Output:** Pure SVG XML. No JavaScript. CSS @keyframes + SMIL only.`.trim(),
     inputSchema: SVGConfigSlimSchema,
   },
@@ -96,7 +96,7 @@ server.registerTool(
       // Validate with full schema for type safety and detailed errors
       const parseResult = SVGConfigSchema.safeParse(rawConfig);
       if (!parseResult.success) {
-        const formatted = formatZodError(parseResult.error);
+        const formatted = explainConfigError(rawConfig, parseResult.error);
         console.error(`[nakkas] render_svg VALIDATION ERROR\n${formatted}`);
         return {
           content: [

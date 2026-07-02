@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+* Fixed background rect ignoring the viewBox origin: with a centered viewBox like `-100 -100 200 200` the background covered only one quadrant. It now anchors to the viewBox rect.
+* Fixed generic font families (`monospace`, `sans-serif`, `serif`) rendering with an arbitrary substitute font in preview and PNG save. Generic keywords are now resolved to real fonts before rasterization, using fontconfig's own mapping on Linux and platform defaults on macOS and Windows.
+* Validation errors now name the actual failing field. `elements.1: Invalid input` became `elements.1.content: Required`, with a field cheat sheet for the failing element type appended to the error.
+* Added a field reference section to the `render_svg` tool description covering the names that differ from raw SVG: text uses `content`, textPath uses `pathId` plus `text`, groups use `children`, pattern groups take a single `child`.
+* Docker image now installs fontconfig and DejaVu fonts; text previously rasterized as blank glyphs in the container.
+
 ## 0.1.5
 
 * Relaxed slim schema: removed `.min()` constraints from `elements` and `keyframes` in the MCP-facing schema. Validation still happens in the handler with clear error messages instead of cryptic `-32602` errors. Closes #2.

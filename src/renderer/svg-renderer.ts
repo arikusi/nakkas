@@ -180,6 +180,15 @@ function renderBackground(config: SVGConfig): string {
   // Transparent is the SVG default; no background rect needed
   if (bg === "transparent") return comment("transparent background");
 
+  // width/height="100%" resolve against the viewport, but x/y default to
+  // user-space 0. With a viewBox like "-100 -100 200 200" that covers only
+  // one quadrant, so anchor the rect to the viewBox rect instead.
+  const vb = config.canvas.viewBox?.trim().split(/[\s,]+/).map(Number);
+  if (vb && vb.length === 4 && vb.every((n) => Number.isFinite(n))) {
+    const [minX, minY, width, height] = vb;
+    return tag("rect", attrs({ x: minX, y: minY, width, height, fill: bg }));
+  }
+
   return tag("rect", attrs({ width: "100%", height: "100%", fill: bg }));
 }
 

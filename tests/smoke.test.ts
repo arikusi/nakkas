@@ -150,6 +150,28 @@ describe("renderSVG — canvas background", () => {
     expect(svg).toContain('width="100%"');
   });
 
+  it("anchors background rect to viewBox origin when viewBox is offset", () => {
+    const svg = renderSVG(
+      c({
+        canvas: { width: 200, height: 200, viewBox: "-100 -100 200 200", background: "#222222" },
+        elements: [{ type: "circle", cx: 0, cy: 0, r: 40 }],
+      })
+    );
+    expect(svg).toContain('<rect x="-100" y="-100" width="200" height="200" fill="#222222"/>');
+    expect(svg).not.toContain('width="100%"');
+  });
+
+  it("covers full canvas with 100% rect when no viewBox is set", () => {
+    const svg = renderSVG(
+      c({
+        canvas: { width: 400, height: 200, background: "#333333" },
+        elements: [{ type: "rect", width: 10, height: 10 }],
+      })
+    );
+    expect(svg).toContain('width="100%"');
+    expect(svg).toContain('height="100%"');
+  });
+
   it("renders comment for transparent background", () => {
     const svg = renderSVG(
       c({

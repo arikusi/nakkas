@@ -125,3 +125,73 @@ describe("renderPreview", () => {
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// Font handling
+// ---------------------------------------------------------------------------
+
+import { buildFontOptions } from "../src/preview.js";
+
+describe("buildFontOptions", () => {
+  it("maps all generic families and a default", () => {
+    const font = buildFontOptions();
+    expect(font.loadSystemFonts).toBe(true);
+    expect(font.defaultFontFamily).toBeTruthy();
+    expect(font.serifFamily).toBeTruthy();
+    expect(font.sansSerifFamily).toBeTruthy();
+    expect(font.monospaceFamily).toBeTruthy();
+  });
+});
+
+describe("svgToPng — text rendering", () => {
+  const textSvg = (family: string) =>
+    `<svg width="200" height="60" xmlns="http://www.w3.org/2000/svg">` +
+    `<text x="10" y="40" font-family="${family}" font-size="32" fill="#000000">Milli</text></svg>`;
+
+  it("renders text with visible (non-transparent) pixels", () => {
+    const png = svgToPng(textSvg("monospace"));
+    expect(hasPNGMagicBytes(png)).toBe(true);
+    // A tofu-free render of black text produces a PNG well above the size of
+    // a fully transparent 200x60 canvas.
+    const empty = svgToPng(
+      `<svg width="200" height="60" xmlns="http://www.w3.org/2000/svg"></svg>`
+    );
+    expect(png.length).toBeGreaterThan(empty.length);
+  });
+
+  it("renders monospace and sans-serif with different glyphs", () => {
+    const mono = svgToPng(textSvg("monospace"));
+    const sans = svgToPng(textSvg("sans-serif"));
+    expect(mono.equals(sans)).toBe(false);
+  });
+});
+
+import { resolveGenericFamilies } from "../src/preview.js";
+
+describe("resolveGenericFamilies", () => {
+  const fonts = {
+    serifFamily: "TestSerif",
+    sansSerifFamily: "TestSans",
+    monospaceFamily: "TestMono",
+  };
+
+  it("substitutes generic keywords in font-family attributes", () => {
+    const out = resolveGenericFamilies('<text font-family="monospace">x</text>', fonts);
+    expect(out).toContain('font-family="TestMono"');
+  });
+
+  it("substitutes inside CSS declarations", () => {
+    const out = resolveGenericFamilies("<style>.t{font-family:sans-serif;fill:#000}</style>", fonts);
+    expect(out).toContain("font-family:TestSans");
+  });
+
+  it("keeps explicit families in fallback lists, replaces only generics", () => {
+    const out = resolveGenericFamilies('<text font-family="Inter, sans-serif">x</text>', fonts);
+    expect(out).toContain('font-family="Inter, TestSans"');
+  });
+
+  it("never touches text content", () => {
+    const out = resolveGenericFamilies("<text>a serif and monospace tale</text>", fonts);
+    expect(out).toContain("a serif and monospace tale");
+  });
+});
