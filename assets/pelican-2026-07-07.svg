@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8ed4f0"/>
+      <stop offset="100%" stop-color="#eaf8fd"/>
+    </linearGradient>
+    <filter id="sunGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feFlood flood-color="#ffd66b" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="coloredGlow"/>
+      <feComponentTransfer in="coloredGlow" result="boosted">
+        <feFuncA type="linear" slope="2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+  @keyframes spin{0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)}}
+  .spin{animation-name:spin;animation-duration:2.5s;animation-timing-function:linear;animation-iteration-count:infinite}
+  @keyframes drift{0%{transform:translateX(0px)} 50%{transform:translateX(26px)} 100%{transform:translateX(0px)}}
+  .drift{animation-name:drift;animation-duration:9s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+  @keyframes drift2{0%{transform:translateX(0px)} 50%{transform:translateX(-20px)} 100%{transform:translateX(0px)}}
+  .drift2{animation-name:drift2;animation-duration:13s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+  </style>
+  <rect x="0" y="0" width="800" height="500" fill="#aee3f5"/>
+  <rect x="0" y="0" width="800" height="500" fill="url(#sky)"/>
+  <circle cx="700" cy="78" r="36" fill="#ffd66b" filter="url(#sunGlow)"/>
+  <g class="drift" style="transform-box:fill-box;transform-origin:center">
+    <ellipse cx="150" cy="95" rx="42" ry="18" fill="#ffffff" opacity="0.92"/>
+    <ellipse cx="190" cy="85" rx="34" ry="15" fill="#ffffff" opacity="0.92"/>
+    <ellipse cx="122" cy="88" rx="26" ry="12" fill="#ffffff" opacity="0.92"/>
+  </g>
+  <g class="drift2" style="transform-box:fill-box;transform-origin:center">
+    <ellipse cx="560" cy="62" rx="30" ry="12" fill="#ffffff" opacity="0.85"/>
+    <ellipse cx="590" cy="55" rx="22" ry="10" fill="#ffffff" opacity="0.85"/>
+  </g>
+  <rect x="0" y="430" width="800" height="70" fill="#a8c97f"/>
+  <rect x="0" y="445" width="800" height="28" fill="#cbb27f"/>
+  <ellipse cx="380" cy="448" rx="215" ry="9" fill="#00000022"/>
+  <circle cx="250" cy="380" r="65" fill="none" stroke="#333333" stroke-width="7"/>
+  <circle cx="510" cy="380" r="65" fill="none" stroke="#333333" stroke-width="7"/>
+  <g class="spin" style="transform-box:fill-box;transform-origin:center">
+    <g transform="translate(250, 350) rotate(-90)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(271.213, 358.787) rotate(-45)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(280, 380) rotate(0)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(271.213, 401.213) rotate(45)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(250, 410) rotate(90)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(228.787, 401.213) rotate(135)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(220, 380) rotate(180)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(228.787, 358.787) rotate(225)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+  </g>
+  <g class="spin" style="transform-box:fill-box;transform-origin:center">
+    <g transform="translate(510, 350) rotate(-90)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(531.213, 358.787) rotate(-45)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(540, 380) rotate(0)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(531.213, 401.213) rotate(45)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(510, 410) rotate(90)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(488.787, 401.213) rotate(135)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(480, 380) rotate(180)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+    <g transform="translate(488.787, 358.787) rotate(225)">
+      <rect x="-30" y="-1.25" width="60" height="2.5" fill="#666666"/>
+    </g>
+  </g>
+  <circle cx="250" cy="380" r="7" fill="#333333"/>
+  <circle cx="510" cy="380" r="7" fill="#333333"/>
+  <g fill="none" stroke="#c0392b" stroke-width="6" stroke-linecap="round">
+    <line x1="250" y1="380" x2="360" y2="380"/>
+    <line x1="360" y1="380" x2="330" y2="280"/>
+    <line x1="250" y1="380" x2="330" y2="285"/>
+    <line x1="360" y1="380" x2="470" y2="285"/>
+    <line x1="332" y1="288" x2="470" y2="288"/>
+    <line x1="470" y1="285" x2="510" y2="380"/>
+    <line x1="470" y1="285" x2="462" y2="255"/>
+  </g>
+  <path d="M 462 255 Q 478 248 490 256" fill="none" stroke="#333333" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="360" cy="380" r="10" fill="#333333"/>
+  <line x1="360" y1="380" x2="340" y2="412" stroke="#333333" stroke-width="4"/>
+  <line x1="360" y1="380" x2="380" y2="348" stroke="#333333" stroke-width="4"/>
+  <rect x="328" y="409" width="20" height="6" rx="2" fill="#222222"/>
+  <rect x="370" y="344" width="20" height="6" rx="2" fill="#222222"/>
+  <rect x="310" y="268" width="42" height="10" rx="4" fill="#4a3728"/>
+  <path d="M 278 238 L 232 210 L 250 246 L 240 262 L 266 266 Z" fill="#efe8db" stroke="#d8cfc0" stroke-width="2"/>
+  <ellipse cx="320" cy="245" rx="54" ry="34" fill="#f7f3ea" stroke="#d8cfc0" stroke-width="2" transform="rotate(-8, 320, 245)"/>
+  <path d="M 322 274 C 328 330 334 375 340 408" fill="none" stroke="#e67e22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 336 272 C 352 305 368 328 379 345" fill="none" stroke="#e67e22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 340 410 L 352 414 L 338 418 Z" fill="#e67e22"/>
+  <path d="M 380 346 L 392 350 L 378 354 Z" fill="#e67e22"/>
+  <path d="M 336 232 Q 396 226 448 246 Q 468 252 466 258 Q 430 264 384 258 Q 350 252 334 246 Z" fill="#e8ddc8" stroke="#cbbfa6" stroke-width="2"/>
+  <path d="M 352 240 Q 402 238 444 252" fill="none" stroke="#cbbfa6" stroke-width="1.5"/>
+  <path d="M 362 232 C 400 224 414 204 418 180" fill="none" stroke="#f7f3ea" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="420" cy="172" r="15" fill="#f7f3ea" stroke="#d8cfc0" stroke-width="2"/>
+  <path d="M 428 166 L 508 190 L 430 181 Z" fill="#f39c12"/>
+  <path d="M 430 181 Q 462 214 506 191 L 508 190 L 430 181 Z" fill="#e67e22"/>
+  <circle cx="424" cy="167" r="2.6" fill="#222222"/>
+  <circle cx="423.2" cy="166.2" r="0.9" fill="#ffffff"/>
+  <text x="784" y="488" font-family="monospace" font-size="13" letter-spacing="1.5" text-anchor="end" fill="#5a6b5a">nakkas dogfood: pelican on a bicycle</text>
+</svg>

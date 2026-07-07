@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Dogfood: pelican test (2026-07-07) — PASS
+
+Every release round now closes with a pelican-on-a-bicycle dogfood run: the config is rendered through the real MCP stdio layer against the fresh build, previewed, critiqued and revised for at least three iterations, and the result lands in `assets/` with the date. This round took 4 iterations and verified the DX repairs live: `canvas.preserveAspectRatio` survived to the output (slim passthrough), `letterSpacing: "1.5"` as a string coerced cleanly, `url(#sky)`/`url(#sunGlow)` passed reference checks, and the animation classes landed on the radial-group wrappers. Result: `assets/pelican-2026-07-07.svg` (animated: spinning spokes, drifting clouds) and `assets/pelican-2026-07-07.png`.
+
+One usability finding came out of iteration 1: a radial-group child is rotated so its local +x axis points outward from the center, so a spoke drawn as a tall rect (long axis on y) renders as a chord ring instead of spokes. Worth documenting in the tool description.
+
 * Fixed the slim registration schema silently stripping valid fields before the handler ran. `canvas.preserveAspectRatio` and any other key the full schema accepts vanished without an error because the MCP SDK parses arguments through plain `z.object()`. Every object in the slim schema is now `.passthrough()`; the full schema in the handler is the single validation authority.
 * Fixed validation cheat sheets teaching wrong field names: the grid-group hint said `spacingX`/`spacingY` where the schema wants `colSpacing`/`rowSpacing`, and the parametric hint said `size` and `freqX`/`freqY` where the schema wants `scale` and `freqA`/`freqB`. Added hints for arc-group, scatter-group and path-group, plus a test that cross-checks every hint against the real schema shape.
 * Numeric strings now coerce on all number fields: `letterSpacing: "6"` or `strokeWidth: "2.5"` is converted instead of rejected, so CSS-style habits no longer cost a retry round-trip. Non-numeric strings still fail with the same field-level messages.
