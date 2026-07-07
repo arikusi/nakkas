@@ -18,7 +18,8 @@ import { z } from "zod";
 import { SVGConfigSchema, type AnyElement } from "./schemas/config.js";
 import { SVGConfigSlimSchema } from "./schemas/slim.js";
 import { renderSVG } from "./renderer/svg-renderer.js";
-import { drainRenderWarnings } from "./renderer/utils.js";
+import { drainRenderWarnings, minifySVG } from "./renderer/utils.js";
+import { storeArtifact, getArtifact, listArtifactIds } from "./artifacts.js";
 import { explainConfigError } from "./validation.js";
 import { checkReferences } from "./refcheck.js";
 import { renderPreview } from "./preview.js";
@@ -31,6 +32,34 @@ const { version: VERSION } = _require("../package.json") as { version: string };
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image"; data: string; mimeType: string };
+
+/**
+ * Resolve tool input that may arrive as inline content or an artifact id.
+ * Returns the content string, or an error message string prefixed with "!".
+ */
+function resolveContent(content?: string, artifact?: string): { svg: string } | { error: string } {
+  if (artifact !== undefined) {
+    const stored = getArtifact(artifact);
+    if (stored === undefined) {
+      const live = listArtifactIds();
+      return {
+        error:
+          `Unknown artifact "${artifact}". ` +
+          (live.length > 0
+            ? `Live artifacts: ${live.join(", ")}.`
+            : "No artifacts are stored — artifacts live only for the server process lifetime.") +
+          " Re-render with render_svg to get a fresh artifact id.",
+      };
+    }
+    return { svg: stored };
+  }
+  if (content !== undefined) return { svg: content };
+  return { error: "Provide either 'artifact' (id from render_svg) or 'content' (SVG string)." };
+}
 
 /** Count all elements recursively (including pattern expansions). */
 function countElements(elements: AnyElement[]): number {
@@ -64,7 +93,9 @@ server.registerTool(
     title: "Render SVG",
     description: `Render animated SVG from JSON config. AI controls all design parameters.
 
-**Workflow:** render_svg > preview > critique > revise. Iterate at least 3 times before finalizing.
+**Workflow:** render_svg returns a PNG preview of the result plus an artifact id — critique the image, revise the config, render again. Iterate at least 3 times before finalizing. The SVG text stays on the server: pass the artifact id to save (and to preview for a different width). Add output:{svg:true} only if you actually need the SVG text in the conversation.
+
+**output options (response shape, not content):** {"svg":false,"preview":true,"previewWidth":800,"minify":false} — all optional. minify:true collapses whitespace in the stored/saved SVG.
 
 **Element types:** rect, circle, ellipse, line, polyline, polygon, path, image, text, textPath, group, use, radial-group, arc-group, grid-group, scatter-group, path-group, parametric
 
@@ -130,8 +161,11 @@ server.registerTool(
         };
       }
 
+      const out = config.output ?? {};
+
       drainRenderWarnings(); // discard leftovers from any earlier failed render
-      const svg = renderSVG(config);
+      let svg = renderSVG(config);
+      if (out.minify) svg = minifySVG(svg);
       const renderWarnings = drainRenderWarnings();
       const elapsed = Date.now() - start;
       const elementCount = countElements(config.elements);
@@ -139,20 +173,45 @@ server.registerTool(
       // Analyze the config for design issues
       const warnings = [...renderWarnings, ...analyzeConfig(config, svg.length)];
 
+      const artifactId = storeArtifact(svg);
+      const content: ContentBlock[] = [];
+
+      // SVG text only on request — the artifact id covers preview and save.
+      if (out.svg) {
+        content.push({ type: "text", text: svg });
+      }
+
+      if (out.preview !== false) {
+        try {
+          const png = renderPreview(svg, "svg", out.previewWidth);
+          content.push({ type: "image", data: png.toString("base64"), mimeType: "image/png" });
+        } catch (previewErr) {
+          const msg = previewErr instanceof Error ? previewErr.message : String(previewErr);
+          warnings.push(
+            `Preview rendering failed: ${msg}. The SVG itself rendered; ` +
+              `inspect it with preview({artifact:"${artifactId}"}) or re-render with output:{svg:true}.`
+          );
+        }
+      }
+
+      const summary: string[] = [
+        `Rendered OK: artifact "${artifactId}" — ${svg.length} chars, ${elementCount} elements.`,
+        `Use save({artifact:"${artifactId}", outputPath:...}) or preview({artifact:"${artifactId}", width:...}); ` +
+          `the SVG text does not need to pass through context.`,
+      ];
+      if (!out.svg) {
+        summary.push(`Need the SVG text itself? Re-render with output:{svg:true}.`);
+      }
+      if (warnings.length > 0) {
+        summary.push("", "Design notes:", ...warnings.map((w) => `• ${w}`));
+      }
+      content.push({ type: "text", text: summary.join("\n") });
+
       console.error(
-        `[nakkas] render_svg OK — ${elementCount} elements, ${svg.length} chars, ${elapsed}ms` +
+        `[nakkas] render_svg OK — ${artifactId}, ${elementCount} elements, ${svg.length} chars, ${elapsed}ms` +
           (warnings.length > 0 ? `, ${warnings.length} warnings` : "")
       );
 
-      const content: { type: "text"; text: string }[] = [
-        { type: "text", text: svg },
-      ];
-      if (warnings.length > 0) {
-        content.push({
-          type: "text",
-          text: "Design notes:\n" + warnings.map((w) => `• ${w}`).join("\n"),
-        });
-      }
       return { content };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -182,22 +241,29 @@ server.registerTool(
 Render SVG content to a PNG image so the AI can visually inspect the output.
 
 **When to use:**
-- After render_svg, call preview to see what was generated
-- Use in a revision loop: render → preview → critique → revise → preview again
-- Stop when the visual result matches the intent
+- render_svg already returns a preview image by default; call this tool to re-preview a stored artifact at a different width, or to preview SVG that did not come from render_svg
+- Stop iterating when the visual result matches the intent
+
+**Input:** pass EITHER artifact (id from render_svg, e.g. "art-1" — preferred, no SVG resend) OR content (raw SVG string).
 
 **Behavior:**
-- Returns a PNG image (base64) rendered from the SVG string
+- Returns a PNG image (base64) rendered from the SVG
 - Background is transparent by default
 - CSS animations and SMIL are rendered as a static snapshot (t=0) — motion is not captured
-- Format is auto-detected from content; pass format: "svg" explicitly if needed
 
 **Width:**
 - Omit width to use the SVG's own declared width/viewBox
 - Pass width to scale the output (useful for small SVGs that need a larger preview)
     `.trim(),
     inputSchema: z.object({
-      content: z.string().describe("SVG string to render as PNG"),
+      artifact: z
+        .string()
+        .optional()
+        .describe('Artifact id returned by render_svg (e.g. "art-1"). Preferred over content.'),
+      content: z
+        .string()
+        .optional()
+        .describe("SVG string to render as PNG. Only needed when no artifact id exists."),
       format: z
         .enum(["svg", "html"])
         .optional()
@@ -209,10 +275,18 @@ Render SVG content to a PNG image so the AI can visually inspect the output.
         .describe("Render width in pixels; defaults to SVG's own declared width"),
     }),
   },
-  async ({ content, format, width }) => {
+  async ({ artifact, content, format, width }) => {
     const start = Date.now();
     try {
-      const pngBuffer = renderPreview(content, format, width);
+      const resolved = resolveContent(content, artifact);
+      if ("error" in resolved) {
+        console.error(`[nakkas] preview INPUT ERROR — ${resolved.error}`);
+        return {
+          content: [{ type: "text" as const, text: resolved.error }],
+          isError: true,
+        };
+      }
+      const pngBuffer = renderPreview(resolved.svg, format, width);
       const base64 = pngBuffer.toString("base64");
       const elapsed = Date.now() - start;
       console.error(`[nakkas] preview OK — ${pngBuffer.length} bytes, ${elapsed}ms`);
@@ -241,8 +315,10 @@ server.registerTool(
     description: `
 Save rendered content to disk. Format-aware: can save as text or render to raster image.
 
-IMPORTANT: Use this only AFTER iterating on the design with render and preview.
+IMPORTANT: Use this only AFTER iterating on the design with render_svg's preview images.
 Do not save on the first render. Preview and refine your work first.
+
+**Input:** pass EITHER artifact (id from render_svg, e.g. "art-1" — preferred, no SVG resend) OR content (raw string).
 
 **Format detection:**
 - 'auto' (default): infers format from file extension. .svg saves as text, .png renders to image.
@@ -254,10 +330,15 @@ to prevent overwriting: design.svg becomes design-1.svg, then design-2.svg.
 The actual saved path is returned in the response.
     `.trim(),
     inputSchema: z.object({
+      artifact: z
+        .string()
+        .optional()
+        .describe('Artifact id returned by render_svg (e.g. "art-1"). Preferred over content.'),
       content: z
         .string()
+        .optional()
         .describe(
-          "Content to save. This is typically the output of a render tool such as render_svg."
+          "Raw content to save. Only needed when the content did not come from render_svg."
         ),
       outputPath: z
         .string()
@@ -286,10 +367,18 @@ The actual saved path is returned in the response.
         ),
     }),
   },
-  async ({ content, outputPath, format, width }) => {
+  async ({ artifact, content, outputPath, format, width }) => {
     const start = Date.now();
     try {
-      const savedPath = await saveContent(content, outputPath, format, width);
+      const resolved = resolveContent(content, artifact);
+      if ("error" in resolved) {
+        console.error(`[nakkas] save INPUT ERROR — ${resolved.error}`);
+        return {
+          content: [{ type: "text" as const, text: resolved.error }],
+          isError: true,
+        };
+      }
+      const savedPath = await saveContent(resolved.svg, outputPath, format, width);
       const elapsed = Date.now() - start;
       console.error(`[nakkas] save OK — ${savedPath}, ${elapsed}ms`);
       return {

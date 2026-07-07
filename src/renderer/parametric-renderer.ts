@@ -28,7 +28,9 @@ import { blockTag, tag, num } from "./utils.js";
 /** Convert sampled points to SVG path data string. */
 function pointsToPath(pts: [number, number][], closed: boolean): string {
   if (pts.length === 0) return "M 0 0";
-  const parts = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${num(x)} ${num(y)}`);
+  // 2 decimals: sub-pixel accurate at typical viewport sizes, and hundreds of
+  // sampled points make the third decimal pure path-data bloat.
+  const parts = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${num(x, 2)} ${num(y, 2)}`);
   if (closed) parts.push("Z");
   return parts.join(" ");
 }

@@ -30,6 +30,7 @@ import {
   renderGridGroup,
   renderScatterGroup,
   renderPathGroup,
+  resetPatternDefIds,
 } from "./pattern-renderer.js";
 import { renderParametric } from "./parametric-renderer.js";
 
@@ -205,6 +206,10 @@ function renderBackground(config: SVGConfig): string {
  */
 export function renderSVG(config: SVGConfig): string {
   const canvas = config.canvas;
+
+  // Pattern groups generate <use> def ids; restart the sequence so the same
+  // config always renders to the same string.
+  resetPatternDefIds();
 
   // Build root <svg> attributes
   const svgAttrs = attrs({

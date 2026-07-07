@@ -1,9 +1,12 @@
 /**
  * Pattern element renderers: radial-group, arc-group, grid-group, scatter-group, path-group.
  *
- * Each renderer generates multiple copies of a child element by wrapping it in
- * <g transform="translate(x, y) [rotate(angle)]"> tags. The child's own coordinates
- * remain relative to its local origin at (0, 0).
+ * Each renderer places multiple instances of a child element. The child is
+ * rendered ONCE into a local <defs> block and instanced with <use> per
+ * placement, so a 12x12 grid costs one child definition plus 144 one-line
+ * <use> tags instead of 144 full copies. The child's own coordinates remain
+ * relative to its local origin at (0, 0); each <use> carries the placement
+ * transform.
  */
 
 import type {
@@ -16,7 +19,42 @@ import type {
 import { renderBaseAttrs } from "./base-renderer.js";
 import { renderSMILAnimations } from "./animation-renderer.js";
 import { renderLeafElement } from "./group-renderer.js";
-import { blockTag, num } from "./utils.js";
+import { blockTag, tag, num } from "./utils.js";
+
+// ---------------------------------------------------------------------------
+// Shared instancing machinery
+// ---------------------------------------------------------------------------
+
+// Generated def ids use the "nkp" prefix; refcheck rejects duplicate user ids
+// but knows nothing about these, so the prefix keeps them out of collision
+// range of anything a config would plausibly define.
+let defIdCounter = 0;
+
+/** Reset the generated def id sequence. Called once per renderSVG() run. */
+export function resetPatternDefIds(): void {
+  defIdCounter = 0;
+}
+
+type AnyPatternGroup = RadialGroup | ArcGroup | GridGroup | ScatterGroup | PathGroup;
+
+/** Render a pattern group: child defined once, one <use> per transform. */
+function renderInstanced(el: AnyPatternGroup, transforms: string[]): string {
+  defIdCounter += 1;
+  const defId = `nkp${defIdCounter}`;
+  const childDef = blockTag("defs", "", blockTag("g", `id="${defId}"`, renderLeafElement(el.child)));
+  const uses = transforms.map((t) => tag("use", `href="#${defId}" transform="${t}"`));
+
+  const baseStr = renderBaseAttrs(el);
+  const smil = renderSMILAnimations(el.smilAnimations);
+  const content = [childDef, ...uses, ...(smil ? [smil] : [])].join("\n");
+  return blockTag("g", baseStr, content);
+}
+
+function placementTransform(x: number, y: number, angle?: number): string {
+  return angle !== undefined
+    ? `translate(${num(x)}, ${num(y)}) rotate(${num(angle)})`
+    : `translate(${num(x)}, ${num(y)})`;
+}
 
 // ---------------------------------------------------------------------------
 // radial-group
@@ -34,21 +72,15 @@ export function renderRadialGroup(el: RadialGroup): string {
 
   const stepAngle = 360 / count;
 
-  const copies = Array.from({ length: count }, (_, i) => {
+  const transforms = Array.from({ length: count }, (_, i) => {
     const angle = startAngle + i * stepAngle;
     const rad = (angle * Math.PI) / 180;
     const x = cx + radius * Math.cos(rad);
     const y = cy + radius * Math.sin(rad);
-    const transform = rotateChildren
-      ? `translate(${num(x)}, ${num(y)}) rotate(${num(angle)})`
-      : `translate(${num(x)}, ${num(y)})`;
-    return blockTag("g", `transform="${transform}"`, renderLeafElement(el.child));
+    return placementTransform(x, y, rotateChildren ? angle : undefined);
   });
 
-  const baseStr = renderBaseAttrs(el);
-  const smil = renderSMILAnimations(el.smilAnimations);
-  const content = [...copies, ...(smil ? [smil] : [])].join("\n");
-  return blockTag("g", baseStr, content);
+  return renderInstanced(el, transforms);
 }
 
 // ---------------------------------------------------------------------------
@@ -71,21 +103,15 @@ export function renderArcGroup(el: ArcGroup): string {
   const span = endAngle - startAngle;
   const stepAngle = count === 1 ? 0 : span / (count - 1);
 
-  const copies = Array.from({ length: count }, (_, i) => {
+  const transforms = Array.from({ length: count }, (_, i) => {
     const angle = startAngle + i * stepAngle;
     const rad = (angle * Math.PI) / 180;
     const x = cx + radius * Math.cos(rad);
     const y = cy + radius * Math.sin(rad);
-    const transform = rotateChildren
-      ? `translate(${num(x)}, ${num(y)}) rotate(${num(angle)})`
-      : `translate(${num(x)}, ${num(y)})`;
-    return blockTag("g", `transform="${transform}"`, renderLeafElement(el.child));
+    return placementTransform(x, y, rotateChildren ? angle : undefined);
   });
 
-  const baseStr = renderBaseAttrs(el);
-  const smil = renderSMILAnimations(el.smilAnimations);
-  const content = [...copies, ...(smil ? [smil] : [])].join("\n");
-  return blockTag("g", baseStr, content);
+  return renderInstanced(el, transforms);
 }
 
 // ---------------------------------------------------------------------------
@@ -95,20 +121,14 @@ export function renderArcGroup(el: ArcGroup): string {
 export function renderGridGroup(el: GridGroup): string {
   const { x = 0, y = 0, cols, rows, colSpacing, rowSpacing } = el;
 
-  const cells: string[] = [];
+  const transforms: string[] = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const tx = x + col * colSpacing;
-      const ty = y + row * rowSpacing;
-      const transform = `translate(${num(tx)}, ${num(ty)})`;
-      cells.push(blockTag("g", `transform="${transform}"`, renderLeafElement(el.child)));
+      transforms.push(placementTransform(x + col * colSpacing, y + row * rowSpacing));
     }
   }
 
-  const baseStr = renderBaseAttrs(el);
-  const smil = renderSMILAnimations(el.smilAnimations);
-  const content = [...cells, ...(smil ? [smil] : [])].join("\n");
-  return blockTag("g", baseStr, content);
+  return renderInstanced(el, transforms);
 }
 
 // ---------------------------------------------------------------------------
@@ -128,17 +148,11 @@ export function renderScatterGroup(el: ScatterGroup): string {
   const { x = 0, y = 0, width, height, count, seed } = el;
   const rand = makeLCG(seed);
 
-  const copies = Array.from({ length: count }, () => {
-    const tx = x + rand() * width;
-    const ty = y + rand() * height;
-    const transform = `translate(${num(tx)}, ${num(ty)})`;
-    return blockTag("g", `transform="${transform}"`, renderLeafElement(el.child));
-  });
+  const transforms = Array.from({ length: count }, () =>
+    placementTransform(x + rand() * width, y + rand() * height)
+  );
 
-  const baseStr = renderBaseAttrs(el);
-  const smil = renderSMILAnimations(el.smilAnimations);
-  const content = [...copies, ...(smil ? [smil] : [])].join("\n");
-  return blockTag("g", baseStr, content);
+  return renderInstanced(el, transforms);
 }
 
 // ---------------------------------------------------------------------------
@@ -197,17 +211,11 @@ export function renderPathGroup(el: PathGroup): string {
   const segments = buildSegments(waypoints);
   const totalLength = segments.reduce((s, seg) => s + seg.length, 0);
 
-  const copies = Array.from({ length: count }, (_, i) => {
+  const transforms = Array.from({ length: count }, (_, i) => {
     const t = count === 1 ? 0 : i / (count - 1);
     const { x, y, angle } = samplePath(segments, totalLength, t);
-    const transform = rotateChildren
-      ? `translate(${num(x)}, ${num(y)}) rotate(${num(angle)})`
-      : `translate(${num(x)}, ${num(y)})`;
-    return blockTag("g", `transform="${transform}"`, renderLeafElement(el.child));
+    return placementTransform(x, y, rotateChildren ? angle : undefined);
   });
 
-  const baseStr = renderBaseAttrs(el);
-  const smil = renderSMILAnimations(el.smilAnimations);
-  const content = [...copies, ...(smil ? [smil] : [])].join("\n");
-  return blockTag("g", baseStr, content);
+  return renderInstanced(el, transforms);
 }

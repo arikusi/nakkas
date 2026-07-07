@@ -184,6 +184,25 @@ export function styleString(
 }
 
 // ---------------------------------------------------------------------------
+// Minification
+// ---------------------------------------------------------------------------
+
+/**
+ * Collapse the renderer's pretty-printing: indentation, newlines between
+ * tags, and line breaks inside <style> CSS. Safe because every structural
+ * newline in the output comes from blockTag/indent; user text content is
+ * emitted inline. Multi-line user text would collapse to spaces, which is
+ * how SVG renders it anyway.
+ */
+export function minifySVG(svg: string): string {
+  return svg
+    .replace(/\n\s+/g, "\n") // strip indentation
+    .replace(/>\n</g, "><") // join adjacent tags
+    .replace(/\n/g, " ") // leftover newlines (CSS lines in <style>) become spaces
+    .trim();
+}
+
+// ---------------------------------------------------------------------------
 // Comment
 // ---------------------------------------------------------------------------
 

@@ -49,4 +49,11 @@ export const SVGConfigSlimSchema = z.object({
     fillMode: z.string().optional(),
     delay: z.string().optional(),
   }).passthrough()).optional(),
+
+  output: z.object({
+    svg: z.boolean().optional(),
+    preview: z.boolean().optional(),
+    previewWidth: z.number().optional(),
+    minify: z.boolean().optional(),
+  }).passthrough().optional(),
 }).passthrough();

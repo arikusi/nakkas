@@ -152,6 +152,39 @@ export const DefsSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Output options — response shape, not SVG content
+// ---------------------------------------------------------------------------
+
+export const OutputOptionsSchema = z.object({
+  svg: z
+    .boolean()
+    .optional()
+    .describe(
+      "Include the full SVG text in the response. Default false: the response " +
+        "carries a PNG preview plus an artifact id that preview/save accept directly, " +
+        "so the SVG text never has to travel through context."
+    ),
+  preview: z
+    .boolean()
+    .optional()
+    .describe("Include a rendered PNG preview in the response. Default true."),
+  previewWidth: numeric(
+    z
+      .number()
+      .positive()
+      .optional()
+  ).describe("Preview image width in pixels; defaults to the SVG's own declared width."),
+  minify: z
+    .boolean()
+    .optional()
+    .describe(
+      "Collapse whitespace between tags in the SVG output. Default false (pretty-printed)."
+    ),
+});
+
+export type OutputOptions = z.infer<typeof OutputOptionsSchema>;
+
+// ---------------------------------------------------------------------------
 // Any renderable element (top-level or group children)
 // ---------------------------------------------------------------------------
 
@@ -225,6 +258,11 @@ export const SVGConfigSchema = z.object({
         "The renderer generates a <style> block with @keyframes and class rules. " +
         "For SMIL animations (path morphing, motion paths, gradient stop animation), use element.smilAnimations[] instead."
     ),
+
+  output: OutputOptionsSchema.optional().describe(
+    "Response shape options: whether to include SVG text, a PNG preview, and " +
+      "whether to minify the SVG. Does not affect the rendered content."
+  ),
   // Cast prevents TS7056 "inferred type exceeds maximum length" — deep discriminated union complexity.
   // Using `as unknown as z.ZodType<SVGConfig>` so MCP SDK handler receives correct SVGConfig type.
 }) as unknown as z.ZodType<SVGConfig>;
@@ -243,6 +281,7 @@ export type SVGConfig = {
   defs?: Defs;
   elements: AnyElement[];
   animations?: z.infer<typeof CSSAnimationSchema>[];
+  output?: OutputOptions;
 };
 
 // Re-export all schemas for convenience

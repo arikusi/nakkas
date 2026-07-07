@@ -30,7 +30,7 @@
   </a>
 </p>
 
-Nakkas is an MCP (Model Context Protocol) server that lets AI assistants like Claude create animated SVG graphics from a declarative JSON config: logos, icons, loading spinners, GitHub README banners, badges, and generative art. It renders CSS @keyframes and SMIL animations with no JavaScript, so the output works inside GitHub READMEs and anywhere an `<img>` tag renders SVG. A built-in preview tool rasterizes the SVG to PNG so the AI can see its own work and iterate until the design is right.
+Nakkas is an MCP (Model Context Protocol) server that lets AI assistants like Claude create animated SVG graphics from a declarative JSON config: logos, icons, loading spinners, GitHub README banners, badges, and generative art. It renders CSS @keyframes and SMIL animations with no JavaScript, so the output works inside GitHub READMEs and anywhere an `<img>` tag renders SVG. Every render comes back as a PNG preview plus a server-side artifact id, so the AI sees its own work immediately and iterates without the SVG text ever passing through its context window.
 
 > *nakkaş* means painter/artist in Turkish (old).
 
@@ -45,7 +45,8 @@ Nakkas is an MCP (Model Context Protocol) server that lets AI assistants like Cl
 ## Why
 
 * **One tool, infinite designs.** `render_svg` takes a JSON config. AI fills in everything.
-* **The AI sees its own work.** `preview` rasterizes to PNG so the model can critique and revise instead of designing blind.
+* **The AI sees its own work.** Every render returns a PNG preview, so the model critiques and revises instead of designing blind.
+* **Token-cheap iteration.** The SVG stays on the server as an artifact; preview and save address it by id, so revision loops don't pay for the SVG text.
 * **Pure declarative SVG.** CSS @keyframes + SMIL animations, no JavaScript. Survives GitHub's camo proxy.
 * **Zero external deps.** No cloud API, no API keys. Runs locally.
 
@@ -115,24 +116,35 @@ Nakkas provides three tools:
 
 | Tool | Purpose |
 |---|---|
-| `render_svg` | Takes SVGConfig JSON, returns SVG string + design analysis warnings |
-| `preview` | Takes rendered content, returns a PNG image for visual inspection |
-| `save` | Takes rendered content, saves to disk as SVG (text) or PNG (raster) |
+| `render_svg` | Takes SVGConfig JSON, returns a PNG preview + artifact id (+ design analysis warnings) |
+| `preview` | Re-renders a stored artifact (or raw SVG) to PNG at any width |
+| `save` | Saves a stored artifact (or raw content) to disk as SVG (text) or PNG (raster) |
 
-The intended workflow: render → preview → iterate → save. The `save` tool is separate from `render_svg` to encourage previewing and refining before saving.
+The intended workflow: render → look at the returned preview → revise the config → render again → save. The rendered SVG stays on the server as an **artifact**: `render_svg` answers with the preview image and an id like `art-1`, and `preview`/`save` accept that id directly. The SVG text never has to travel back through the model's context window, which cuts the token cost of an iteration loop to a fraction of pasting SVG around. Artifacts live for the server process lifetime (capped at 32, oldest evicted).
 
 ### The `save` Tool
 
 ```json
-{ "content": "<svg ...>...</svg>", "outputPath": "./design.svg", "format": "auto" }
+{ "artifact": "art-1", "outputPath": "./design.svg", "format": "auto" }
 ```
 
-Formats: `auto` (infers from extension), `svg` (text file), `png` (renders to raster first). If the file exists, a numeric counter is appended to prevent overwriting. The actual saved path is returned.
+Pass either `artifact` (id from `render_svg`, preferred) or `content` (raw string). Formats: `auto` (infers from extension), `svg` (text file), `png` (renders to raster first). If the file exists, a numeric counter is appended to prevent overwriting. The actual saved path is returned.
 
 ## The `render_svg` Tool
 
 **Input:** `SVGConfig` JSON object
-**Output:** Complete SVG XML string plus optional design analysis notes
+**Output:** PNG preview image + a summary naming the artifact id, plus optional design analysis notes
+
+The response shape is controlled by an optional `output` block in the config:
+
+```json
+{ "output": { "svg": false, "preview": true, "previewWidth": 800, "minify": false } }
+```
+
+* `svg: true` includes the full SVG text in the response (off by default; the artifact id covers preview and save)
+* `preview: false` skips the PNG image
+* `previewWidth` scales the preview
+* `minify: true` collapses whitespace in the stored and saved SVG
 
 After rendering, the response may include design warnings about common issues such as too many concurrent animations, missing transformBox, or group-level scale transforms.
 
@@ -327,7 +339,7 @@ GitHub READMEs render SVG through `<img>` tags, which strips JavaScript but keep
 
 ### Large SVG output
 
-If `render_svg` returns a warning about file size (over 50kb), the parametric curves or pattern groups are probably generating too many elements. Reduce `steps` on parametric curves or `count` on pattern groups. A grid-group with `cols: 50, rows: 50` produces 2500 elements, which adds up fast.
+If `render_svg` returns a warning about file size (over 50kb), the parametric curves are probably sampling too many points; reduce `steps`. Pattern groups are cheap: the child is defined once and instanced with `<use>`, so a grid-group with `cols: 50, rows: 50` costs one child definition plus 2500 one-line `<use>` tags. For the smallest possible file, add `output: { minify: true }`.
 
 ## Tech Stack
 
@@ -335,7 +347,7 @@ If `render_svg` returns a warning about file size (over 50kb), the parametric cu
 * `@modelcontextprotocol/sdk` (MCP server)
 * `zod` (schema validation and AI type guidance)
 * No external SVG libraries, pure XML construction
-* Vitest (296 tests)
+* Vitest (336 tests)
 
 ## License
 

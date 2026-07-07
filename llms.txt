@@ -6,9 +6,9 @@
 
 Nakkas exposes three MCP tools:
 
-* `render_svg` takes a structured JSON config describing an SVG scene and returns a valid SVG string plus design analysis notes. No templates, no presets. The AI is the creative director.
-* `preview` takes rendered content, renders it to a PNG image (base64), and returns it for visual inspection and iteration.
-* `save` takes rendered content and saves to disk as SVG (text) or PNG (raster). Auto-increments filename to prevent overwriting.
+* `render_svg` takes a structured JSON config describing an SVG scene, renders it, and returns a PNG preview plus a server-side artifact id and design analysis notes. Add output:{svg:true} to also get the SVG text. No templates, no presets. The AI is the creative director.
+* `preview` re-renders a stored artifact (by id) or a raw SVG string to a PNG image (base64) for visual inspection.
+* `save` saves a stored artifact (by id) or raw content to disk as SVG (text) or PNG (raster). Auto-increments filename to prevent overwriting.
 
 ## Key Links
 
@@ -34,7 +34,7 @@ Nakkas exposes three MCP tools:
 * Filter presets: glow, neon, blur, drop-shadow, glitch, chromatic-aberration, noise, outline, inner-shadow, emboss, grayscale, sepia, invert, saturate, hue-rotate (plus raw filter primitives)
 * CSS @keyframes animations (opacity, transform, fill, stroke, stroke-dashoffset draw-on and more)
 * SMIL animations (path morphing, motion path, animateTransform)
-* Groups, symbols, use for element instancing
+* Groups, symbols, use for element instancing (pattern groups emit one child definition instanced with use)
 * ClipPath, mask for advanced compositing
 
 ## Output

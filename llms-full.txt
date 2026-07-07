@@ -1,14 +1,16 @@
 # Nakkas: Full Documentation
 
-MCP server that turns AI into an SVG artist. Two tools, one schema, infinite SVG designs.
+MCP server that turns AI into an SVG artist. Three tools, one schema, infinite SVG designs. Renders return a PNG preview plus a server-side artifact id, so iteration never pays context tokens for SVG text.
 
 ## Overview
 
 Nakkas exposes three MCP tools:
 
-* **`render_svg`** takes a JSON configuration object (SVGConfig) and returns a complete SVG XML string plus design analysis notes. The AI constructs the config from natural language. No hardcoded designs. No templates. The AI is the creative director.
-* **`preview`** takes rendered content, renders it to a transparent PNG image (base64), and returns it so the AI can visually inspect and iterate.
-* **`save`** takes rendered content and saves it to disk. Supports text (SVG) and raster (PNG) formats. Auto-increments filename to prevent overwriting.
+* **`render_svg`** takes a JSON configuration object (SVGConfig), renders it, and answers with a PNG preview image plus an artifact id (e.g. "art-1") and design analysis notes. The SVG text stays on the server; request it with output:{svg:true} only when you actually need it in context. The AI constructs the config from natural language. No hardcoded designs. No templates. The AI is the creative director.
+* **`preview`** re-renders a stored artifact (by id) or a raw SVG string to a transparent PNG image (base64), for a different width or for SVG that did not come from render_svg.
+* **`save`** saves a stored artifact (by id) or raw content to disk. Supports text (SVG) and raster (PNG) formats. Auto-increments filename to prevent overwriting.
+
+**Artifacts**: every render_svg result is stored server-side under a short id. preview and save accept `artifact: "art-1"` directly, so an iteration loop never pays context tokens for the SVG text. The store holds the 32 most recent renders for the server process lifetime.
 
 **Use cases**: GitHub profile READMEs, web page graphics, UI components, data visualizations, animated badges, terminal-style logos, icons, illustrations, presentation slides, design exports.
 
@@ -34,11 +36,13 @@ Claude Code CLI: `claude mcp add nakkas npx nakkas@latest`
 **Input**:
 ```typescript
 {
-  content: string,           // SVG string to render
+  artifact?: string,         // artifact id from render_svg (e.g. "art-1") — preferred
+  content?: string,          // raw SVG string; only needed when no artifact id exists
   format?: "svg" | "html",  // auto-detected if omitted; only "svg" is currently supported
   width?: number,            // optional render width in pixels; defaults to SVG's own width
 }
 ```
+Pass exactly one of `artifact` or `content`.
 **Output**: `{ type: "image", data: "<base64>", mimeType: "image/png" }`, a transparent PNG
 
 **Notes**:
@@ -48,17 +52,17 @@ Claude Code CLI: `claude mcp add nakkas npx nakkas@latest`
 
 **Typical workflow**:
 ```
-1. render_svg({ canvas, elements, animations }) → SVG string
-2. preview({ content: svgString }) → see the PNG
-3. Revise config based on visual inspection → render_svg again
-4. Repeat until satisfied
+1. render_svg({ canvas, elements, animations }) → PNG preview + artifact id
+2. Critique the preview image, revise the config → render_svg again
+3. Repeat until satisfied
+4. save({ artifact: "art-N", outputPath: "./design.svg" })
 ```
 
 ---
 
 ## The save Tool
 
-**Input**: content (string), outputPath (string), format ("auto" | "svg" | "png"), optional width (number)
+**Input**: artifact (id from render_svg) OR content (raw string), outputPath (string), format ("auto" | "svg" | "png"), optional width (number)
 **Output**: The actual saved file path
 
 Saves rendered content to disk. The format parameter controls how content is written:
@@ -69,8 +73,8 @@ Saves rendered content to disk. The format parameter controls how content is wri
 If the file already exists, a numeric counter is appended: `design.svg` becomes `design-1.svg`, then `design-2.svg`. The actual saved path is always returned.
 
 ```json
-{ "content": "<svg ...>...</svg>", "outputPath": "./design.svg", "format": "auto" }
-{ "content": "<svg ...>...</svg>", "outputPath": "./design.png", "format": "png", "width": 800 }
+{ "artifact": "art-1", "outputPath": "./design.svg", "format": "auto" }
+{ "artifact": "art-1", "outputPath": "./design.png", "format": "png", "width": 800 }
 ```
 
 ---
@@ -86,14 +90,20 @@ After rendering, `render_svg` automatically analyzes the config and may return d
 * High element count (over 200 expanded elements)
 * Heavily shared cssClass values (limits per-element timing control)
 
-These notes appear in the response as a second text content block labeled "Design notes". Read and address them during iteration.
+These notes appear under "Design notes" in the response's summary text block. Read and address them during iteration.
 
 ---
 
 ## The render_svg Tool
 
 **Input**: SVGConfig object (validated against Zod schema)
-**Output**: Complete SVG XML string, no `<?xml?>` declaration, plus optional design analysis notes
+**Output**: PNG preview image + a text summary naming the artifact id and stats, plus optional design analysis notes. The SVG (no `<?xml?>` declaration) is stored server-side under the artifact id.
+
+**output options** (optional top-level `output` key in the config; controls response shape, not content):
+* `svg: true` — include the full SVG text in the response (default false)
+* `preview: false` — skip the PNG preview image (default true)
+* `previewWidth: number` — preview image width in pixels (defaults to the SVG's own width)
+* `minify: true` — collapse whitespace between tags in the stored and saved SVG (default false)
 
 ## SVGConfig Schema
 
@@ -524,7 +534,7 @@ If an attribute value is blocked by the security filter (event handlers, javascr
 
 ### radial-group
 
-Places N copies of one child element around a full circle. Each copy is wrapped in a `<g transform="translate(x,y) rotate(angle)">` so the child's own coordinates stay at origin.
+Places N instances of one child element around a full circle. The child is rendered once into a local defs block and instanced with `<use transform="translate(x,y) rotate(angle)">`, so the child's own coordinates stay at origin and output size does not grow with count.
 
 ```typescript
 {
@@ -549,7 +559,7 @@ Example,flower with 8 petals:
 
 ### grid-group
 
-Places N copies of one child element in an M×N rectangular grid. Each copy is in a `<g transform="translate(x,y)">`.
+Places N instances of one child element in an M×N rectangular grid. The child is defined once and instanced with `<use transform="translate(x,y)">` per cell, so even a 50×50 grid stays small.
 
 ```typescript
 {
