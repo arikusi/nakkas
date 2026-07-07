@@ -18,6 +18,7 @@ import {
   FontStyleSchema,
   TextAnchorSchema,
   DominantBaselineSchema,
+  numeric,
 } from "./base.js";
 import { SMILAnimationSchema } from "./animations.js";
 
@@ -29,17 +30,17 @@ const smilAnimations = z
 // Shared text styling fields (used in both text and tspan)
 const TextStylingFields = {
   fontFamily: FontFamilySchema.optional(),
-  fontSize: z
+  fontSize: numeric(z
     .number()
     .positive()
     .optional()
-    .describe("Font size in SVG user units (pixels at 1:1 scale)"),
+    .describe("Font size in SVG user units (pixels at 1:1 scale)")),
   fontWeight: FontWeightSchema.optional(),
   fontStyle: FontStyleSchema.optional(),
-  letterSpacing: z
+  letterSpacing: numeric(z
     .number()
     .optional()
-    .describe("Space between characters in SVG user units. Negative for tighter tracking."),
+    .describe("Space between characters in SVG user units. Negative for tighter tracking.")),
   textAnchor: TextAnchorSchema.optional(),
   dominantBaseline: DominantBaselineSchema.optional(),
 };
@@ -50,24 +51,24 @@ const TextStylingFields = {
 
 export const TspanSchema = z.object({
   text: z.string().describe("The text content to render"),
-  dx: z
+  dx: numeric(z
     .number()
     .optional()
-    .describe("Relative X offset from previous character/tspan in SVG user units"),
-  dy: z
+    .describe("Relative X offset from previous character/tspan in SVG user units")),
+  dy: numeric(z
     .number()
     .optional()
-    .describe("Relative Y offset from previous character/tspan. Use for line breaks."),
-  x: z
+    .describe("Relative Y offset from previous character/tspan. Use for line breaks.")),
+  x: numeric(z
     .number()
     .optional()
-    .describe("Absolute X position — overrides cursor position"),
-  y: z
+    .describe("Absolute X position — overrides cursor position")),
+  y: numeric(z
     .number()
     .optional()
-    .describe("Absolute Y position — overrides cursor position"),
+    .describe("Absolute Y position — overrides cursor position")),
   rotate: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe(
       "Per-character rotation. Single number rotates all chars: 45. " +
@@ -77,8 +78,8 @@ export const TspanSchema = z.object({
   style: z.string().optional().describe("Inline CSS style"),
   fill: z.string().optional().describe("Text fill color: hex '#rrggbb' or 'none'"),
   stroke: z.string().optional().describe("Text stroke color"),
-  strokeWidth: z.number().optional(),
-  opacity: z.number().min(0).max(1).optional(),
+  strokeWidth: numeric(z.number().optional()),
+  opacity: numeric(z.number().min(0).max(1).optional()),
   ...TextStylingFields,
 });
 
@@ -88,8 +89,8 @@ export const TspanSchema = z.object({
 
 export const TextSchema = BaseElementSchema.extend({
   type: z.literal("text"),
-  x: z.number().optional().default(0).describe("X position of text anchor point"),
-  y: z.number().optional().default(0).describe("Y position of text anchor point (baseline by default)"),
+  x: numeric(z.number().optional().default(0).describe("X position of text anchor point")),
+  y: numeric(z.number().optional().default(0).describe("Y position of text anchor point (baseline by default)")),
   content: z
     .union([
       z.string(),
@@ -118,7 +119,7 @@ export const TextPathSchema = BaseElementSchema.extend({
     ),
   text: z.string().describe("The text content to render along the path"),
   startOffset: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe(
       "Where along the path text begins. Number = SVG units, string = percentage: '50%' centers text. " +
@@ -132,8 +133,8 @@ export const TextPathSchema = BaseElementSchema.extend({
     .enum(["auto", "exact"])
     .optional()
     .describe("Letter spacing: 'auto' uses font metrics, 'exact' uses letterSpacing attribute"),
-  x: z.number().optional().describe("X position of the outer <text> wrapper element"),
-  y: z.number().optional().describe("Y position of the outer <text> wrapper element"),
+  x: numeric(z.number().optional().describe("X position of the outer <text> wrapper element")),
+  y: numeric(z.number().optional().describe("Y position of the outer <text> wrapper element")),
   ...TextStylingFields,
   smilAnimations,
 });

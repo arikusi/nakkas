@@ -18,6 +18,7 @@
  */
 
 import { z } from "zod";
+import { numeric } from "./base.js";
 import { CanvasSchema } from "./canvas.js";
 import { GradientSchema } from "./gradients.js";
 import { FilterSchema } from "./filters.js";
@@ -43,25 +44,25 @@ export const PatternSchema = z.object({
     .string()
     .describe("Unique ID. Reference on any element as fill='url(#id)'."),
 
-  width: z
+  width: numeric(z
     .number()
     .positive()
-    .describe("Width of one tile in SVG units."),
+    .describe("Width of one tile in SVG units.")),
 
-  height: z
+  height: numeric(z
     .number()
     .positive()
-    .describe("Height of one tile in SVG units."),
+    .describe("Height of one tile in SVG units.")),
 
-  x: z
+  x: numeric(z
     .number()
     .optional()
-    .describe("Horizontal offset of the tile origin. Default is 0."),
+    .describe("Horizontal offset of the tile origin. Default is 0.")),
 
-  y: z
+  y: numeric(z
     .number()
     .optional()
-    .describe("Vertical offset of the tile origin. Default is 0."),
+    .describe("Vertical offset of the tile origin. Default is 0.")),
 
   patternUnits: z
     .enum(["userSpaceOnUse", "objectBoundingBox"])

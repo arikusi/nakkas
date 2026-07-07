@@ -17,7 +17,7 @@
  */
 
 import { z } from "zod";
-import { ColorSchema } from "./base.js";
+import { ColorSchema, numeric } from "./base.js";
 
 // ---------------------------------------------------------------------------
 // Preset filters — AI-friendly named effects
@@ -54,7 +54,7 @@ export const FilterPresetSchema = z.object({
       "For inner-shadow this is the shadow fill color."
   ),
 
-  stdDeviation: z
+  stdDeviation: numeric(z
     .number()
     .min(0)
     .optional()
@@ -64,23 +64,23 @@ export const FilterPresetSchema = z.object({
         "For blur use 3 to 20. " +
         "For drop-shadow use 2 to 8. " +
         "For emboss this controls the depth of the shading. Default is 2."
-    ),
+    )),
 
-  offsetX: z
+  offsetX: numeric(z
     .number()
     .optional()
     .describe(
       "Horizontal offset in SVG units. Positive values move right. Used with drop-shadow."
-    ),
+    )),
 
-  offsetY: z
+  offsetY: numeric(z
     .number()
     .optional()
     .describe(
       "Vertical offset in SVG units. Positive values move down. Used with drop-shadow."
-    ),
+    )),
 
-  value: z
+  value: numeric(z
     .number()
     .optional()
     .describe(
@@ -93,7 +93,7 @@ export const FilterPresetSchema = z.object({
         "outline: outline thickness in SVG units, default 2. " +
         "inner-shadow: shadow opacity from 0 to 1, default 0.5. " +
         "emboss: shading intensity multiplier, default 1.5."
-    ),
+    )),
 
   expand: z
     .boolean()
@@ -134,7 +134,7 @@ export const FeGaussianBlurSchema = z.object({
   primitive: z.literal("feGaussianBlur"),
   ...FilterPrimitiveBase,
   stdDeviation: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .describe("Blur radius. Single number for uniform blur, 'x y' for different X/Y blur."),
   edgeMode: z
     .enum(["duplicate", "wrap", "none"])
@@ -145,11 +145,11 @@ export const FeGaussianBlurSchema = z.object({
 export const FeDropShadowSchema = z.object({
   primitive: z.literal("feDropShadow"),
   ...FilterPrimitiveBase,
-  dx: z.number().optional().describe("Shadow X offset. Default: 2"),
-  dy: z.number().optional().describe("Shadow Y offset. Default: 2"),
-  stdDeviation: z.number().optional().describe("Shadow blur radius. Default: 2"),
+  dx: numeric(z.number().optional().describe("Shadow X offset. Default: 2")),
+  dy: numeric(z.number().optional().describe("Shadow Y offset. Default: 2")),
+  stdDeviation: numeric(z.number().optional().describe("Shadow blur radius. Default: 2")),
   floodColor: z.string().optional().describe("Shadow color: hex '#rrggbb'. Default: '#000000'"),
-  floodOpacity: z.number().min(0).max(1).optional().describe("Shadow opacity: 0–1. Default: 1"),
+  floodOpacity: numeric(z.number().min(0).max(1).optional().describe("Shadow opacity: 0–1. Default: 1")),
 });
 
 export const FeColorMatrixSchema = z.object({
@@ -185,24 +185,24 @@ export const FeTurbulenceSchema = z.object({
       "'fractalNoise': smoother, good for fog/cloud/texture."
     ),
   baseFrequency: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe(
       "Noise frequency. Lower = larger features (0.01 = big blobs). Higher = finer grain (0.5 = noise). " +
       "Two values for X/Y: '0.05 0.1'"
     ),
-  numOctaves: z
+  numOctaves: numeric(z
     .number()
     .int()
     .min(1)
     .max(8)
     .optional()
-    .describe("Detail layers. 1–3 for performance, up to 8 for fine detail."),
-  seed: z
+    .describe("Detail layers. 1–3 for performance, up to 8 for fine detail.")),
+  seed: numeric(z
     .number()
     .int()
     .optional()
-    .describe("Random seed. Animate with SMIL calcMode='discrete' for glitch flicker effect."),
+    .describe("Random seed. Animate with SMIL calcMode='discrete' for glitch flicker effect.")),
   stitchTiles: z
     .enum(["stitch", "noStitch"])
     .optional()
@@ -213,7 +213,7 @@ export const FeDisplacementMapSchema = z.object({
   primitive: z.literal("feDisplacementMap"),
   ...FilterPrimitiveBase,
   in2: z.string().describe("Second input: the displacement map (usually a feTurbulence result)"),
-  scale: z.number().describe("Displacement intensity. Larger = more distortion."),
+  scale: numeric(z.number().describe("Displacement intensity. Larger = more distortion.")),
   xChannelSelector: z
     .enum(["R", "G", "B", "A"])
     .optional()
@@ -227,15 +227,15 @@ export const FeDisplacementMapSchema = z.object({
 export const FeOffsetSchema = z.object({
   primitive: z.literal("feOffset"),
   ...FilterPrimitiveBase,
-  dx: z.number().optional().describe("X offset in SVG user units"),
-  dy: z.number().optional().describe("Y offset in SVG user units"),
+  dx: numeric(z.number().optional().describe("X offset in SVG user units")),
+  dy: numeric(z.number().optional().describe("Y offset in SVG user units")),
 });
 
 export const FeFloodSchema = z.object({
   primitive: z.literal("feFlood"),
   ...FilterPrimitiveBase,
   floodColor: z.string().describe("Fill color: hex '#rrggbb'"),
-  floodOpacity: z.number().min(0).max(1).optional().describe("Fill opacity: 0–1"),
+  floodOpacity: numeric(z.number().min(0).max(1).optional().describe("Fill opacity: 0–1")),
 });
 
 export const FeCompositeSchema = z.object({
@@ -248,10 +248,10 @@ export const FeCompositeSchema = z.object({
       "'over' (default): in over in2. 'in': intersection. 'out': difference. " +
       "'arithmetic': k1*i1*i2 + k2*i1 + k3*i2 + k4."
     ),
-  k1: z.number().optional().describe("Coefficient for arithmetic operator"),
-  k2: z.number().optional().describe("Coefficient for arithmetic operator"),
-  k3: z.number().optional().describe("Coefficient for arithmetic operator"),
-  k4: z.number().optional().describe("Coefficient for arithmetic operator"),
+  k1: numeric(z.number().optional().describe("Coefficient for arithmetic operator")),
+  k2: numeric(z.number().optional().describe("Coefficient for arithmetic operator")),
+  k3: numeric(z.number().optional().describe("Coefficient for arithmetic operator")),
+  k4: numeric(z.number().optional().describe("Coefficient for arithmetic operator")),
 });
 
 export const FeBlendSchema = z.object({
@@ -282,11 +282,11 @@ export const FeComponentTransferSchema = z.object({
   funcR: z
     .object({
       type: z.enum(["identity", "linear", "gamma", "discrete", "table"]),
-      slope: z.number().optional().describe("Linear: output = slope * input + intercept"),
-      intercept: z.number().optional(),
-      amplitude: z.number().optional().describe("Gamma: output = amplitude * input^exponent + offset"),
-      exponent: z.number().optional(),
-      offset: z.number().optional(),
+      slope: numeric(z.number().optional().describe("Linear: output = slope * input + intercept")),
+      intercept: numeric(z.number().optional()),
+      amplitude: numeric(z.number().optional().describe("Gamma: output = amplitude * input^exponent + offset")),
+      exponent: numeric(z.number().optional()),
+      offset: numeric(z.number().optional()),
       tableValues: z.string().optional().describe("Space-separated lookup table values"),
     })
     .optional()
@@ -294,11 +294,11 @@ export const FeComponentTransferSchema = z.object({
   funcG: z
     .object({
       type: z.enum(["identity", "linear", "gamma", "discrete", "table"]),
-      slope: z.number().optional(),
-      intercept: z.number().optional(),
-      amplitude: z.number().optional(),
-      exponent: z.number().optional(),
-      offset: z.number().optional(),
+      slope: numeric(z.number().optional()),
+      intercept: numeric(z.number().optional()),
+      amplitude: numeric(z.number().optional()),
+      exponent: numeric(z.number().optional()),
+      offset: numeric(z.number().optional()),
       tableValues: z.string().optional(),
     })
     .optional()
@@ -306,11 +306,11 @@ export const FeComponentTransferSchema = z.object({
   funcB: z
     .object({
       type: z.enum(["identity", "linear", "gamma", "discrete", "table"]),
-      slope: z.number().optional(),
-      intercept: z.number().optional(),
-      amplitude: z.number().optional(),
-      exponent: z.number().optional(),
-      offset: z.number().optional(),
+      slope: numeric(z.number().optional()),
+      intercept: numeric(z.number().optional()),
+      amplitude: numeric(z.number().optional()),
+      exponent: numeric(z.number().optional()),
+      offset: numeric(z.number().optional()),
       tableValues: z.string().optional(),
     })
     .optional()
@@ -318,11 +318,11 @@ export const FeComponentTransferSchema = z.object({
   funcA: z
     .object({
       type: z.enum(["identity", "linear", "gamma", "discrete", "table"]),
-      slope: z.number().optional(),
-      intercept: z.number().optional(),
-      amplitude: z.number().optional(),
-      exponent: z.number().optional(),
-      offset: z.number().optional(),
+      slope: numeric(z.number().optional()),
+      intercept: numeric(z.number().optional()),
+      amplitude: numeric(z.number().optional()),
+      exponent: numeric(z.number().optional()),
+      offset: numeric(z.number().optional()),
       tableValues: z.string().optional(),
     })
     .optional()

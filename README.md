@@ -298,10 +298,12 @@ This means the MCP SDK rejected the input before it reached the handler. It usua
 
 * **Gradient type typo.** Use `"linearGradient"` or `"radialGradient"`, not `"linear"` or `"radial"`. This is the single most frequent mistake.
 * **Keyframe offset as string.** Write `0` or `100` (numbers) or `"from"` / `"to"`. Writing `"0%"` or `"100%"` will fail.
-* **Named colors.** Only hex values work: `"#ff0000"`, not `"red"`. No `rgb()` either.
+* **Colors in gradients and filters.** Gradient stop and filter colors must be hex: `"#ff0000"`, not `"red"` or `rgb()`. Element `fill`/`stroke` accept any paint string (`"#ff0000"`, `"none"`, `"url(#id)"`), with hex being the safest choice across renderers.
 * **Missing `type` on elements.** Every element object needs a `type` field.
 
-Validation errors that reach the handler name the exact failing field (for example `elements.1.content: Required`) and append a field reference for the failing element type, so a retry usually succeeds on the first correction.
+Validation errors that reach the handler name the exact failing field (for example `elements.1.content: Required`) and append a field reference for the failing element type, so a retry usually succeeds on the first correction. Numeric strings on number fields (`letterSpacing: "6"`) are coerced automatically instead of failing.
+
+The handler also checks reference integrity before rendering: a dangling `url(#id)` in `fill`/`stroke`/`filter`/`clipPath`/`mask`, a `use.href` pointing nowhere, a `textPath.pathId` missing from `defs.paths`, or a duplicate ID all come back as errors with the exact field path and the list of defined IDs, instead of rendering silently broken output.
 
 If you're building an MCP client integration and seeing this consistently, the issue is likely in how your client serializes arguments. See [anthropics/claude-code#29104](https://github.com/anthropics/claude-code/issues/29104) for context on known serialization quirks.
 

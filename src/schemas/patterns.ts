@@ -12,7 +12,7 @@
  */
 
 import { z } from "zod";
-import { BaseElementSchema } from "./base.js";
+import { BaseElementSchema, numeric } from "./base.js";
 import { SMILAnimationSchema } from "./animations.js";
 import { LeafElementSchema } from "./groups.js";
 
@@ -28,11 +28,11 @@ const smilAnimations = z
 export const RadialGroupSchema = BaseElementSchema.extend({
   type: z.literal("radial-group"),
 
-  cx: z.number().describe("Center X coordinate of the circular arrangement."),
+  cx: numeric(z.number().describe("Center X coordinate of the circular arrangement.")),
 
-  cy: z.number().describe("Center Y coordinate of the circular arrangement."),
+  cy: numeric(z.number().describe("Center Y coordinate of the circular arrangement.")),
 
-  count: z
+  count: numeric(z
     .number()
     .int()
     .min(2)
@@ -42,16 +42,16 @@ export const RadialGroupSchema = BaseElementSchema.extend({
         "6 produces hexagonal spacing (60 degrees each). " +
         "8 produces octagonal spacing (45 degrees). " +
         "12 produces clock-face spacing (30 degrees)."
-    ),
+    )),
 
-  radius: z
+  radius: numeric(z
     .number()
     .positive()
     .describe(
       "Distance from center to the anchor point of each child, in SVG units."
-    ),
+    )),
 
-  startAngle: z
+  startAngle: numeric(z
     .number()
     .default(-90)
     .describe(
@@ -59,7 +59,7 @@ export const RadialGroupSchema = BaseElementSchema.extend({
         "Use -90 for top (12 o'clock position, default). " +
         "Use 0 for right (3 o'clock). " +
         "Use 90 for bottom."
-    ),
+    )),
 
   rotateChildren: z
     .boolean()
@@ -89,16 +89,16 @@ export const RadialGroupSchema = BaseElementSchema.extend({
 export const ArcGroupSchema = BaseElementSchema.extend({
   type: z.literal("arc-group"),
 
-  cx: z.number().describe("Center X coordinate of the arc."),
+  cx: numeric(z.number().describe("Center X coordinate of the arc.")),
 
-  cy: z.number().describe("Center Y coordinate of the arc."),
+  cy: numeric(z.number().describe("Center Y coordinate of the arc.")),
 
-  radius: z
+  radius: numeric(z
     .number()
     .positive()
-    .describe("Distance from center to each child's anchor point, in SVG units."),
+    .describe("Distance from center to each child's anchor point, in SVG units.")),
 
-  count: z
+  count: numeric(z
     .number()
     .int()
     .min(1)
@@ -106,23 +106,23 @@ export const ArcGroupSchema = BaseElementSchema.extend({
     .describe(
       "Number of copies to place along the arc. " +
         "When count is 1, the child is placed at startAngle."
-    ),
+    )),
 
-  startAngle: z
+  startAngle: numeric(z
     .number()
     .describe(
       "Starting angle of the arc in degrees. " +
         "Use -90 for top (12 o'clock). " +
         "Use 0 for right (3 o'clock)."
-    ),
+    )),
 
-  endAngle: z
+  endAngle: numeric(z
     .number()
     .describe(
       "Ending angle of the arc in degrees. " +
         "Use startAngle + 360 to produce a full circle equivalent to radial-group. " +
         "Example: startAngle=0, endAngle=180 fills the bottom semicircle."
-    ),
+    )),
 
   rotateChildren: z
     .boolean()
@@ -147,39 +147,39 @@ export const ArcGroupSchema = BaseElementSchema.extend({
 export const GridGroupSchema = BaseElementSchema.extend({
   type: z.literal("grid-group"),
 
-  x: z
+  x: numeric(z
     .number()
     .default(0)
-    .describe("X coordinate of the top-left cell anchor in SVG units."),
+    .describe("X coordinate of the top-left cell anchor in SVG units.")),
 
-  y: z
+  y: numeric(z
     .number()
     .default(0)
-    .describe("Y coordinate of the top-left cell anchor in SVG units."),
+    .describe("Y coordinate of the top-left cell anchor in SVG units.")),
 
-  cols: z
+  cols: numeric(z
     .number()
     .int()
     .min(1)
     .max(200)
-    .describe("Number of columns (horizontal count)."),
+    .describe("Number of columns (horizontal count).")),
 
-  rows: z
+  rows: numeric(z
     .number()
     .int()
     .min(1)
     .max(200)
-    .describe("Number of rows (vertical count)."),
+    .describe("Number of rows (vertical count).")),
 
-  colSpacing: z
+  colSpacing: numeric(z
     .number()
     .positive()
-    .describe("Horizontal distance between cell centers in SVG units."),
+    .describe("Horizontal distance between cell centers in SVG units.")),
 
-  rowSpacing: z
+  rowSpacing: numeric(z
     .number()
     .positive()
-    .describe("Vertical distance between cell centers in SVG units."),
+    .describe("Vertical distance between cell centers in SVG units.")),
 
   child: LeafElementSchema.describe(
     "Template element placed in every cell. " +
@@ -198,41 +198,41 @@ export const GridGroupSchema = BaseElementSchema.extend({
 export const ScatterGroupSchema = BaseElementSchema.extend({
   type: z.literal("scatter-group"),
 
-  x: z
+  x: numeric(z
     .number()
     .default(0)
-    .describe("Left edge of the bounding box in SVG units."),
+    .describe("Left edge of the bounding box in SVG units.")),
 
-  y: z
+  y: numeric(z
     .number()
     .default(0)
-    .describe("Top edge of the bounding box in SVG units."),
+    .describe("Top edge of the bounding box in SVG units.")),
 
-  width: z
+  width: numeric(z
     .number()
     .positive()
-    .describe("Width of the bounding box in SVG units."),
+    .describe("Width of the bounding box in SVG units.")),
 
-  height: z
+  height: numeric(z
     .number()
     .positive()
-    .describe("Height of the bounding box in SVG units."),
+    .describe("Height of the bounding box in SVG units.")),
 
-  count: z
+  count: numeric(z
     .number()
     .int()
     .min(1)
     .max(500)
-    .describe("Number of copies to scatter within the bounding box."),
+    .describe("Number of copies to scatter within the bounding box.")),
 
-  seed: z
+  seed: numeric(z
     .number()
     .int()
     .describe(
       "Integer seed for the random number generator. " +
         "The same seed always produces the same positions. " +
         "Change the seed to get a different arrangement."
-    ),
+    )),
 
   child: LeafElementSchema.describe(
     "Template element placed at each scatter position. " +
@@ -251,7 +251,7 @@ export const PathGroupSchema = BaseElementSchema.extend({
   type: z.literal("path-group"),
 
   waypoints: z
-    .array(z.object({ x: z.number(), y: z.number() }))
+    .array(z.object({ x: numeric(z.number()), y: numeric(z.number()) }))
     .min(2)
     .describe(
       "Sequence of points defining the path. Minimum 2 points. " +
@@ -259,7 +259,7 @@ export const PathGroupSchema = BaseElementSchema.extend({
         "Example: [{x: 50, y: 200}, {x: 200, y: 50}, {x: 350, y: 200}]"
     ),
 
-  count: z
+  count: numeric(z
     .number()
     .int()
     .min(1)
@@ -267,7 +267,7 @@ export const PathGroupSchema = BaseElementSchema.extend({
     .describe(
       "Number of copies to place along the path. " +
         "When count is 1, the child is placed at the start of the path."
-    ),
+    )),
 
   rotateChildren: z
     .boolean()
@@ -317,11 +317,11 @@ export const ParametricSchema = BaseElementSchema.extend({
         "wave: sine wave path."
     ),
 
-  cx: z.number().default(0).describe("Center X of the generated shape."),
+  cx: numeric(z.number().default(0).describe("Center X of the generated shape.")),
 
-  cy: z.number().default(0).describe("Center Y of the generated shape."),
+  cy: numeric(z.number().default(0).describe("Center Y of the generated shape.")),
 
-  scale: z
+  scale: numeric(z
     .number()
     .positive()
     .optional()
@@ -331,10 +331,10 @@ export const ParametricSchema = BaseElementSchema.extend({
         "For heart and star this is the outer radius. " +
         "For superformula this is the overall size. " +
         "Default is 80 for most shapes."
-    ),
+    )),
 
   // rose
-  k: z
+  k: numeric(z
     .number()
     .optional()
     .describe(
@@ -342,10 +342,10 @@ export const ParametricSchema = BaseElementSchema.extend({
         "k=3 produces 3 petals, k=4 produces 8 petals, k=5 produces 5 petals, k=7 produces 7 petals. " +
         "Even values of k produce 2k petals. Odd values produce k petals. " +
         "Fractional values such as 3/2 create complex multi-loop patterns. Default is 3."
-    ),
+    )),
 
   // lissajous
-  freqA: z
+  freqA: numeric(z
     .number()
     .optional()
     .describe(
@@ -353,14 +353,14 @@ export const ParametricSchema = BaseElementSchema.extend({
         "The ratio freqA to freqB determines shape complexity. " +
         "freqA=3 with freqB=2 gives a figure-8 shape. " +
         "freqA=3 with freqB=4 gives a complex knot. Default is 3."
-    ),
+    )),
 
-  freqB: z
+  freqB: numeric(z
     .number()
     .optional()
-    .describe("lissajous: Y-axis frequency. Default is 2."),
+    .describe("lissajous: Y-axis frequency. Default is 2.")),
 
-  delta: z
+  delta: numeric(z
     .number()
     .optional()
     .describe(
@@ -368,23 +368,23 @@ export const ParametricSchema = BaseElementSchema.extend({
         "0 produces a degenerate diagonal line. " +
         "pi/4 gives an asymmetric shape. " +
         "pi/2 gives an ellipse-like shape (default)."
-    ),
+    )),
 
-  scaleX: z
+  scaleX: numeric(z
     .number()
     .positive()
     .optional()
     .describe(
       "lissajous: X amplitude in SVG units. Overrides the scale field for the X axis."
-    ),
+    )),
 
-  scaleY: z
+  scaleY: numeric(z
     .number()
     .positive()
     .optional()
     .describe(
       "lissajous: Y amplitude in SVG units. Overrides the scale field for the Y axis."
-    ),
+    )),
 
   // spiral
   spiralType: z
@@ -395,23 +395,23 @@ export const ParametricSchema = BaseElementSchema.extend({
         "'logarithmic' produces exponentially expanding rings like a nautilus shell."
     ),
 
-  turns: z
+  turns: numeric(z
     .number()
     .positive()
     .optional()
-    .describe("spiral: number of full 360-degree rotations. Default is 3."),
+    .describe("spiral: number of full 360-degree rotations. Default is 3.")),
 
-  growth: z
+  growth: numeric(z
     .number()
     .optional()
     .describe(
       "logarithmic spiral: growth rate. " +
         "Higher values produce a more open spiral. " +
         "Lower values produce a tighter coil. Default is 0.2."
-    ),
+    )),
 
   // star
-  points: z
+  points: numeric(z
     .number()
     .int()
     .min(3)
@@ -419,27 +419,27 @@ export const ParametricSchema = BaseElementSchema.extend({
     .optional()
     .describe(
       "star: number of points. 5 gives a classic star. 6 gives a Star of David shape. Default is 5."
-    ),
+    )),
 
-  innerRadius: z
+  innerRadius: numeric(z
     .number()
     .positive()
     .optional()
     .describe(
       "star: inner radius in SVG units controlling the indent between points. " +
         "Default is 40 percent of scale. Smaller values produce sharper, more pointed stars."
-    ),
+    )),
 
   // superformula
-  m: z
+  m: numeric(z
     .number()
     .optional()
     .describe(
       "superformula: rotational symmetry controlling the number of lobes or sides. " +
         "m=4 gives a square-like shape, m=3 gives a triangle-like shape, m=8 gives an octagonal shape. Default is 4."
-    ),
+    )),
 
-  n1: z
+  n1: numeric(z
     .number()
     .optional()
     .describe(
@@ -447,37 +447,37 @@ export const ParametricSchema = BaseElementSchema.extend({
         "Values below 1 produce star-like pointy shapes. " +
         "Value of 1 produces a smooth circle-like shape. " +
         "Values above 1 produce rounded polygons. Default is 1."
-    ),
+    )),
 
-  n2: z
+  n2: numeric(z
     .number()
     .optional()
-    .describe("superformula: secondary exponent. Default is 1."),
+    .describe("superformula: secondary exponent. Default is 1.")),
 
-  n3: z
+  n3: numeric(z
     .number()
     .optional()
-    .describe("superformula: tertiary exponent. Default is 1."),
+    .describe("superformula: tertiary exponent. Default is 1.")),
 
   // epitrochoid / hypotrochoid
-  R: z
+  R: numeric(z
     .number()
     .positive()
     .optional()
     .describe(
       "epitrochoid and hypotrochoid: outer fixed circle radius. Default is 80."
-    ),
+    )),
 
-  r: z
+  r: numeric(z
     .number()
     .positive()
     .optional()
     .describe(
       "epitrochoid and hypotrochoid: rolling circle radius. " +
         "The ratio R to r controls the number of loops. Default is 30."
-    ),
+    )),
 
-  d: z
+  d: numeric(z
     .number()
     .positive()
     .optional()
@@ -486,40 +486,40 @@ export const ParametricSchema = BaseElementSchema.extend({
         "Values less than r produce inner loops. " +
         "Value equal to r produces a classic cycloid. " +
         "Values greater than r produce outer loops. Default is 50."
-    ),
+    )),
 
   // wave
-  width: z
+  width: numeric(z
     .number()
     .positive()
     .optional()
     .describe(
       "wave: total horizontal span of the wave path in SVG units. Default is 400."
-    ),
+    )),
 
-  amplitude: z
+  amplitude: numeric(z
     .number()
     .optional()
     .describe(
       "wave: vertical height of each crest and trough in SVG units. Default is 30."
-    ),
+    )),
 
-  frequency: z
+  frequency: numeric(z
     .number()
     .optional()
     .describe(
       "wave: number of complete wave cycles across the width. Default is 2."
-    ),
+    )),
 
-  phase: z
+  phase: numeric(z
     .number()
     .optional()
     .describe(
       "wave: phase shift in radians, shifting the wave horizontally. Default is 0."
-    ),
+    )),
 
   // general
-  steps: z
+  steps: numeric(z
     .number()
     .int()
     .min(10)
@@ -531,7 +531,7 @@ export const ParametricSchema = BaseElementSchema.extend({
         "Default is 500 for lissajous, spiral, epitrochoid and hypotrochoid. " +
         "Default is 200 for wave. " +
         "When using path morphing animations, keep steps equal between source and target shapes."
-    ),
+    )),
 
   closed: z
     .boolean()

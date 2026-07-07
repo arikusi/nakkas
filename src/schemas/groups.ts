@@ -14,7 +14,7 @@
  */
 
 import { z } from "zod";
-import { BaseElementSchema } from "./base.js";
+import { BaseElementSchema, numeric } from "./base.js";
 import { SMILAnimationSchema } from "./animations.js";
 import { ShapeElementSchema } from "./shapes.js";
 import { TextElementSchema } from "./text.js";
@@ -36,14 +36,14 @@ export const UseSchema = BaseElementSchema.extend({
       "Reference to the element to instance: '#symbolId' or '#anyElementId'. " +
       "The referenced element must be defined in defs (for symbols) or earlier in elements[]."
     ),
-  x: z.number().optional().describe("X offset for the instance"),
-  y: z.number().optional().describe("Y offset for the instance"),
-  width: z
+  x: numeric(z.number().optional().describe("X offset for the instance")),
+  y: numeric(z.number().optional().describe("Y offset for the instance")),
+  width: numeric(z
     .number()
     .positive()
     .optional()
-    .describe("Width override for <symbol> instances. Symbol's viewBox is scaled to fit."),
-  height: z.number().positive().optional().describe("Height override for <symbol> instances."),
+    .describe("Width override for <symbol> instances. Symbol's viewBox is scaled to fit.")),
+  height: numeric(z.number().positive().optional().describe("Height override for <symbol> instances.")),
   smilAnimations,
 });
 

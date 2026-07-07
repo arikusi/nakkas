@@ -10,7 +10,7 @@
  */
 
 import { z } from "zod";
-import { ColorSchema } from "./base.js";
+import { ColorSchema, numeric } from "./base.js";
 import { SMILAnimationSchema } from "./animations.js";
 
 // ---------------------------------------------------------------------------
@@ -19,18 +19,18 @@ import { SMILAnimationSchema } from "./animations.js";
 
 export const GradientStopSchema = z.object({
   offset: z
-    .union([z.number().min(0).max(1), z.string()])
+    .union([numeric(z.number().min(0).max(1)), z.string()])
     .describe(
       "Stop position along the gradient: 0.0–1.0 (number) or '0%'–'100%' (string). " +
       "0 / '0%' = gradient start, 1 / '100%' = gradient end."
     ),
   color: ColorSchema.describe("Stop color as hex: '#rrggbb' or '#rrggbbaa'"),
-  opacity: z
+  opacity: numeric(z
     .number()
     .min(0)
     .max(1)
     .optional()
-    .describe("Stop opacity: 0.0 (transparent) to 1.0 (opaque). Defaults to 1."),
+    .describe("Stop opacity: 0.0 (transparent) to 1.0 (opaque). Defaults to 1.")),
   smilAnimations: z
     .array(SMILAnimationSchema)
     .optional()
@@ -84,22 +84,22 @@ export const LinearGradientSchema = z.object({
   type: z.literal("linearGradient"),
   ...GradientBaseFields,
   x1: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe(
       "Gradient start X. With objectBoundingBox: 0–1 (default 0). " +
       "With userSpaceOnUse: SVG coordinates."
     ),
   y1: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe("Gradient start Y. Default: 0"),
   x2: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe("Gradient end X. Default: 1 (→ horizontal gradient by default)"),
   y2: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe(
       "Gradient end Y. Default: 0. " +
@@ -115,30 +115,30 @@ export const RadialGradientSchema = z.object({
   type: z.literal("radialGradient"),
   ...GradientBaseFields,
   cx: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe("Center X of the outer circle. With objectBoundingBox: default 0.5 (50%)"),
   cy: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe("Center Y of the outer circle. With objectBoundingBox: default 0.5 (50%)"),
   r: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe("Radius of the outer circle. With objectBoundingBox: default 0.5 (50%)"),
   fx: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe(
       "Focal point X — where the gradient is brightest/most intense. " +
       "Defaults to cx. Offset from center for an off-center highlight effect."
     ),
   fy: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe("Focal point Y. Defaults to cy."),
   fr: z
-    .union([z.number(), z.string()])
+    .union([numeric(z.number()), z.string()])
     .optional()
     .describe("Focal circle radius. Default: 0 (point focus). Increase for a ring-shaped highlight."),
 });

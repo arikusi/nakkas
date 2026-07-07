@@ -12,6 +12,31 @@
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
+// Numeric coercion
+// ---------------------------------------------------------------------------
+
+const NUMERIC_STRING = /^-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/;
+
+const coerceNumericString = (value: unknown): unknown => {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed !== "" && NUMERIC_STRING.test(trimmed)) return Number(trimmed);
+  }
+  return value;
+};
+
+/**
+ * Wrap a number schema so that numeric strings ("6", "0.5", "-12") are
+ * accepted and converted before validation. Models with CSS habits send
+ * letterSpacing:"6" or strokeWidth:"2"; rejecting those costs a full
+ * round-trip for no benefit. Non-numeric strings still fail validation
+ * with the inner schema's message.
+ */
+export function numeric<T extends z.ZodTypeAny>(schema: T): z.ZodEffects<T> {
+  return z.preprocess(coerceNumericString, schema) as z.ZodEffects<T>;
+}
+
+// ---------------------------------------------------------------------------
 // Primitive value types
 // ---------------------------------------------------------------------------
 
@@ -31,7 +56,7 @@ export const PaintSchema = z
  * @example 200, "50%", "10em", "100%"
  */
 export const LengthSchema = z
-  .union([z.number(), z.string()])
+  .union([numeric(z.number()), z.string()])
   .describe("Pixel count (200) or CSS length string ('50%', '10em', '100%')");
 
 export const TimingFunctionSchema = z
@@ -76,7 +101,7 @@ export const FontFamilySchema = z
 export const FontWeightSchema = z
   .union([
     z.enum(["normal", "bold", "bolder", "lighter"]),
-    z.number().int().min(100).max(900).multipleOf(100),
+    numeric(z.number().int().min(100).max(900).multipleOf(100)),
   ])
   .describe("Font weight: 'normal', 'bold', or numeric multiple of 100 (100–900)");
 
@@ -103,28 +128,28 @@ export const PresentationAttrsSchema = z.object({
   fill: PaintSchema.optional().describe(
     "Fill paint: hex '#rrggbb', 'none', or 'url(#gradientId)'. Default: '#000000'"
   ),
-  fillOpacity: z
+  fillOpacity: numeric(z
     .number()
     .min(0)
     .max(1)
     .optional()
-    .describe("Fill transparency: 0.0 (invisible) to 1.0 (fully opaque)"),
+    .describe("Fill transparency: 0.0 (invisible) to 1.0 (fully opaque)")),
   fillRule: FillRuleSchema.optional(),
 
   stroke: PaintSchema.optional().describe(
     "Stroke paint: hex '#rrggbb' or 'none'. Set strokeWidth too, default stroke is 'none'."
   ),
-  strokeWidth: z
+  strokeWidth: numeric(z
     .number()
     .min(0)
     .optional()
-    .describe("Stroke thickness in pixels. Renders on both sides of the path centerline."),
-  strokeOpacity: z
+    .describe("Stroke thickness in pixels. Renders on both sides of the path centerline.")),
+  strokeOpacity: numeric(z
     .number()
     .min(0)
     .max(1)
     .optional()
-    .describe("Stroke transparency: 0.0 to 1.0"),
+    .describe("Stroke transparency: 0.0 to 1.0")),
   strokeLinecap: StrokeLinecapSchema.optional(),
   strokeLinejoin: StrokeLinejoinSchema.optional(),
   strokeDasharray: z
@@ -134,19 +159,19 @@ export const PresentationAttrsSchema = z.object({
       "Dash pattern: '10 5' (10px dash, 5px gap), '5' (equal dashes and gaps). " +
       "Use with strokeDashoffset for draw-on animation."
     ),
-  strokeDashoffset: z
+  strokeDashoffset: numeric(z
     .number()
     .optional()
     .describe(
       "Offset into the dash pattern. Animate from totalPathLength → 0 for a draw-on effect."
-    ),
+    )),
 
-  opacity: z
+  opacity: numeric(z
     .number()
     .min(0)
     .max(1)
     .optional()
-    .describe("Overall element opacity (affects fill + stroke together): 0.0 to 1.0"),
+    .describe("Overall element opacity (affects fill + stroke together): 0.0 to 1.0")),
   visibility: VisibilitySchema.optional(),
 
   filter: z

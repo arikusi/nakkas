@@ -13,7 +13,7 @@
  */
 
 import { z } from "zod";
-import { TimingFunctionSchema } from "./base.js";
+import { TimingFunctionSchema, numeric } from "./base.js";
 
 // ---------------------------------------------------------------------------
 // CSS @keyframes animations
@@ -26,7 +26,7 @@ import { TimingFunctionSchema } from "./base.js";
  */
 export const CSSKeyframeSchema = z.object({
   offset: z
-    .union([z.number().min(0).max(100), z.enum(["from", "to"])])
+    .union([numeric(z.number().min(0).max(100)), z.enum(["from", "to"])])
     .describe(
       "Keyframe position: 0-100 (percentage) or 0-1 (fractional), or 'from'/'to'"
     ),
@@ -62,7 +62,7 @@ export const CSSAnimationSchema = z.object({
     "Easing across the full animation. Can be overridden per-keyframe with 'animation-timing-function'."
   ),
   iterationCount: z
-    .union([z.number().int().positive(), z.literal("infinite")])
+    .union([numeric(z.number().int().positive()), z.literal("infinite")])
     .optional()
     .describe("Repeat count: positive integer or 'infinite'. Default: 1"),
   direction: z
@@ -125,7 +125,7 @@ export const SMILAnimateSchema = z.object({
     ),
   dur: z.string().describe("Animation duration: '2s', '500ms', '1.5s'"),
   repeatCount: z
-    .union([z.number().int().positive(), z.literal("indefinite")])
+    .union([numeric(z.number().int().positive()), z.literal("indefinite")])
     .optional()
     .describe("Repeat count: integer or 'indefinite' for looping"),
   begin: z
@@ -184,7 +184,7 @@ export const SMILAnimateTransformSchema = z.object({
   keyTimes: z.string().optional().describe("Semicolon-separated time offsets for 'values' keyframes"),
   dur: z.string().describe("Animation duration: '2s', '500ms'"),
   repeatCount: z
-    .union([z.number().int().positive(), z.literal("indefinite")])
+    .union([numeric(z.number().int().positive()), z.literal("indefinite")])
     .optional()
     .describe("Repeat count: integer or 'indefinite'"),
   begin: z.string().optional().describe("Start time or sync expression: '0s', 'otherId.end'"),
@@ -213,12 +213,12 @@ export const SMILAnimateMotionSchema = z.object({
     ),
   dur: z.string().describe("Time to travel the full path: '3s', '1500ms'"),
   repeatCount: z
-    .union([z.number().int().positive(), z.literal("indefinite")])
+    .union([numeric(z.number().int().positive()), z.literal("indefinite")])
     .optional()
     .describe("Repeat count: integer or 'indefinite' for continuous motion"),
   begin: z.string().optional().describe("Start time: '0s' or delay string"),
   rotate: z
-    .union([z.number(), z.enum(["auto", "auto-reverse"])])
+    .union([numeric(z.number()), z.enum(["auto", "auto-reverse"])])
     .optional()
     .describe(
       "Element rotation along path. 'auto' rotates to face forward. " +

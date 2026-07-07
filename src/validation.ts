@@ -38,7 +38,7 @@ const ELEMENT_SCHEMAS: Record<string, z.ZodTypeAny> = {
 };
 
 /** Field cheat sheets appended when an element of that type fails validation. */
-const TYPE_HINTS: Record<string, string> = {
+export const TYPE_HINTS: Record<string, string> = {
   text:
     'text fields: {type:"text", content:"..."} — the string goes in "content" (NOT "text"). ' +
     "Optional: x, y, fontSize, fontFamily, fontWeight, fontStyle, textAnchor, dominantBaseline, " +
@@ -54,10 +54,22 @@ const TYPE_HINTS: Record<string, string> = {
   "radial-group":
     'radial-group fields: {type:"radial-group", cx, cy, radius, count, child:{...}}. ' +
     "child is ONE leaf element (shape/text/use) drawn at local origin (use cx=0, cy=0 in the child).",
-  "grid-group": 'grid-group fields: {type:"grid-group", x, y, cols, rows, spacingX, spacingY, child:{...}}.',
+  "arc-group":
+    'arc-group fields: {type:"arc-group", cx, cy, radius, count, startAngle, endAngle, child:{...}}. ' +
+    "child is ONE leaf element drawn at local origin.",
+  "grid-group":
+    'grid-group fields: {type:"grid-group", x, y, cols, rows, colSpacing, rowSpacing, child:{...}}. ' +
+    "cols/rows are counts, colSpacing/rowSpacing are distances between cell centers.",
+  "scatter-group":
+    'scatter-group fields: {type:"scatter-group", x, y, width, height, count, seed, child:{...}}. ' +
+    "seed is a required integer; same seed gives same positions.",
+  "path-group":
+    'path-group fields: {type:"path-group", waypoints, count, child}. ' +
+    "waypoints is an array of x/y points, minimum 2; children are spread evenly along the polyline.",
   parametric:
-    'parametric fields: {type:"parametric", fn:"rose|heart|lissajous|spiral|star|superformula|hypotrochoid|wave", ' +
-    "size, cx, cy} plus per-fn params (k, freqX/freqY, points, innerRadius, ...).",
+    'parametric fields: {type:"parametric", fn:"rose|heart|lissajous|spiral|star|superformula|epitrochoid|hypotrochoid|wave", ' +
+    "cx, cy, scale} plus per-fn params (rose: k; lissajous: freqA/freqB/delta; star: points/innerRadius; " +
+    "spiro: R/r/d; spiral: turns/growth; wave: width/amplitude/frequency). Size is set via scale, not size.",
 };
 
 const VALID_TYPES = Object.keys(ELEMENT_SCHEMAS).join(", ");

@@ -9,6 +9,31 @@
  */
 
 // ---------------------------------------------------------------------------
+// Render warnings
+//
+// Renderers are pure string builders with no shared context object, so
+// warnings raised deep inside (e.g. a blocked attribute value) are collected
+// here and drained by the tool handler after each render. Without this, a
+// dropped attribute is only visible on stderr — the model previews a broken
+// element with no way to learn why.
+// ---------------------------------------------------------------------------
+
+const renderWarnings: string[] = [];
+
+/** Record a warning for the current render and echo it to stderr. */
+export function warnRender(message: string): void {
+  renderWarnings.push(message);
+  console.error(`[nakkas] ${message}`);
+}
+
+/** Return all warnings collected since the last drain, and reset. */
+export function drainRenderWarnings(): string[] {
+  const drained = [...renderWarnings];
+  renderWarnings.length = 0;
+  return drained;
+}
+
+// ---------------------------------------------------------------------------
 // XML safety
 // ---------------------------------------------------------------------------
 
@@ -53,7 +78,11 @@ export function attr(name: string, value: string | number | boolean | null | und
   if (value === null || value === undefined) return "";
   const strVal = String(value);
   if (!isSafeValue(strVal)) {
-    console.error(`[nakkas] Unsafe attribute value blocked: ${name}="${strVal}"`);
+    warnRender(
+      `Attribute ${name}="${strVal}" was blocked by the security filter and OMITTED from the output ` +
+        `(event handlers, javascript: URIs and non-image data: URIs are not allowed). ` +
+        `The element renders without this attribute.`
+    );
     return "";
   }
   return `${name}="${escapeXml(strVal)}"`;

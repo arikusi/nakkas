@@ -7,16 +7,17 @@
  */
 
 import { z } from "zod";
+import { numeric } from "./base.js";
 
 export const CanvasSchema = z.object({
   width: z
-    .union([z.number().positive(), z.string()])
+    .union([numeric(z.number().positive()), z.string()])
     .describe(
       "SVG element width. Number = pixels: 400. String = CSS value: '100%'. " +
       "Use a fixed pixel value (e.g. 800) for predictable layout in static contexts."
     ),
   height: z
-    .union([z.number().positive(), z.string()])
+    .union([numeric(z.number().positive()), z.string()])
     .describe("SVG element height. Match aspect ratio with viewBox for responsive scaling."),
   viewBox: z
     .string()

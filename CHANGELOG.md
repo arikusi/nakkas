@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+* Fixed the slim registration schema silently stripping valid fields before the handler ran. `canvas.preserveAspectRatio` and any other key the full schema accepts vanished without an error because the MCP SDK parses arguments through plain `z.object()`. Every object in the slim schema is now `.passthrough()`; the full schema in the handler is the single validation authority.
+* Fixed validation cheat sheets teaching wrong field names: the grid-group hint said `spacingX`/`spacingY` where the schema wants `colSpacing`/`rowSpacing`, and the parametric hint said `size` and `freqX`/`freqY` where the schema wants `scale` and `freqA`/`freqB`. Added hints for arc-group, scatter-group and path-group, plus a test that cross-checks every hint against the real schema shape.
+* Numeric strings now coerce on all number fields: `letterSpacing: "6"` or `strokeWidth: "2.5"` is converted instead of rejected, so CSS-style habits no longer cost a retry round-trip. Non-numeric strings still fail with the same field-level messages.
+* Added reference integrity checks before rendering. Dangling `url(#id)` in `fill`/`stroke`/`filter`/`clipPath`/`mask`, `use.href` with no matching symbol or element, `textPath.pathId` missing from `defs.paths`, dangling gradient `href` inheritance, and duplicate IDs are all rejected with the exact field path and the list of defined IDs. Previously these rendered silently broken output.
+* Attribute values blocked by the security filter (event handlers, `javascript:` URIs, non-image `data:` URIs) now surface as a design note in the tool response naming the omitted attribute. Previously the only trace was a stderr line the model never saw.
+* Corrected the `render_svg` tool description: gradient stop and filter colors are hex-only but element `fill`/`stroke` accept any paint string; grid-group takes `cols`/`rows` (not `count`); `epitrochoid` added to the parametric function list; parametric size is set via `scale`; per-type pattern group fields spelled out.
+
 ## 0.1.6
 
 * Fixed background rect ignoring the viewBox origin: with a centered viewBox like `-100 -100 200 200` the background covered only one quadrant. It now anchors to the viewBox rect.

@@ -12,7 +12,7 @@
  */
 
 import { z } from "zod";
-import { BaseElementSchema, StrokeLinecapSchema, StrokeLinejoinSchema } from "./base.js";
+import { BaseElementSchema, StrokeLinecapSchema, StrokeLinejoinSchema, numeric } from "./base.js";
 import { SMILAnimationSchema } from "./animations.js";
 
 // Shared field for inline SMIL animations on any shape
@@ -30,20 +30,20 @@ const smilAnimations = z
 
 export const RectSchema = BaseElementSchema.extend({
   type: z.literal("rect"),
-  x: z.number().optional().default(0).describe("Left edge X coordinate in SVG user units"),
-  y: z.number().optional().default(0).describe("Top edge Y coordinate in SVG user units"),
-  width: z.number().positive().describe("Rectangle width in SVG user units"),
-  height: z.number().positive().describe("Rectangle height in SVG user units"),
-  rx: z
+  x: numeric(z.number().optional().default(0).describe("Left edge X coordinate in SVG user units")),
+  y: numeric(z.number().optional().default(0).describe("Top edge Y coordinate in SVG user units")),
+  width: numeric(z.number().positive().describe("Rectangle width in SVG user units")),
+  height: numeric(z.number().positive().describe("Rectangle height in SVG user units")),
+  rx: numeric(z
     .number()
     .min(0)
     .optional()
-    .describe("Corner radius X — creates rounded corners. Set rx=ry for uniform rounding."),
-  ry: z
+    .describe("Corner radius X — creates rounded corners. Set rx=ry for uniform rounding.")),
+  ry: numeric(z
     .number()
     .min(0)
     .optional()
-    .describe("Corner radius Y — defaults to rx when omitted"),
+    .describe("Corner radius Y — defaults to rx when omitted")),
   smilAnimations,
 });
 
@@ -53,9 +53,9 @@ export const RectSchema = BaseElementSchema.extend({
 
 export const CircleSchema = BaseElementSchema.extend({
   type: z.literal("circle"),
-  cx: z.number().optional().default(0).describe("Center X coordinate"),
-  cy: z.number().optional().default(0).describe("Center Y coordinate"),
-  r: z.number().positive().describe("Radius in SVG user units"),
+  cx: numeric(z.number().optional().default(0).describe("Center X coordinate")),
+  cy: numeric(z.number().optional().default(0).describe("Center Y coordinate")),
+  r: numeric(z.number().positive().describe("Radius in SVG user units")),
   smilAnimations,
 });
 
@@ -65,10 +65,10 @@ export const CircleSchema = BaseElementSchema.extend({
 
 export const EllipseSchema = BaseElementSchema.extend({
   type: z.literal("ellipse"),
-  cx: z.number().optional().default(0).describe("Center X coordinate"),
-  cy: z.number().optional().default(0).describe("Center Y coordinate"),
-  rx: z.number().positive().describe("Horizontal radius"),
-  ry: z.number().positive().describe("Vertical radius"),
+  cx: numeric(z.number().optional().default(0).describe("Center X coordinate")),
+  cy: numeric(z.number().optional().default(0).describe("Center Y coordinate")),
+  rx: numeric(z.number().positive().describe("Horizontal radius")),
+  ry: numeric(z.number().positive().describe("Vertical radius")),
   smilAnimations,
 });
 
@@ -78,10 +78,10 @@ export const EllipseSchema = BaseElementSchema.extend({
 
 export const LineSchema = BaseElementSchema.extend({
   type: z.literal("line"),
-  x1: z.number().describe("Start point X coordinate"),
-  y1: z.number().describe("Start point Y coordinate"),
-  x2: z.number().describe("End point X coordinate"),
-  y2: z.number().describe("End point Y coordinate"),
+  x1: numeric(z.number().describe("Start point X coordinate")),
+  y1: numeric(z.number().describe("Start point Y coordinate")),
+  x2: numeric(z.number().describe("End point X coordinate")),
+  y2: numeric(z.number().describe("End point Y coordinate")),
   strokeLinecap: StrokeLinecapSchema.optional(),
   smilAnimations,
 });
@@ -153,10 +153,10 @@ export const ImageSchema = BaseElementSchema.extend({
       "Image source URL or data:image/... URI for embedded raster images. " +
       "Examples: 'https://example.com/photo.png', 'data:image/png;base64,...'"
     ),
-  x: z.number().optional().default(0).describe("Left edge X coordinate in SVG user units"),
-  y: z.number().optional().default(0).describe("Top edge Y coordinate in SVG user units"),
-  width: z.number().positive().describe("Image display width in SVG user units"),
-  height: z.number().positive().describe("Image display height in SVG user units"),
+  x: numeric(z.number().optional().default(0).describe("Left edge X coordinate in SVG user units")),
+  y: numeric(z.number().optional().default(0).describe("Top edge Y coordinate in SVG user units")),
+  width: numeric(z.number().positive().describe("Image display width in SVG user units")),
+  height: numeric(z.number().positive().describe("Image display height in SVG user units")),
   preserveAspectRatio: z
     .string()
     .optional()

@@ -506,6 +506,12 @@ Prefer CSS generic families (sans-serif, serif, monospace) or a named font with 
 
 When a config fails validation, the error names the exact failing field (for example elements.1.content: Required) and appends a field reference for the failing element type. Field names that differ from raw SVG: text elements put their string in "content" (textPath uses "text" plus "pathId"), groups use "children", pattern groups take a single "child".
 
+Numeric strings are coerced on number fields: letterSpacing: "6" or strokeWidth: "2.5" is accepted and converted, so CSS-style habits do not cost a retry. Non-numeric strings still fail with a field-level message.
+
+Reference integrity is checked before rendering. A fill or stroke of url(#id) must point at a gradient or pattern defined in defs; filter, clipPath and mask likewise; use.href must point at a symbol or element id; textPath.pathId must exist in defs.paths. Dangling references and duplicate IDs are rejected with the exact field path and a list of the IDs that are defined, instead of silently rendering broken output.
+
+If an attribute value is blocked by the security filter (event handlers, javascript: URIs, non-image data: URIs), the render succeeds but a design note reports which attribute was omitted, so a blank element is diagnosable.
+
 ## Tech Stack
 
 * TypeScript + Node.js 18+

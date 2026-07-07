@@ -18,7 +18,9 @@ import { z } from "zod";
 import { SVGConfigSchema, type AnyElement } from "./schemas/config.js";
 import { SVGConfigSlimSchema } from "./schemas/slim.js";
 import { renderSVG } from "./renderer/svg-renderer.js";
+import { drainRenderWarnings } from "./renderer/utils.js";
 import { explainConfigError } from "./validation.js";
+import { checkReferences } from "./refcheck.js";
 import { renderPreview } from "./preview.js";
 import { analyzeConfig } from "./analysis.js";
 import { saveContent } from "./save.js";
@@ -66,9 +68,9 @@ server.registerTool(
 
 **Element types:** rect, circle, ellipse, line, polyline, polygon, path, image, text, textPath, group, use, radial-group, arc-group, grid-group, scatter-group, path-group, parametric
 
-**Pattern groups** (use for repetitive designs): radial-group (circular), arc-group (arc), grid-group (matrix), scatter-group (random), path-group (along polyline). Each takes count + child element.
+**Pattern groups** (use for repetitive designs): radial-group (circular: cx, cy, radius, count), arc-group (arc: cx, cy, radius, count, startAngle, endAngle), grid-group (matrix: cols, rows, colSpacing, rowSpacing), scatter-group (random: width, height, count, seed), path-group (along polyline: waypoints, count). Each takes ONE "child" element.
 
-**Parametric curves** (fn field): rose, heart, lissajous, spiral, star, superformula, hypotrochoid, wave. Server computes coordinates.
+**Parametric curves** (fn field): rose, heart, lissajous, spiral, star, superformula, epitrochoid, hypotrochoid, wave. Size via "scale" field. Server computes coordinates.
 
 **defs:** gradients (linear/radial, SMIL animated stops), filters (presets: glow, neon, blur, drop-shadow, glitch, chromatic-aberration, noise, outline, inner-shadow, emboss + 5 more), clipPaths, masks, patterns (tile fills).
 
@@ -78,7 +80,7 @@ server.registerTool(
 - Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial"). Each needs id, stops (array with offset 0-1, color).
 - Filter type must be "preset" with a "preset" field: {"type":"preset","id":"myGlow","preset":"glow","stdDeviation":8,"color":"#ff00ff"}
 - Keyframe offset: use "from"/"to" or percentage number 0-100 (not "0%"/"100%").
-- Colors: hex only (#rrggbb or #rrggbbaa). No rgb(), no named colors.
+- Gradient stop and filter colors: hex only (#rrggbb or #rrggbbaa). Element fill/stroke accept '#rrggbb', 'none', or 'url(#id)' (hex is safest).
 - Every element needs "type" field. circle needs r, rect needs width+height, path needs d.
 
 **Field names that differ from raw SVG:**
@@ -102,19 +104,40 @@ server.registerTool(
           content: [
             {
               type: "text" as const,
-              text: `Config validation failed:\n${formatted}\n\nCommon fixes:\n- Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial")\n- Filter needs type:"preset" with preset field: {"type":"preset","id":"x","preset":"glow","stdDeviation":8,"color":"#ff00ff"}\n- Keyframe offset: "from"/"to" or number 0-100 (not "0%"/"100%")\n- Colors: hex only (#rrggbb or #rrggbbaa), no rgb() or named colors\n- Every element needs "type". circle needs r, rect needs width+height, path needs d\n- Gradient needs at least 2 stops with offset (0-1) and color`,
+              text: `Config validation failed:\n${formatted}\n\nCommon fixes:\n- Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial")\n- Filter needs type:"preset" with preset field: {"type":"preset","id":"x","preset":"glow","stdDeviation":8,"color":"#ff00ff"}\n- Keyframe offset: "from"/"to" or number 0-100 (not "0%"/"100%")\n- Gradient stop and filter colors must be hex (#rrggbb or #rrggbbaa); fill/stroke accept '#rrggbb', 'none', or 'url(#id)'\n- Every element needs "type". circle needs r, rect needs width+height, path needs d\n- Gradient needs at least 2 stops with offset (0-1) and color`,
             },
           ],
           isError: true,
         };
       }
       const config = parseResult.data;
+
+      // Schema-valid configs can still be internally broken: dangling
+      // url(#id) references and duplicate IDs render wrong output with no
+      // visible cause. Catch them here, before a wasted preview round-trip.
+      const refErrors = checkReferences(config);
+      if (refErrors.length > 0) {
+        const formatted = refErrors.map((e) => `  • ${e}`).join("\n");
+        console.error(`[nakkas] render_svg REFERENCE ERROR\n${formatted}`);
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Config has broken references:\n${formatted}\n\nEvery url(#id), use.href and textPath.pathId must point at an id defined in defs or on an element, and all IDs must be unique.`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      drainRenderWarnings(); // discard leftovers from any earlier failed render
       const svg = renderSVG(config);
+      const renderWarnings = drainRenderWarnings();
       const elapsed = Date.now() - start;
       const elementCount = countElements(config.elements);
 
       // Analyze the config for design issues
-      const warnings = analyzeConfig(config, svg.length);
+      const warnings = [...renderWarnings, ...analyzeConfig(config, svg.length)];
 
       console.error(
         `[nakkas] render_svg OK — ${elementCount} elements, ${svg.length} chars, ${elapsed}ms` +
