@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+The eyes release: the preview stops lying about motion and starts catching layout and readability mistakes.
+
+### Dogfood: pelican test (2026-07-07, filmstrip run) — PASS
+
+Three verification passes through the fresh build over MCP stdio. `output:{frames:4}` on the animated pelican returned one filmstrip image where the cloud drift and wheel-spoke rotation are visible frame to frame, with the wheels staying centered (the sampled rotation is wrapped in the derived transform origin). A deliberately broken config produced both new audits with exact numbers: "Content extends 70px past the right edge" and "Text \"faint\" has 1.21:1 contrast against the #f5f5f5 background (WCAG wants 4.5:1 at 14px)". A 6-frame strip at previewWidth 300 confirmed scaling and labels. Result: `assets/pelican-frames-2026-07-07.png`.
+
+* New `output.frames: N` (2 to 10): instead of the single t=0 preview, render_svg samples the CSS animations at N points in time and returns one labeled filmstrip image. nakkas evaluates the @keyframes math itself — duration, delay, iteration count, direction, fill mode, and easing per segment (named curves, cubic-bezier, steps) — and bakes each sampled state into a static frame. Transform animations resolve transform-box: fill-box / transform-origin: center numerically from the element's geometry (shapes, pattern groups, groups of shapes); elements whose origin cannot be derived keep their base state and say so in a note. SMIL is not sampled and is noted when present.
+* Bounding-box audit: after every render the content's real bounding box (from resvg) is compared against the viewport, and anything poking past an edge produces a design note with the exact overflow in pixels. Previously off-canvas content was silently clipped in the preview.
+* Text contrast audit: text with a plain hex fill is checked against a plain hex canvas background using WCAG contrast ratios (3:1 at 24px and above, 4.5:1 below), with the failing ratio in the note. Gradient and pattern fills are skipped, not guessed.
+* 368 tests (32 new covering easing evaluation, value interpolation, progress math, frame baking, filmstrip composition and both audits).
+
 ## 0.2.0
 
 Token economy release: an iteration loop no longer pays context tokens for SVG text. Minor version bump because the default render_svg response shape changed.

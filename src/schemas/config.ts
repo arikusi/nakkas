@@ -180,6 +180,19 @@ export const OutputOptionsSchema = z.object({
     .describe(
       "Collapse whitespace between tags in the SVG output. Default false (pretty-printed)."
     ),
+  frames: numeric(
+    z
+      .number()
+      .int()
+      .min(2)
+      .max(10)
+      .optional()
+  ).describe(
+    "Sample the CSS animations at N points in time and return one filmstrip " +
+      "image instead of the single static preview. Use to verify motion: " +
+      "resvg cannot play animations, so nakkas evaluates the @keyframes math " +
+      "per frame. 4 to 6 frames covers most loops."
+  ),
 });
 
 export type OutputOptions = z.infer<typeof OutputOptionsSchema>;

@@ -55,5 +55,6 @@ export const SVGConfigSlimSchema = z.object({
     preview: z.boolean().optional(),
     previewWidth: z.number().optional(),
     minify: z.boolean().optional(),
+    frames: z.number().optional(),
   }).passthrough().optional(),
 }).passthrough();

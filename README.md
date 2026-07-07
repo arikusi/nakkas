@@ -145,8 +145,11 @@ The response shape is controlled by an optional `output` block in the config:
 * `preview: false` skips the PNG image
 * `previewWidth` scales the preview
 * `minify: true` collapses whitespace in the stored and saved SVG
+* `frames: N` (2 to 10) replaces the static preview with one filmstrip image sampling the CSS animations at N points in time — the way to verify motion, since a single preview only shows the starting state
 
-After rendering, the response may include design warnings about common issues such as too many concurrent animations, missing transformBox, or group-level scale transforms.
+With `frames`, nakkas evaluates the @keyframes math itself (duration, delay, iteration count, direction, fill mode, easing per segment) and bakes each sampled state into a static frame. Transform origins declared as `transform-box: fill-box` are resolved numerically from the element's geometry. SMIL animations are not sampled.
+
+After rendering, the response may include design warnings about common issues such as too many concurrent animations, missing transformBox, group-level scale transforms, content extending past the viewport (measured from the real rendered bounding box, with the overflow in pixels), or low-contrast text against the canvas background (WCAG ratios).
 
 ### SVGConfig Structure
 
@@ -321,7 +324,7 @@ If you're building an MCP client integration and seeing this consistently, the i
 
 ### Preview shows a blank or unexpected image
 
-The preview tool renders a static snapshot at t=0. Animations are not captured. What you see is the SVG's initial state before any CSS or SMIL animation starts.
+A single preview renders a static snapshot at t=0, before any animation starts. To see the motion, render with `output: { frames: 4 }` (or up to 10): nakkas samples the CSS animations at N points in time and returns one labeled filmstrip image. SMIL animations are the exception; they are not sampled and always show their base state.
 
 If the image is completely blank:
 

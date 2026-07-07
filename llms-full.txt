@@ -47,7 +47,7 @@ Pass exactly one of `artifact` or `content`.
 
 **Notes**:
 * Background is transparent by default (no background color in output PNG)
-* CSS animations and SMIL are rendered as a static t=0 snapshot (motion not captured in PNG)
+* CSS animations and SMIL are rendered as a static t=0 snapshot (motion not captured in a single PNG). To verify motion, use render_svg with output:{frames:N} — it returns a filmstrip sampling the CSS animation state at N times. SMIL is never sampled.
 * Use in a render → preview → revise loop for AI-driven iterative design
 
 **Typical workflow**:
@@ -89,6 +89,8 @@ After rendering, `render_svg` automatically analyzes the config and may return d
 * Large SVG output size (over 50kb)
 * High element count (over 200 expanded elements)
 * Heavily shared cssClass values (limits per-element timing control)
+* Content extending past the viewport (real rendered bounding box vs viewBox, with the overflow in pixels)
+* Low-contrast text against the canvas background (WCAG ratios; hex fill vs hex background only)
 
 These notes appear under "Design notes" in the response's summary text block. Read and address them during iteration.
 
@@ -104,6 +106,7 @@ These notes appear under "Design notes" in the response's summary text block. Re
 * `preview: false` — skip the PNG preview image (default true)
 * `previewWidth: number` — preview image width in pixels (defaults to the SVG's own width)
 * `minify: true` — collapse whitespace between tags in the stored and saved SVG (default false)
+* `frames: N` — 2 to 10; replace the static preview with one filmstrip image sampling the CSS animations at N points in time. nakkas evaluates the @keyframes math (duration, delay, iteration count, direction, fill mode, per-segment easing) and bakes each state into a static frame; transform-box: fill-box origins are resolved numerically from element geometry. Use to verify rotation direction, timing and easing. SMIL is not sampled.
 
 ## SVGConfig Schema
 
