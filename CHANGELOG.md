@@ -2,11 +2,7 @@
 
 ## Unreleased
 
-The eyes release: the preview stops lying about motion and starts catching layout and readability mistakes.
-
-### Dogfood: pelican test (2026-07-07, filmstrip run) — PASS
-
-Three verification passes through the fresh build over MCP stdio. `output:{frames:4}` on the animated pelican returned one filmstrip image where the cloud drift and wheel-spoke rotation are visible frame to frame, with the wheels staying centered (the sampled rotation is wrapped in the derived transform origin). A deliberately broken config produced both new audits with exact numbers: "Content extends 70px past the right edge" and "Text \"faint\" has 1.21:1 contrast against the #f5f5f5 background (WCAG wants 4.5:1 at 14px)". A 6-frame strip at previewWidth 300 confirmed scaling and labels. Result: `assets/pelican-frames-2026-07-07.png`.
+The eyes release: the preview stops lying about motion and starts catching layout and readability mistakes. Dogfood record: see `dogfooding.md`.
 
 * New `output.frames: N` (2 to 10): instead of the single t=0 preview, render_svg samples the CSS animations at N points in time and returns one labeled filmstrip image. nakkas evaluates the @keyframes math itself — duration, delay, iteration count, direction, fill mode, and easing per segment (named curves, cubic-bezier, steps) — and bakes each sampled state into a static frame. Transform animations resolve transform-box: fill-box / transform-origin: center numerically from the element's geometry (shapes, pattern groups, groups of shapes); elements whose origin cannot be derived keep their base state and say so in a note. SMIL is not sampled and is noted when present.
 * Bounding-box audit: after every render the content's real bounding box (from resvg) is compared against the viewport, and anything poking past an edge produces a design note with the exact overflow in pixels. Previously off-canvas content was silently clipped in the preview.
@@ -15,11 +11,7 @@ Three verification passes through the fresh build over MCP stdio. `output:{frame
 
 ## 0.2.0
 
-Token economy release: an iteration loop no longer pays context tokens for SVG text. Minor version bump because the default render_svg response shape changed.
-
-### Dogfood: pelican test (2026-07-07, second run) — PASS
-
-Run through the fresh build over the real MCP stdio layer, 4 iterations. The whole loop ran on the new economy: every render came back as a PNG preview directly (one tool call per iteration instead of render + preview), and the final save used the artifact id — the SVG text never entered context. Iteration 1 confirmed the use-instanced wheel spokes render pixel-identical to 0.1.7 while shrinking the same config from 7553 to 6783 chars. Iterations 2 to 4 added background hills and scatter-group grass tufts, then relocated the tufts twice: they first collided with the caption, then landed on the sand strip instead of grass (scatter-group placement is blind to what is underneath — the preview image is what catches it, which is the point of the ritual). Result: `assets/pelican-2026-07-07-1.svg` and `.png` (saved via the save tool's new artifact path, collision counter working as documented).
+Token economy release: an iteration loop no longer pays context tokens for SVG text. Minor version bump because the default render_svg response shape changed. Dogfood record: see `dogfooding.md`.
 
 * render_svg now answers with a PNG preview image plus a server-side artifact id instead of the SVG text. The store keeps the 32 most recent renders for the process lifetime. preview and save accept `artifact: "art-1"` directly, so the render → look → revise loop costs one tool call per round and the SVG string never travels through the model's context window. This is the new default; the previous behavior is one flag away.
 * New top-level `output` config block controls the response shape: `svg: true` includes the SVG text, `preview: false` skips the image, `previewWidth` scales it, `minify: true` collapses inter-tag whitespace in the stored and saved SVG.
@@ -30,11 +22,7 @@ Run through the fresh build over the real MCP stdio layer, 4 iterations. The who
 
 ## 0.1.7
 
-### Dogfood: pelican test (2026-07-07) — PASS
-
-Every release round now closes with a pelican-on-a-bicycle dogfood run: the config is rendered through the real MCP stdio layer against the fresh build, previewed, critiqued and revised for at least three iterations, and the result lands in `assets/` with the date. This round took 4 iterations and verified the DX repairs live: `canvas.preserveAspectRatio` survived to the output (slim passthrough), `letterSpacing: "1.5"` as a string coerced cleanly, `url(#sky)`/`url(#sunGlow)` passed reference checks, and the animation classes landed on the radial-group wrappers. Result: `assets/pelican-2026-07-07.svg` (animated: spinning spokes, drifting clouds) and `assets/pelican-2026-07-07.png`.
-
-One usability finding came out of iteration 1: a radial-group child is rotated so its local +x axis points outward from the center, so a spoke drawn as a tall rect (long axis on y) renders as a chord ring instead of spokes. Worth documenting in the tool description.
+Dogfood record: see `dogfooding.md`.
 
 * Fixed the slim registration schema silently stripping valid fields before the handler ran. `canvas.preserveAspectRatio` and any other key the full schema accepts vanished without an error because the MCP SDK parses arguments through plain `z.object()`. Every object in the slim schema is now `.passthrough()`; the full schema in the handler is the single validation authority.
 * Fixed validation cheat sheets teaching wrong field names: the grid-group hint said `spacingX`/`spacingY` where the schema wants `colSpacing`/`rowSpacing`, and the parametric hint said `size` and `freqX`/`freqY` where the schema wants `scale` and `freqA`/`freqB`. Added hints for arc-group, scatter-group and path-group, plus a test that cross-checks every hint against the real schema shape.
