@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.7
 
 ### Dogfood: pelican test (2026-07-07) — PASS
 
