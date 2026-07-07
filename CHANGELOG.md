@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0
+
+Token economy release: an iteration loop no longer pays context tokens for SVG text. Minor version bump because the default render_svg response shape changed.
+
+### Dogfood: pelican test (2026-07-07, second run) — PASS
+
+Run through the fresh build over the real MCP stdio layer, 4 iterations. The whole loop ran on the new economy: every render came back as a PNG preview directly (one tool call per iteration instead of render + preview), and the final save used the artifact id — the SVG text never entered context. Iteration 1 confirmed the use-instanced wheel spokes render pixel-identical to 0.1.7 while shrinking the same config from 7553 to 6783 chars. Iterations 2 to 4 added background hills and scatter-group grass tufts, then relocated the tufts twice: they first collided with the caption, then landed on the sand strip instead of grass (scatter-group placement is blind to what is underneath — the preview image is what catches it, which is the point of the ritual). Result: `assets/pelican-2026-07-07-1.svg` and `.png` (saved via the save tool's new artifact path, collision counter working as documented).
+
+* render_svg now answers with a PNG preview image plus a server-side artifact id instead of the SVG text. The store keeps the 32 most recent renders for the process lifetime. preview and save accept `artifact: "art-1"` directly, so the render → look → revise loop costs one tool call per round and the SVG string never travels through the model's context window. This is the new default; the previous behavior is one flag away.
+* New top-level `output` config block controls the response shape: `svg: true` includes the SVG text, `preview: false` skips the image, `previewWidth` scales it, `minify: true` collapses inter-tag whitespace in the stored and saved SVG.
+* Pattern groups (radial, arc, grid, scatter, path) now render the child element once into a local defs block and instance it with `<use>` per placement. A 12×12 grid went from 144 full copies of the child markup to one definition plus 144 one-line use tags. Also fixes duplicated ids when a pattern child carried an id.
+* Parametric path data coordinates are capped at 2 decimals (was 3); at hundreds of sampled points the third decimal was pure bloat.
+* preview and save return a clear error naming the live artifact ids when given an unknown or expired id, and still accept raw `content` for anything that did not come from render_svg.
+* 336 tests (20 new covering the artifact store, minification, use-instancing, output options and coercion).
+
 ## 0.1.7
 
 ### Dogfood: pelican test (2026-07-07) — PASS
