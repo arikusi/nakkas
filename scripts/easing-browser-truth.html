@@ -1,0 +1,19 @@
+<!doctype html><html><head><style>
+.ball{position:absolute;width:22px;height:22px;
+  animation:run 3s cubic-bezier(0.68,-0.55,0.265,1.55) forwards;
+  animation-play-state:paused;}
+#a{animation-delay:-0.75s}#b{animation-delay:-1.5s}#c{animation-delay:-2.25s}
+@keyframes run{from{transform:translateX(0px)}to{transform:translateX(560px)}}
+</style></head><body>
+<div class="ball" id="a"></div><div class="ball" id="b"></div><div class="ball" id="c"></div>
+<pre id="out"></pre>
+<script>
+requestAnimationFrame(() => {
+  const tx = id => {
+    const m = getComputedStyle(document.getElementById(id)).transform;
+    return new DOMMatrix(m).m41.toFixed(1);
+  };
+  document.getElementById("out").textContent =
+    `BROWSER-TRUTH t=0.75s tx=${tx("a")} | t=1.5s tx=${tx("b")} | t=2.25s tx=${tx("c")}`;
+});
+</script></body></html>

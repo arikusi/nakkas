@@ -14,7 +14,9 @@ Newest first.
 
 **Supporting passes (pelican + audits, 2026-07-07):** the 4-frame pelican strip showed cloud drift and wheel-spoke rotation with wheels staying centered (derived transform origins correct); a deliberately broken 200x100 card (circle off the right edge, #e0e0e0 caption on #f5f5f5) produced both audits with exact numbers ("Content extends 70px past the right edge", "Text \"faint\" has 1.21:1 contrast, WCAG wants 4.5:1 at 14px"); a 6-frame strip at previewWidth 300 confirmed scaling and labels.
 
-**Assets:** `assets/easing-frames-2026-07-09.png` (the 5-frame strip), `assets/easing-compare-2026-07-09.svg` and `.png` (the scene, saved via the artifact path), `assets/pelican-frames-2026-07-07.png`.
+**Browser ground truth (2026-07-09):** user review then asked about the ball moving BACKWARD between t=0 and t=0.75s. That is the curve itself: cubic-bezier(0.68, -0.55, 0.265, 1.55) has negative eased progress in its first phase (a windup before the launch). To settle it beyond argument, the same animation was frozen inside a real headless Chromium using the negative animation-delay trick and read back via getComputedStyle: the browser puts the ball at translateX = -46.4px at t=0.75s, 339.7px at t=1.5s and 609.9px at t=2.25s — positions 23.6 / 409.7 / 679.9 on the track, matching nakkas's sampled frames to a tenth of a pixel. The sampler agrees with Chromium's animation engine exactly. The harness is checked in as `scripts/easing-browser-truth.sh` (plus its HTML fixture) and can be re-run against any chromium; it is the seed of an automated browser-vs-sampler cross-check.
+
+**Assets:** `assets/easing-frames-2026-07-09.png` (the 5-frame strip), `assets/easing-compare-2026-07-09.svg` and `.png` (the scene, saved via the artifact path), `assets/pelican-frames-2026-07-07.png`. Reproducible check: `scripts/easing-browser-truth.sh`.
 
 **Findings:** the filmstrip makes motion reviewable for the first time, down to easing curve shape. CSS axis shorthand transforms in keyframes are common model output; the rewrite in the sampler is load-bearing. SMIL remains unsampled by design and the response says so.
 
