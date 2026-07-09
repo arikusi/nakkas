@@ -34,4 +34,9 @@
   <line x1="630" y1="237" x2="630" y2="251" stroke="#9fb0c0" stroke-width="2"/>
   <circle cx="70" cy="244" r="11" class="run3" fill="#c77c1f"/>
   <text x="70" y="272" font-family="monospace" font-size="12" text-anchor="start" fill="#44566a">cubic-bezier(0.68, -0.55, 0.265, 1.55)</text>
+  <line x1="23.6" y1="244" x2="70" y2="244" stroke="#c77c1f" stroke-width="2" stroke-dasharray="3 3" opacity="0.55"/>
+  <line x1="630" y1="244" x2="679.9" y2="244" stroke="#c77c1f" stroke-width="2" stroke-dasharray="3 3" opacity="0.55"/>
+  <circle cx="23.6" cy="244" r="5" fill="none" stroke="#c77c1f" stroke-width="1.5" opacity="0.7"/>
+  <circle cx="679.9" cy="244" r="5" fill="none" stroke="#c77c1f" stroke-width="1.5" opacity="0.7"/>
+  <text x="630" y="272" font-family="monospace" font-size="12" text-anchor="end" fill="#8a6320">overshoots by design (y &lt; 0, y &gt; 1)</text>
 </svg>
