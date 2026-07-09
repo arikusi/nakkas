@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="320">
+  <style>
+  @keyframes run0{0%{transform:translateX(0px)} 100%{transform:translateX(560px)}}
+  .run0{animation-name:run0;animation-duration:3s;animation-timing-function:linear;animation-iteration-count:1;animation-fill-mode:forwards}
+  @keyframes run1{0%{transform:translateX(0px)} 100%{transform:translateX(560px)}}
+  .run1{animation-name:run1;animation-duration:3s;animation-timing-function:ease-in;animation-iteration-count:1;animation-fill-mode:forwards}
+  @keyframes run2{0%{transform:translateX(0px)} 100%{transform:translateX(560px)}}
+  .run2{animation-name:run2;animation-duration:3s;animation-timing-function:ease-out;animation-iteration-count:1;animation-fill-mode:forwards}
+  @keyframes run3{0%{transform:translateX(0px)} 100%{transform:translateX(560px)}}
+  .run3{animation-name:run3;animation-duration:3s;animation-timing-function:cubic-bezier(0.68,-0.55,0.265,1.55);animation-iteration-count:1;animation-fill-mode:forwards}
+  </style>
+  <rect width="100%" height="100%" fill="#f2f6f9"/>
+  <text x="350" y="34" font-family="monospace" font-size="17" text-anchor="middle" fill="#2b3a4a">same 3s journey, four timing functions</text>
+  <line x1="210" y1="52" x2="210" y2="262" stroke="#dde6ee" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="350" y1="52" x2="350" y2="262" stroke="#dde6ee" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="490" y1="52" x2="490" y2="262" stroke="#dde6ee" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="70" y1="70" x2="630" y2="70" stroke="#c9d4de" stroke-width="2"/>
+  <line x1="70" y1="63" x2="70" y2="77" stroke="#9fb0c0" stroke-width="2"/>
+  <line x1="630" y1="63" x2="630" y2="77" stroke="#9fb0c0" stroke-width="2"/>
+  <circle cx="70" cy="70" r="11" class="run0" fill="#4a90d9"/>
+  <text x="70" y="98" font-family="monospace" font-size="12" text-anchor="start" fill="#44566a">linear</text>
+  <line x1="70" y1="128" x2="630" y2="128" stroke="#c9d4de" stroke-width="2"/>
+  <line x1="70" y1="121" x2="70" y2="135" stroke="#9fb0c0" stroke-width="2"/>
+  <line x1="630" y1="121" x2="630" y2="135" stroke="#9fb0c0" stroke-width="2"/>
+  <circle cx="70" cy="128" r="11" class="run1" fill="#d94a6a"/>
+  <text x="70" y="156" font-family="monospace" font-size="12" text-anchor="start" fill="#44566a">ease-in</text>
+  <line x1="70" y1="186" x2="630" y2="186" stroke="#c9d4de" stroke-width="2"/>
+  <line x1="70" y1="179" x2="70" y2="193" stroke="#9fb0c0" stroke-width="2"/>
+  <line x1="630" y1="179" x2="630" y2="193" stroke="#9fb0c0" stroke-width="2"/>
+  <circle cx="70" cy="186" r="11" class="run2" fill="#3fa66b"/>
+  <text x="70" y="214" font-family="monospace" font-size="12" text-anchor="start" fill="#44566a">ease-out</text>
+  <line x1="70" y1="244" x2="630" y2="244" stroke="#c9d4de" stroke-width="2"/>
+  <line x1="70" y1="237" x2="70" y2="251" stroke="#9fb0c0" stroke-width="2"/>
+  <line x1="630" y1="237" x2="630" y2="251" stroke="#9fb0c0" stroke-width="2"/>
+  <circle cx="70" cy="244" r="11" class="run3" fill="#c77c1f"/>
+  <text x="70" y="272" font-family="monospace" font-size="12" text-anchor="start" fill="#44566a">cubic-bezier(0.68, -0.55, 0.265, 1.55)</text>
+</svg>

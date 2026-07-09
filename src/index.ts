@@ -22,9 +22,13 @@ import { drainRenderWarnings, minifySVG } from "./renderer/utils.js";
 import { storeArtifact, getArtifact, listArtifactIds } from "./artifacts.js";
 import { explainConfigError } from "./validation.js";
 import { checkReferences } from "./refcheck.js";
-import { renderPreview } from "./preview.js";
+import { renderPreview, svgToPng } from "./preview.js";
 import { analyzeConfig } from "./analysis.js";
 import { saveContent } from "./save.js";
+import { bakeFrame, configTimeline, allInfinite } from "./eyes/sampler.js";
+import { buildFilmstrip, type FilmstripFrame } from "./eyes/filmstrip.js";
+import { checkContentBounds, checkTextContrast } from "./eyes/audit.js";
+import { num } from "./renderer/utils.js";
 
 const _require = createRequire(import.meta.url);
 const { version: VERSION } = _require("../package.json") as { version: string };
@@ -95,7 +99,7 @@ server.registerTool(
 
 **Workflow:** render_svg returns a PNG preview of the result plus an artifact id — critique the image, revise the config, render again. Iterate at least 3 times before finalizing. The SVG text stays on the server: pass the artifact id to save (and to preview for a different width). Add output:{svg:true} only if you actually need the SVG text in the conversation.
 
-**output options (response shape, not content):** {"svg":false,"preview":true,"previewWidth":800,"minify":false} — all optional. minify:true collapses whitespace in the stored/saved SVG.
+**output options (response shape, not content):** {"svg":false,"preview":true,"previewWidth":800,"minify":false,"frames":4} — all optional. minify:true collapses whitespace in the stored/saved SVG. frames:N (2-10) replaces the static preview with one filmstrip image sampling the CSS animations at N times — use it to verify motion (rotation direction, timing, easing) since a single preview only shows t=0. SMIL is not sampled.
 
 **Element types:** rect, circle, ellipse, line, polyline, polygon, path, image, text, textPath, group, use, radial-group, arc-group, grid-group, scatter-group, path-group, parametric
 
@@ -170,8 +174,14 @@ server.registerTool(
       const elapsed = Date.now() - start;
       const elementCount = countElements(config.elements);
 
-      // Analyze the config for design issues
-      const warnings = [...renderWarnings, ...analyzeConfig(config, svg.length)];
+      // Analyze the config for design issues, then audit the rendered result
+      // (bounding box overflow needs the rasterizer's layout knowledge)
+      const warnings = [
+        ...renderWarnings,
+        ...analyzeConfig(config, svg.length),
+        ...checkContentBounds(svg, config),
+        ...checkTextContrast(config),
+      ];
 
       const artifactId = storeArtifact(svg);
       const content: ContentBlock[] = [];
@@ -181,7 +191,49 @@ server.registerTool(
         content.push({ type: "text", text: svg });
       }
 
-      if (out.preview !== false) {
+      let frameLine: string | undefined;
+      if (out.frames !== undefined && (config.animations?.length ?? 0) === 0) {
+        warnings.push("output.frames was requested but the config has no CSS animations; returning the single static preview.");
+      }
+
+      if (out.frames !== undefined && (config.animations?.length ?? 0) > 0) {
+        // Animation filmstrip: sample the keyframe math at N times and
+        // compose one labeled strip image.
+        try {
+          const n = out.frames;
+          const timeline = configTimeline(config);
+          const loop = allInfinite(config);
+          // Looping animations: t=T equals t=0, so stop one step short.
+          const times = Array.from({ length: n }, (_, i) =>
+            (timeline * i) / (loop ? n : n - 1)
+          );
+
+          const canvasW = typeof config.canvas.width === "number" ? config.canvas.width : 400;
+          const canvasH = typeof config.canvas.height === "number" ? config.canvas.height : 300;
+          const frameW = Math.min(out.previewWidth ?? canvasW, Math.floor(1600 / n));
+          const frameH = Math.round((frameW * canvasH) / canvasW);
+
+          const frames: FilmstripFrame[] = [];
+          const frameNotes = new Set<string>();
+          for (const t of times) {
+            const baked = bakeFrame(config, t);
+            baked.notes.forEach((note) => frameNotes.add(note));
+            const frameSvg = renderSVG(baked.config);
+            frames.push({ png: svgToPng(frameSvg, frameW), label: `t=${num(t, 2)}s` });
+          }
+          drainRenderWarnings(); // frame renders may repeat the main render's warnings
+
+          const strip = buildFilmstrip(frames, frameW, frameH);
+          content.push({ type: "image", data: strip.toString("base64"), mimeType: "image/png" });
+          frameLine = `Filmstrip: ${n} frames across ${num(timeline, 2)}s (${times.map((t) => `${num(t, 2)}s`).join(", ")}).`;
+          frameNotes.forEach((note) => warnings.push(note));
+        } catch (frameErr) {
+          const msg = frameErr instanceof Error ? frameErr.message : String(frameErr);
+          warnings.push(`Frame sampling failed: ${msg}. Falling back to the static preview.`);
+        }
+      }
+
+      if (out.preview !== false && !content.some((c) => c.type === "image")) {
         try {
           const png = renderPreview(svg, "svg", out.previewWidth);
           content.push({ type: "image", data: png.toString("base64"), mimeType: "image/png" });
@@ -196,6 +248,7 @@ server.registerTool(
 
       const summary: string[] = [
         `Rendered OK: artifact "${artifactId}" — ${svg.length} chars, ${elementCount} elements.`,
+        ...(frameLine ? [frameLine] : []),
         `Use save({artifact:"${artifactId}", outputPath:...}) or preview({artifact:"${artifactId}", width:...}); ` +
           `the SVG text does not need to pass through context.`,
       ];
