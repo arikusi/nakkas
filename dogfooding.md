@@ -4,17 +4,19 @@ Every significant change ships only after a dogfood run: a design produced throu
 
 Newest first.
 
-## Unreleased (the eyes) — 2026-07-08, PASS
+## v0.3.0 (the eyes) — 2026-07-09, PASS
 
-**Under test:** animation filmstrip sampling (`output.frames`), bounding-box overflow audit, text contrast audit.
+**Under test:** animation filmstrip sampling (`output.frames`) with its easing math, bounding-box overflow audit, text contrast audit.
 
-**Prompt:** "Render the animated pelican-on-a-bicycle scene with `output:{frames:4}`, then with `output:{frames:6, previewWidth:300}`. Separately render a 200x100 card containing a circle centered off the right edge of the canvas and a caption in deliberately faint gray (#e0e0e0 on #f5f5f5) to trigger both audits."
+**Prompt (feature-tailored):** "An easing comparison card (700x320, light background): four labeled lanes for linear, ease-in, ease-out and cubic-bezier(0.68, -0.55, 0.265, 1.55). Each lane has a track with end ticks and a colored ball that travels the same 560px in the same 3 seconds, differing only in timing function (iterationCount 1, fillMode forwards). Quarter-distance guide lines across the lanes. Render with output:{frames:5} so the positions diverge frame by frame."
 
-**Iterations:** 3 verification passes. Pass 1: the 4-frame strip showed cloud drift and wheel-spoke rotation frame to frame, wheels staying centered, confirming the sampled rotations are wrapped in the correct derived transform origin. Pass 2: the broken card produced both audits with exact numbers ("Content extends 70px past the right edge", "Text \"faint\" has 1.21:1 contrast against the #f5f5f5 background (WCAG wants 4.5:1 at 14px)"). Pass 3: the 6-frame strip confirmed per-frame scaling and time labels.
+**Iterations:** 3. Iteration 1 caught a real bug, which is exactly what a feature-shaped design is for: none of the balls moved, because the keyframes used CSS axis shorthands (`translateX`) and the sampler baked them verbatim into the SVG `transform` attribute, where they are invalid syntax and resvg drops the whole attribute. The fixed pelican scene could never have caught this — it only animates `rotate` and `translate`. Fix: the sampler now rewrites CSS-only functions to SVG syntax (translateX(a) → translate(a, 0), scaleY(a) → scale(1, a), skewX casing restored) with two regression tests. Iteration 2 showed the physics correctly: ease-in lagging linear, ease-out leading, and the back bezier dipping BEHIND the start line at t=0.75s (its -0.55 control point) then overshooting past the end tick at t=2.25s before settling. Iteration 3 added quarter-distance guides; the linear ball sits exactly on the midpoint guide at t=1.5s.
 
-**Assets:** `assets/pelican-frames-2026-07-07.png` (the 4-frame strip).
+**Supporting passes (pelican + audits, 2026-07-07):** the 4-frame pelican strip showed cloud drift and wheel-spoke rotation with wheels staying centered (derived transform origins correct); a deliberately broken 200x100 card (circle off the right edge, #e0e0e0 caption on #f5f5f5) produced both audits with exact numbers ("Content extends 70px past the right edge", "Text \"faint\" has 1.21:1 contrast, WCAG wants 4.5:1 at 14px"); a 6-frame strip at previewWidth 300 confirmed scaling and labels.
 
-**Findings:** the filmstrip makes motion reviewable for the first time; a single t=0 preview could never have confirmed rotation direction or drift amplitude. SMIL remains unsampled by design and the response says so.
+**Assets:** `assets/easing-frames-2026-07-09.png` (the 5-frame strip), `assets/easing-compare-2026-07-09.svg` and `.png` (the scene, saved via the artifact path), `assets/pelican-frames-2026-07-07.png`.
+
+**Findings:** the filmstrip makes motion reviewable for the first time, down to easing curve shape. CSS axis shorthand transforms in keyframes are common model output; the rewrite in the sampler is load-bearing. SMIL remains unsampled by design and the response says so.
 
 ## v0.2.0 (token economy) — 2026-07-07, PASS
 

@@ -102,6 +102,30 @@ export function serializeTransformList(fns: TransformFn[]): string {
 }
 
 /**
+ * Rewrite a CSS transform string into SVG transform-attribute syntax.
+ * CSS-only axis shorthands have no SVG equivalent and make resvg drop the
+ * whole attribute: translateX(a) → translate(a, 0), scaleY(a) → scale(1, a),
+ * and skewX/skewY get their casing restored (the parser lowercases names).
+ * Returns null when the string cannot be parsed as a transform list.
+ */
+export function toSvgTransform(s: string): string | null {
+  const fns = parseTransformList(s);
+  if (fns === null) return null;
+  const mapped: TransformFn[] = fns.map((f) => {
+    switch (f.name) {
+      case "translatex": return { name: "translate", args: [f.args[0] ?? 0, 0] };
+      case "translatey": return { name: "translate", args: [0, f.args[0] ?? 0] };
+      case "scalex": return { name: "scale", args: [f.args[0] ?? 1, 1] };
+      case "scaley": return { name: "scale", args: [1, f.args[0] ?? 1] };
+      case "skewx": return { name: "skewX", args: f.args };
+      case "skewy": return { name: "skewY", args: f.args };
+      default: return f;
+    }
+  });
+  return serializeTransformList(mapped);
+}
+
+/**
  * Interpolate two transform lists. Requires identical function names and
  * arg counts position by position (the common case for keyframes authored
  * as matching from/to pairs). Returns null when the lists don't match.

@@ -350,7 +350,7 @@ If `render_svg` returns a warning about file size (over 50kb), the parametric cu
 * `@modelcontextprotocol/sdk` (MCP server)
 * `zod` (schema validation and AI type guidance)
 * No external SVG libraries, pure XML construction
-* Vitest (336 tests)
+* Vitest (370 tests)
 
 ## License
 

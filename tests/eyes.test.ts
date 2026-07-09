@@ -14,6 +14,7 @@ import {
   lerpTransform,
   lerpValue,
   parseTransformList,
+  toSvgTransform,
 } from "../src/eyes/interpolate.js";
 import {
   parseDuration,
@@ -92,6 +93,17 @@ describe("interpolation", () => {
 
   it("rejects 3d transforms", () => {
     expect(parseTransformList("rotate3d(1,1,1,45deg)")).toBeNull();
+  });
+
+  it("rewrites CSS axis shorthands to valid SVG transform syntax", () => {
+    // translateX etc. are CSS-only; resvg drops the whole attribute on them
+    expect(toSvgTransform("translateX(140px)")).toBe("translate(140, 0)");
+    expect(toSvgTransform("translateY(-20px)")).toBe("translate(0, -20)");
+    expect(toSvgTransform("scaleX(2)")).toBe("scale(2, 1)");
+    expect(toSvgTransform("scaleY(0.5)")).toBe("scale(1, 0.5)");
+    expect(toSvgTransform("skewX(10deg)")).toBe("skewX(10)");
+    expect(toSvgTransform("rotate(45deg) translateX(10px)")).toBe("rotate(45) translate(10, 0)");
+    expect(toSvgTransform("not a transform")).toBeNull();
   });
 
   it("lerpValue: numbers, colors, discrete fallback", () => {
@@ -236,6 +248,32 @@ describe("bakeFrame", () => {
     bakeFrame(wheelConfig, 0.5);
     expect(wheelConfig.animations).toHaveLength(1);
     expect((wheelConfig.elements[0] as { cssClass?: string }).cssClass).toBe("spin");
+  });
+
+  it("bakes translateX animations as valid SVG translate()", () => {
+    const cfg = c({
+      canvas: { width: 700, height: 100 },
+      elements: [{ type: "circle", cx: 70, cy: 50, r: 10, fill: "#4a90d9", cssClass: "run" }],
+      animations: [
+        {
+          name: "run",
+          duration: "3s",
+          timingFunction: "linear",
+          iterationCount: 1,
+          fillMode: "forwards",
+          keyframes: [
+            { offset: 0, properties: { transform: "translateX(0px)" } },
+            { offset: 100, properties: { transform: "translateX(560px)" } },
+          ],
+        },
+      ],
+    });
+    const { config } = bakeFrame(cfg, 1.5);
+    const el = config.elements[0] as { transform?: string };
+    expect(el.transform).toBe("translate(280, 0)");
+    // and the rendered attribute survives resvg's transform parser
+    const svg = renderSVG(config);
+    expect(svg).toContain('transform="translate(280, 0)"');
   });
 
   it("bakes opacity and color onto config fields", () => {

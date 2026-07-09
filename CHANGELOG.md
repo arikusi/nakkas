@@ -1,13 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
 The eyes release: the preview stops lying about motion and starts catching layout and readability mistakes. Dogfood record: see `dogfooding.md`.
 
 * New `output.frames: N` (2 to 10): instead of the single t=0 preview, render_svg samples the CSS animations at N points in time and returns one labeled filmstrip image. nakkas evaluates the @keyframes math itself — duration, delay, iteration count, direction, fill mode, and easing per segment (named curves, cubic-bezier, steps) — and bakes each sampled state into a static frame. Transform animations resolve transform-box: fill-box / transform-origin: center numerically from the element's geometry (shapes, pattern groups, groups of shapes); elements whose origin cannot be derived keep their base state and say so in a note. SMIL is not sampled and is noted when present.
 * Bounding-box audit: after every render the content's real bounding box (from resvg) is compared against the viewport, and anything poking past an edge produces a design note with the exact overflow in pixels. Previously off-canvas content was silently clipped in the preview.
 * Text contrast audit: text with a plain hex fill is checked against a plain hex canvas background using WCAG contrast ratios (3:1 at 24px and above, 4.5:1 below), with the failing ratio in the note. Gradient and pattern fills are skipped, not guessed.
-* 368 tests (32 new covering easing evaluation, value interpolation, progress math, frame baking, filmstrip composition and both audits).
+* Frame baking rewrites CSS-only transform shorthands to SVG attribute syntax: translateX(a) becomes translate(a, 0), scaleY(a) becomes scale(1, a), skewX keeps its casing. Baked verbatim they are invalid in the transform attribute and resvg drops the whole transform, freezing the element. Found by the easing-comparison dogfood on its first frame.
+* 370 tests (34 new covering easing evaluation, value interpolation, the CSS-to-SVG transform rewrite, progress math, frame baking, filmstrip composition and both audits).
 
 ## 0.2.0
 

@@ -19,7 +19,7 @@
 import type { SVGConfig, AnyElement } from "../schemas/config.js";
 import type { CSSAnimation } from "../schemas/animations.js";
 import { resolveEasing } from "./easing.js";
-import { lerpValue } from "./interpolate.js";
+import { lerpValue, toSvgTransform } from "./interpolate.js";
 import { num } from "../renderer/utils.js";
 
 // ---------------------------------------------------------------------------
@@ -264,6 +264,10 @@ function applySample(
 
   for (const [prop, value] of Object.entries(sample)) {
     if (prop === "transform") {
+      // CSS axis shorthands (translateX, scaleY) are invalid in the SVG
+      // transform attribute and make resvg drop it wholesale — rewrite to
+      // SVG syntax first. Unparseable values fall back to a unit strip.
+      const svgTransform = toSvgTransform(value) ?? stripUnits(value);
       const wantsBoxOrigin =
         typeof target.transformBox === "string" || typeof target.transformOrigin === "string";
       const hasRotateOrScale = /rotate|scale|skew/i.test(value);
@@ -276,10 +280,10 @@ function applySample(
           );
           continue;
         }
-        target.transform = `translate(${num(origin.x)}, ${num(origin.y)}) ${stripUnits(value)} translate(${num(-origin.x)}, ${num(-origin.y)})`;
+        target.transform = `translate(${num(origin.x)}, ${num(origin.y)}) ${svgTransform} translate(${num(-origin.x)}, ${num(-origin.y)})`;
       } else {
         // CSS transform replaces the attribute transform during animation
-        target.transform = stripUnits(value);
+        target.transform = svgTransform;
       }
       delete target.transformBox;
       delete target.transformOrigin;
