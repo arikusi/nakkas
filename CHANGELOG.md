@@ -7,7 +7,8 @@ Diagram release: arrowheads arrive and the contrast audit stops looking away fro
 * New `defs.markers`: preset arrowhead and line-end glyphs (`triangle`, `arrow`, `circle`, `square`, `diamond`, `bar`) with `color`, `size` and `orient` fields. Markers scale with the stroke width of the line they decorate. Reference them from `line`, `polyline` and `path` elements via `markerStart` / `markerMid` / `markerEnd` with the plain marker id (`url(#id)` is also accepted and normalized). This unlocks flow charts, sequence arrows and annotated diagrams.
 * Marker references go through the same integrity checks as every other id: a dangling `markerEnd` is rejected before rendering with the field path and the list of defined markers, and duplicate marker ids are caught.
 * The text contrast audit no longer skips gradient fills. Gradient stops are hex by schema, so the worst stop against the canvas background is computed and reported by name: `Text "the nakkas loop" uses gradient "title" whose stop #dbe2f0 has only 1.22:1 contrast...`. Pattern fills are still skipped rather than guessed at.
-* 392 tests (9 new covering marker rendering, reference normalization, size/orient, refcheck and the gradient contrast path).
+* The browser ground-truth check is now an automated test: 12 seeded random translateX animations (named easings and random cubic-beziers, multi-stop keyframes, random durations and sample times) are frozen in headless Chromium via the negative animation-delay trick and compared against bakeFrame's output, with a 1px tolerance. Deterministic seed in CI, `BROWSER_TRUTH_SEED` to fuzz new cases; skips with a warning when no Chromium binary exists. Verified by mutation: a planted 10% easing error fails the test, reverting restores green.
+* 393 tests (9 new covering marker rendering, reference normalization, size/orient, refcheck and the gradient contrast path, plus the browser cross-check).
 
 ## 0.4.0
 

@@ -16,6 +16,8 @@ Newest first.
 
 **Findings:** marker orientation, strokeWidth scaling and the url(#id) normalization all behaved on first render; the diagram use case is genuinely unlocked. The 4.48:1 caption catch is the strongest argument yet for numeric audits: it looks fine and is not.
 
+**Supporting pass (browser cross-check automation, same release):** the manual `scripts/easing-browser-truth.sh` check became `tests/browser-truth.test.ts`: 12 seeded random translateX animations frozen in headless Chromium and diffed against bakeFrame within 1px. The harness was validated both ways: three extra seeds (7, 4242, 987654) all matched 12/12, and a deliberately planted 10% error in the cubic-bezier evaluator made the test fail before the revert brought it back to green. A guard that cannot fail is not a guard; this one can and did.
+
 ## v0.4.0 (text layout) — 2026-07-13, PASS
 
 **Under test:** per-text ink measurement and the two audits built on it: named viewport-overflow warnings and text-on-text collision detection.
