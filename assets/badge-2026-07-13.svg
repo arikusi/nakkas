@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="144">
+  <defs>
+    <linearGradient id="pill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2d3142"/>
+      <stop offset="100%" stop-color="#3a3f55"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#1c1e26"/>
+  <text x="24" y="40" font-family="sans-serif" font-size="24" font-weight="bold" fill="#f5f5f5">nakkas</text>
+  <text x="24" y="56" font-family="sans-serif" font-size="13" fill="#aab0c0">renders, previews and audits animated SVG</text>
+  <rect x="24" y="88" width="132" height="32" rx="16" fill="url(#pill)"/>
+  <text x="90" y="108" font-family="sans-serif" font-size="13" text-anchor="middle" fill="#8fd3a7">1.4k dl/month</text>
+  <rect x="168" y="88" width="132" height="32" rx="16" fill="url(#pill)"/>
+  <text x="234" y="108" font-family="sans-serif" font-size="13" text-anchor="middle" fill="#8fc4d3">383 tests passing</text>
+  <rect x="312" y="88" width="132" height="32" rx="16" fill="url(#pill)"/>
+  <text x="378" y="108" font-family="sans-serif" font-size="13" text-anchor="middle" fill="#d3b98f">MIT licensed</text>
+</svg>

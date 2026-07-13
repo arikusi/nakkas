@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0
+
+Text layout release: the audits learn to read. Dogfood record: see `dogfooding.md`.
+
+* Every text and textPath element is now measured after rendering: each one is rendered in isolation through resvg and its ink bounding box (tight glyph outlines, real fonts) recorded. Text inside a group keeps the group's transform. Measurement is capped at 24 texts per render, with a note when anything was skipped.
+* Named overflow warnings: text that escapes the viewport produces a design note naming the text and the exact overflow in pixels, next to the generic content-bounds warning that could only say something was clipped. `Text "runaway label" extends 95.3px past the right edge of the viewport.`
+* Text-on-text collision detection: any two ink boxes intersecting by more than a hair produce a note naming both texts and the overlap size. Boxes are measured at the base state; when one of the texts is animated the note says so. Pattern-group text children are exempt, since overlap among generated copies is usually the design.
+* The render_svg description mentions the new audit so the model knows escaped and colliding text will be caught.
+* 383 tests (10 new covering ink measurement, group transforms, tspan flattening, the cap, and both checks).
+
 ## 0.3.1
 
 Model-surface release: the tool description learns the lessons the dogfood runs kept teaching. Dogfood record: see `dogfooding.md`.

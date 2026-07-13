@@ -149,7 +149,7 @@ The response shape is controlled by an optional `output` block in the config:
 
 With `frames`, nakkas evaluates the @keyframes math itself (duration, delay, iteration count, direction, fill mode, easing per segment) and bakes each sampled state into a static frame. Transform origins declared as `transform-box: fill-box` are resolved numerically from the element's geometry. SMIL animations are not sampled.
 
-After rendering, the response may include design warnings about common issues such as too many concurrent animations, missing transformBox, group-level scale transforms, content extending past the viewport (measured from the real rendered bounding box, with the overflow in pixels), or low-contrast text against the canvas background (WCAG ratios).
+After rendering, the response may include design warnings about common issues such as too many concurrent animations, missing transformBox, group-level scale transforms, content extending past the viewport (measured from the real rendered bounding box, with the overflow in pixels), or low-contrast text against the canvas background (WCAG ratios). Text gets its own layout audit: every text element's ink bounding box is measured through an isolated render, so text escaping the viewport is named with its exact overflow, and two texts printed over each other come back as an overlap warning naming both.
 
 ### SVGConfig Structure
 
@@ -350,7 +350,7 @@ Every release ships only after a dogfood run: a design produced through the real
 
 This ritual catches real bugs. The v0.3.0 easing dogfood found that CSS axis shorthands like `translateX` were baked verbatim into the SVG `transform` attribute, where they are invalid and silently freeze the element; the fix shipped in the same release. The animation frame sampler behind `output.frames` is verified against a real browser: the same animation frozen in headless Chromium via the negative animation-delay trick matches nakkas's sampled positions to a tenth of a pixel. That check is reproducible with [`scripts/easing-browser-truth.sh`](scripts/easing-browser-truth.sh).
 
-Alongside the dogfood runs there are 373 unit and integration tests, including MCP stdio end-to-end coverage.
+Alongside the dogfood runs there are 383 unit and integration tests, including MCP stdio end-to-end coverage.
 
 ## Tech Stack
 
@@ -358,7 +358,7 @@ Alongside the dogfood runs there are 373 unit and integration tests, including M
 * `@modelcontextprotocol/sdk` (MCP server)
 * `zod` (schema validation and AI type guidance)
 * No external SVG libraries, pure XML construction
-* Vitest (373 tests)
+* Vitest (383 tests)
 
 ## License
 

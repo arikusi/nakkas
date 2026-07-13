@@ -28,6 +28,7 @@ import { saveContent } from "./save.js";
 import { bakeFrame, configTimeline, allInfinite } from "./eyes/sampler.js";
 import { buildFilmstrip, type FilmstripFrame } from "./eyes/filmstrip.js";
 import { checkContentBounds, checkTextContrast } from "./eyes/audit.js";
+import { checkTextLayout } from "./eyes/textlayout.js";
 import { num } from "./renderer/utils.js";
 
 const _require = createRequire(import.meta.url);
@@ -111,7 +112,7 @@ server.registerTool(
 
 **Animations:** CSS @keyframes via animations array. Set cssClass on element matching animation name. For transforms add transformBox="fill-box" transformOrigin="center". SMIL via smilAnimations on elements (animate, animateTransform, animateMotion).
 
-**Design guide (what makes output look good):** Pick one spacing unit (e.g. 8) and use multiples of it for every gap and margin; keep content clear of the canvas edges by at least 5% of the smaller dimension (the bbox audit reports overflow in px). Use at most 3 font sizes per design with clear jumps (e.g. 12/16/24). Body-size text needs 4.5:1 contrast against its background, 3:1 from 24px up (the contrast audit checks plain hex pairs). Motion: ease-out for entrances, ease-in-out for back-and-forth loops, linear only for continuous rotation or travel; 0.8-3s durations read well for UI-scale loops.
+**Design guide (what makes output look good):** Pick one spacing unit (e.g. 8) and use multiples of it for every gap and margin; keep content clear of the canvas edges by at least 5% of the smaller dimension (the bbox audit reports overflow in px). Use at most 3 font sizes per design with clear jumps (e.g. 12/16/24). Body-size text needs 4.5:1 contrast against its background, 3:1 from 24px up (the contrast audit checks plain hex pairs). Text ink boxes are measured after every render; text that escapes the viewport or overlaps other text comes back as a design note naming it. Motion: ease-out for entrances, ease-in-out for back-and-forth loops, linear only for continuous rotation or travel; 0.8-3s durations read well for UI-scale loops.
 
 **Critical format rules:**
 - Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial"). Each needs id, stops (array with offset 0-1, color).
@@ -183,6 +184,7 @@ server.registerTool(
         ...analyzeConfig(config, svg.length),
         ...checkContentBounds(svg, config),
         ...checkTextContrast(config),
+        ...checkTextLayout(config),
       ];
 
       const artifactId = storeArtifact(svg);

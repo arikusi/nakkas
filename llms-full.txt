@@ -91,6 +91,8 @@ After rendering, `render_svg` automatically analyzes the config and may return d
 * Heavily shared cssClass values (limits per-element timing control)
 * Content extending past the viewport (real rendered bounding box vs viewBox, with the overflow in pixels)
 * Low-contrast text against the canvas background (WCAG ratios; hex fill vs hex background only)
+* Text escaping the viewport, named per element with the exact overflow in pixels (each text's ink bounding box is measured through an isolated resvg render; group transforms honored, capped at 24 texts per render)
+* Text overlapping other text, with both texts named and the overlap size in pixels; boxes are measured at the base state and the note says so when one of the texts is animated
 
 These notes appear under "Design notes" in the response's summary text block. Read and address them during iteration.
 
@@ -855,7 +857,7 @@ Pattern properties:
 
 ## How It's Tested
 
-Every release ships only after a feature-tailored dogfood run through the real MCP stdio layer: a design that exercises the change under test, iterated render → preview → critique → revise until it holds up. The full log with prompts, iteration counts and resulting assets is at https://github.com/arikusi/nakkas/blob/main/dogfooding.md. The animation frame sampler behind output.frames is verified against headless Chromium: sampled positions match the browser's animation engine to a tenth of a pixel (reproducible via scripts/easing-browser-truth.sh in the repository). 373 unit and integration tests cover the schema, renderers, audits and MCP stdio end to end.
+Every release ships only after a feature-tailored dogfood run through the real MCP stdio layer: a design that exercises the change under test, iterated render → preview → critique → revise until it holds up. The full log with prompts, iteration counts and resulting assets is at https://github.com/arikusi/nakkas/blob/main/dogfooding.md. The animation frame sampler behind output.frames is verified against headless Chromium: sampled positions match the browser's animation engine to a tenth of a pixel (reproducible via scripts/easing-browser-truth.sh in the repository). 383 unit and integration tests cover the schema, renderers, audits and MCP stdio end to end.
 
 ## Author
 

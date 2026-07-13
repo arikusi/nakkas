@@ -4,6 +4,18 @@ Every significant change ships only after a dogfood run: a design produced throu
 
 Newest first.
 
+## v0.4.0 (text layout) — 2026-07-13, PASS
+
+**Under test:** per-text ink measurement and the two audits built on it: named viewport-overflow warnings and text-on-text collision detection.
+
+**Prompt (feature-tailored):** "A repo badge card (480 wide, dark background): bold title, a one-line subtitle describing the project, and three stat pills (downloads, tests, license) with centered labels. Written the way a first attempt realistically goes: the subtitle drafted too long for the canvas."
+
+**Iterations:** 3. Iteration 1: the 94-character subtitle overran the canvas and the response carried two notes side by side — the old generic "Content extends 95.3px past the right edge" and the new one naming the culprit: `Text "the MCP server that rend" extends 95.3px past the right edge of the viewport. Move it inside, shorten it, or reduce its font size.` The attribution is the feature: no hunting through elements for which one escaped. Iteration 2: subtitle shortened per the note; the card came back with zero notes. A deliberate collision probe alongside it (subtitle baseline shoved up into the title's ink at y=38) produced `Text "nakkas" overlaps text "renders, previews and au" by 79.9x12.2px. Give them separate space.` — and the preview shows exactly that ink collision. Iteration 3: spacing tightened to a strict 8 rhythm (subtitle to pills 32, pill row 88 to 120, canvas 144 for a 24px bottom margin per the v0.3.1 design guide); audits stayed silent and the card reads balanced.
+
+**Assets:** `assets/badge-2026-07-13.svg` and `.png` (saved via the artifact path), `assets/badge-collide-2026-07-13.png` (the collision probe, warning fired).
+
+**Findings:** rendering each text in isolation through resvg gives real glyph-outline boxes, so the overlap check has no false positives from line-box padding: texts 30px apart measure clean, texts printed through each other measure 79.9x12.2px. The generic bounds warning and the named text warning appearing together reads well, not redundantly: one says the canvas is broken, the other says by whom.
+
 ## v0.3.1 (model surface) — 2026-07-13, PASS
 
 **Under test:** the new guidance in the render_svg tool description: the radial-group "+x points outward" orientation rule and the design guide (spacing unit, edge clearance, 3-size type scale, contrast targets, easing choices). A description change can only be dogfooded indirectly, so the run produced a design by following the new guidance to the letter and checked whether it holds up on the first attempt where the old description used to cost an iteration.
