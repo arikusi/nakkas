@@ -86,9 +86,11 @@ export function contrastRatio(a: string, b: string): number | null {
 
 /**
  * Warn about text that will be hard to read against the canvas background.
- * Only fires when both colors are plain hex — url() fills, gradients and
- * unset fills are skipped rather than guessed at. Threshold follows WCAG:
- * 3:1 for large text (>= 24px), 4.5:1 below that.
+ * Fires when both colors are plain hex, and also when the text fill is a
+ * gradient reference: gradient stops are hex-only by schema, so the worst
+ * stop against the background is reported instead of skipping the check.
+ * Pattern fills are still skipped rather than guessed at. Threshold follows
+ * WCAG: 3:1 for large text (>= 24px), 4.5:1 below that.
  */
 export function checkTextContrast(config: SVGConfig): string[] {
   const bg = config.canvas.background;
@@ -98,18 +100,41 @@ export function checkTextContrast(config: SVGConfig): string[] {
   const visit = (el: AnyElement) => {
     if (el.type !== "text" && el.type !== "textPath") return;
     const fill = (el as { fill?: string }).fill;
-    if (!fill || !parseHexColor(fill)) return;
-    const ratio = contrastRatio(fill, bg);
-    if (ratio === null) return;
+    if (!fill) return;
     const size = (el as { fontSize?: number }).fontSize ?? 16;
     const threshold = size >= 24 ? 3 : 4.5;
-    if (ratio < threshold) {
-      const label = el.type === "text" && "content" in el && typeof el.content === "string"
-        ? `"${el.content.slice(0, 24)}"`
-        : `a ${el.type} element`;
+    const label = el.type === "text" && "content" in el && typeof el.content === "string"
+      ? `"${el.content.slice(0, 24)}"`
+      : `a ${el.type} element`;
+
+    if (parseHexColor(fill)) {
+      const ratio = contrastRatio(fill, bg);
+      if (ratio !== null && ratio < threshold) {
+        warnings.push(
+          `Text ${label} has ${num(ratio, 2)}:1 contrast against the ${bg} background ` +
+            `(WCAG wants ${threshold}:1 at ${num(size)}px). Darken or lighten the fill.`
+        );
+      }
+      return;
+    }
+
+    // Gradient fill: report the worst stop instead of skipping the check.
+    const refId = /^url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)$/.exec(fill)?.[1];
+    if (!refId) return;
+    const gradient = config.defs?.gradients?.find((g) => g.id === refId);
+    if (!gradient) return;
+    let worst: { color: string; ratio: number } | null = null;
+    for (const stop of gradient.stops) {
+      const ratio = contrastRatio(stop.color, bg);
+      if (ratio !== null && (!worst || ratio < worst.ratio)) {
+        worst = { color: stop.color, ratio };
+      }
+    }
+    if (worst && worst.ratio < threshold) {
       warnings.push(
-        `Text ${label} has ${num(ratio, 2)}:1 contrast against the ${bg} background ` +
-          `(WCAG wants ${threshold}:1 at ${num(size)}px). Darken or lighten the fill.`
+        `Text ${label} uses gradient "${refId}" whose stop ${worst.color} has only ` +
+          `${num(worst.ratio, 2)}:1 contrast against the ${bg} background ` +
+          `(WCAG wants ${threshold}:1 at ${num(size)}px). Adjust that stop or the background.`
       );
     }
   };

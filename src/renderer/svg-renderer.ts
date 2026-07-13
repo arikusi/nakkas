@@ -24,6 +24,7 @@ import { renderFilter } from "./filter-renderer.js";
 import { renderShape } from "./shape-renderer.js";
 import { renderTextElement } from "./text-renderer.js";
 import { renderGroup, renderUse, renderSymbol, renderClipPath, renderMask } from "./group-renderer.js";
+import { renderMarker } from "./marker-renderer.js";
 import {
   renderRadialGroup,
   renderArcGroup,
@@ -163,6 +164,12 @@ function renderDefs(config: SVGConfig): string {
   if (config.defs?.symbols) {
     for (const s of config.defs.symbols) {
       parts.push(renderSymbol(s));
+    }
+  }
+
+  if (config.defs?.markers) {
+    for (const m of config.defs.markers) {
+      parts.push(renderMarker(m));
     }
   }
 

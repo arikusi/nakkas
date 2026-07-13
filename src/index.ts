@@ -98,7 +98,7 @@ server.registerTool(
     title: "Render SVG",
     description: `Render animated SVG from JSON config. AI controls all design parameters.
 
-**Workflow:** render_svg returns a PNG preview of the result plus an artifact id — critique the image, revise the config, render again. Iterate at least 3 times before finalizing. The SVG text stays on the server: pass the artifact id to save (and to preview for a different width). Add output:{svg:true} only if you actually need the SVG text in the conversation.
+**Workflow:** render_svg returns a PNG preview of the result plus an artifact id — critique the image, revise the config, render again. Iterate at least 3 times before finalizing. The SVG text stays on the server: pass the artifact id to save (and to preview for a different width).
 
 **output options (response shape, not content):** {"svg":false,"preview":true,"previewWidth":800,"minify":false,"frames":4} — all optional. minify:true collapses whitespace in the stored/saved SVG. frames:N (2-10) replaces the static preview with one filmstrip image sampling the CSS animations at N times — use it to verify motion (rotation direction, timing, easing) since a single preview only shows t=0. SMIL is not sampled.
 
@@ -108,11 +108,11 @@ server.registerTool(
 
 **Parametric curves** (fn field): rose, heart, lissajous, spiral, star, superformula, epitrochoid, hypotrochoid, wave. Size via "scale" field. Server computes coordinates.
 
-**defs:** gradients (linear/radial, SMIL animated stops), filters (presets: glow, neon, blur, drop-shadow, glitch, chromatic-aberration, noise, outline, inner-shadow, emboss + 5 more), clipPaths, masks, patterns (tile fills).
+**defs:** gradients (linear/radial, SMIL animated stops), filters (presets: glow, neon, blur, drop-shadow, glitch, chromatic-aberration, noise, outline, inner-shadow, emboss + 5 more), clipPaths, masks, patterns (tile fills), markers (arrowheads: triangle, arrow, circle, square, diamond, bar; set markerStart/markerEnd:"id" on line/polyline/path, scales with strokeWidth).
 
 **Animations:** CSS @keyframes via animations array. Set cssClass on element matching animation name. For transforms add transformBox="fill-box" transformOrigin="center". SMIL via smilAnimations on elements (animate, animateTransform, animateMotion).
 
-**Design guide (what makes output look good):** Pick one spacing unit (e.g. 8) and use multiples of it for every gap and margin; keep content clear of the canvas edges by at least 5% of the smaller dimension (the bbox audit reports overflow in px). Use at most 3 font sizes per design with clear jumps (e.g. 12/16/24). Body-size text needs 4.5:1 contrast against its background, 3:1 from 24px up (the contrast audit checks plain hex pairs). Text ink boxes are measured after every render; text that escapes the viewport or overlaps other text comes back as a design note naming it. Motion: ease-out for entrances, ease-in-out for back-and-forth loops, linear only for continuous rotation or travel; 0.8-3s durations read well for UI-scale loops.
+**Design guide (what makes output look good):** Pick one spacing unit (e.g. 8) and use multiples of it for every gap and margin; keep content clear of the canvas edges by at least 5% of the smaller dimension (the bbox audit reports overflow in px). Use at most 3 font sizes per design with clear jumps (e.g. 12/16/24). Body-size text needs 4.5:1 contrast against its background, 3:1 from 24px up (the contrast audit checks plain hex pairs). Text ink boxes are measured after every render; escaping or overlapping text comes back as a named design note. Motion: ease-out for entrances, ease-in-out for back-and-forth loops, linear only for continuous rotation or travel; 0.8-3s durations read well for UI-scale loops.
 
 **Critical format rules:**
 - Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial"). Each needs id, stops (array with offset 0-1, color).

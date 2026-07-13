@@ -19,6 +19,7 @@ interface IdTable {
   masks: Set<string>;
   paths: Set<string>; // defs.paths → textPath.pathId
   useTargets: Set<string>; // symbols + element ids → use.href
+  markers: Set<string>; // defs.markers → markerStart/markerMid/markerEnd
 }
 
 const URL_REF = /url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)/;
@@ -64,6 +65,7 @@ function buildIdTable(config: SVGConfig): IdTable {
     masks: new Set(),
     paths: new Set(),
     useTargets: new Set(),
+    markers: new Set(),
   };
   const defs = config.defs;
   defs?.gradients?.forEach((g, i) => {
@@ -93,6 +95,10 @@ function buildIdTable(config: SVGConfig): IdTable {
   defs?.symbols?.forEach((s, i) => {
     define(table, s.id, `defs.symbols.${i}`);
     table.useTargets.add(s.id);
+  });
+  defs?.markers?.forEach((m, i) => {
+    define(table, m.id, `defs.markers.${i}`);
+    table.markers.add(m.id);
   });
   collectElementIds(table, config.elements, "elements");
   return table;
@@ -159,6 +165,23 @@ function checkElements(
         errors.push(
           `${where}.href: references undefined id "${target}" — no symbol or element with that id (${available(table.useTargets)})`
         );
+      }
+    }
+    if (el.type === "line" || el.type === "polyline" || el.type === "path") {
+      const refs = el as { markerStart?: string; markerMid?: string; markerEnd?: string };
+      const markerChecks: Array<[string, string | undefined]> = [
+        ["markerStart", refs.markerStart],
+        ["markerMid", refs.markerMid],
+        ["markerEnd", refs.markerEnd],
+      ];
+      for (const [field, value] of markerChecks) {
+        if (!value) continue;
+        const id = value.match(/^url\(#(.+)\)$/)?.[1] ?? value.replace(/^#/, "");
+        if (!table.markers.has(id)) {
+          errors.push(
+            `${where}.${field}: references undefined marker id "${id}" — define it in defs.markers (${available(table.markers)})`
+          );
+        }
       }
     }
     if (el.type === "textPath") {

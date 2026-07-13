@@ -76,6 +76,12 @@ export const EllipseSchema = BaseElementSchema.extend({
 // <line> — Straight line segment
 // ---------------------------------------------------------------------------
 
+const markerRef = (where: string) =>
+  z
+    .string()
+    .optional()
+    .describe(`Marker id from defs.markers placed at ${where}. Plain id; 'url(#id)' also accepted.`);
+
 export const LineSchema = BaseElementSchema.extend({
   type: z.literal("line"),
   x1: numeric(z.number().describe("Start point X coordinate")),
@@ -83,6 +89,8 @@ export const LineSchema = BaseElementSchema.extend({
   x2: numeric(z.number().describe("End point X coordinate")),
   y2: numeric(z.number().describe("End point Y coordinate")),
   strokeLinecap: StrokeLinecapSchema.optional(),
+  markerStart: markerRef("the start point"),
+  markerEnd: markerRef("the end point"),
   smilAnimations,
 });
 
@@ -100,6 +108,9 @@ export const PolylineSchema = BaseElementSchema.extend({
     ),
   strokeLinecap: StrokeLinecapSchema.optional(),
   strokeLinejoin: StrokeLinejoinSchema.optional(),
+  markerStart: markerRef("the first point"),
+  markerMid: markerRef("every interior point"),
+  markerEnd: markerRef("the last point"),
   smilAnimations,
 });
 
@@ -138,6 +149,9 @@ export const PathSchema = BaseElementSchema.extend({
     ),
   strokeLinecap: StrokeLinecapSchema.optional(),
   strokeLinejoin: StrokeLinejoinSchema.optional(),
+  markerStart: markerRef("the path start"),
+  markerMid: markerRef("every interior vertex"),
+  markerEnd: markerRef("the path end"),
   smilAnimations,
 });
 

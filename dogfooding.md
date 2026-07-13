@@ -4,6 +4,18 @@ Every significant change ships only after a dogfood run: a design produced throu
 
 Newest first.
 
+## v0.5.0 (markers + gradient contrast) — 2026-07-13, PASS
+
+**Under test:** defs.markers presets on line and path elements, marker reference integrity, and the contrast audit's new gradient branch.
+
+**Prompt (feature-tailored):** "A pipeline flow diagram (640 wide, light background): three rounded boxes labeled render_svg, preview, save, connected left to right by solid arrows with triangle heads; a dashed feedback loop from preview back into render_svg with a circle at its start and an open arrow at its end; a bold gradient-filled title."
+
+**Iterations:** 3. Iteration 1 never rendered: the title referenced `url(#title)` before the gradient was defined and the reference check rejected the config pre-render with the exact field path — the 0.1.7 layer doing its job on a 0.5.0 design. Iteration 2 rendered the diagram correctly on the first visual pass (triangle heads on the solid connectors, the dashed loop starting with a circle at preview's underside and ending in an open arrow pointing up into render_svg) and the contrast audit caught a genuine borderline miss no eye would: the caption's #64748b on #f7f8fa measures 4.48:1, two hundredths under the 4.5:1 threshold. Iteration 3 darkened the caption and came back with zero notes. A deliberate probe alongside it swapped the title gradient's second stop for near-background #dbe2f0: the new gradient branch reported `stop #dbe2f0 has only 1.22:1 contrast` — and in the probe image the word sitting on that stop visibly dissolves into the background, exactly what the note claims.
+
+**Assets:** `assets/flow-2026-07-13.svg` and `.png` (saved via the artifact path), `assets/flow-lowcontrast-2026-07-13.png` (the gradient probe, warning fired).
+
+**Findings:** marker orientation, strokeWidth scaling and the url(#id) normalization all behaved on first render; the diagram use case is genuinely unlocked. The 4.48:1 caption catch is the strongest argument yet for numeric audits: it looks fine and is not.
+
 ## v0.4.0 (text layout) — 2026-07-13, PASS
 
 **Under test:** per-text ink measurement and the two audits built on it: named viewport-overflow warnings and text-on-text collision detection.

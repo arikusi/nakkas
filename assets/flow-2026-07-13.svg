@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="216">
+  <defs>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <marker id="head" viewBox="0 0 10 10" markerWidth="7" markerHeight="7" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#475569"/>
+    </marker>
+    <marker id="loopHead" viewBox="0 0 10 10" markerWidth="7" markerHeight="7" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 L3.5,5 Z" fill="#94a3b8"/>
+    </marker>
+    <marker id="loopDot" viewBox="0 0 10 10" markerWidth="5" markerHeight="5" refX="5" refY="5" orient="auto" markerUnits="strokeWidth">
+      <circle cx="5" cy="5" r="4" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#f7f8fa"/>
+  <rect x="32" y="72" width="144" height="56" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <rect x="248" y="72" width="144" height="56" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <rect x="464" y="72" width="144" height="56" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="104" y="105" font-family="monospace" font-size="16" text-anchor="middle" fill="#1e293b">render_svg</text>
+  <text x="320" y="105" font-family="monospace" font-size="16" text-anchor="middle" fill="#1e293b">preview</text>
+  <text x="536" y="105" font-family="monospace" font-size="16" text-anchor="middle" fill="#1e293b">save</text>
+  <line x1="176" y1="100" x2="240" y2="100" marker-end="url(#head)" stroke="#475569" stroke-width="2"/>
+  <line x1="392" y1="100" x2="456" y2="100" marker-end="url(#head)" stroke="#475569" stroke-width="2"/>
+  <path d="M320,128 L320,168 L104,168 L104,136" marker-start="url(#loopDot)" marker-end="url(#loopHead)" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="212" y="160" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#576273">critique and revise</text>
+  <text x="32" y="40" font-family="sans-serif" font-size="24" font-weight="bold" fill="url(#title)">the nakkas loop</text>
+</svg>

@@ -395,18 +395,22 @@ describe("checkTextContrast", () => {
     expect(warnings[0]).toContain("contrast");
   });
 
-  it("stays quiet on readable text and skips url() fills", () => {
+  it("stays quiet on readable text; gradient fills are judged by their worst stop", () => {
     const ok = c({
       canvas: { width: 200, height: 100, background: "#ffffff" },
       elements: [{ type: "text", x: 100, y: 50, content: "clear", fontSize: 14, fill: "#111111" }],
     });
     expect(checkTextContrast(ok)).toEqual([]);
 
+    // Since 0.4.x a gradient fill is no longer skipped: the worst stop
+    // against the background is reported (white-on-white here).
     const grad = c({
       canvas: { width: 200, height: 100, background: "#ffffff" },
       defs: { gradients: [{ type: "linearGradient", id: "g", stops: [{ offset: 0, color: "#ffffff" }, { offset: 1, color: "#eeeeee" }] }] },
       elements: [{ type: "text", x: 100, y: 50, content: "grad", fontSize: 14, fill: "url(#g)" }],
     });
-    expect(checkTextContrast(grad)).toEqual([]);
+    const warnings = checkTextContrast(grad);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('gradient "g"');
   });
 });

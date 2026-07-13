@@ -26,6 +26,7 @@ import { CSSAnimationSchema } from "./animations.js";
 import { ShapeElementSchema } from "./shapes.js";
 import { TextElementSchema } from "./text.js";
 import { GroupSchema, UseSchema, SymbolSchema, ClipPathSchema, MaskSchema } from "./groups.js";
+import { MarkerSchema } from "./markers.js";
 import {
   RadialGroupSchema,
   ArcGroupSchema,
@@ -148,6 +149,14 @@ export const DefsSchema = z.object({
       "SVG pattern tile definitions. Reference on any element as fill='url(#id)'. " +
         "The tile repeats to fill the element's bounding area. " +
         "Useful for dot grids, stripes, textures and repeated motifs."
+    ),
+  markers: z
+    .array(MarkerSchema)
+    .optional()
+    .describe(
+      "Arrowhead and line-end marker definitions. Reference on line/polyline/path " +
+        "elements via markerStart/markerMid/markerEnd with the marker id. " +
+        "Markers scale with the line's stroke width."
     ),
 });
 

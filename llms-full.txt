@@ -90,7 +90,7 @@ After rendering, `render_svg` automatically analyzes the config and may return d
 * High element count (over 200 expanded elements)
 * Heavily shared cssClass values (limits per-element timing control)
 * Content extending past the viewport (real rendered bounding box vs viewBox, with the overflow in pixels)
-* Low-contrast text against the canvas background (WCAG ratios; hex fill vs hex background only)
+* Low-contrast text against the canvas background (WCAG ratios; hex fills directly, gradient fills judged by their worst stop against the background, pattern fills skipped)
 * Text escaping the viewport, named per element with the exact overflow in pixels (each text's ink bounding box is measured through an isolated resvg render; group transforms honored, capped at 24 texts per render)
 * Text overlapping other text, with both texts named and the overlap size in pixels; boxes are measured at the base state and the note says so when one of the texts is animated
 
@@ -134,7 +134,20 @@ defs?: {
   clipPaths?: ClipPath[],
   masks?: Mask[],
   symbols?: Symbol[],
-  paths?: { id: string, d: string }[]  // invisible paths for textPath elements
+  paths?: { id: string, d: string }[],  // invisible paths for textPath elements
+  patterns?: Pattern[],                 // repeating tile fills
+  markers?: Marker[]                    // arrowheads and line-end glyphs
+}
+```
+
+Marker definition (preset-based, scales with the decorated line's stroke width):
+```typescript
+{
+  id: string,
+  shape: "triangle" | "arrow" | "circle" | "square" | "diamond" | "bar",
+  color?: string,   // hex, default #000000 — usually the line's stroke color
+  size?: number,    // marker box in stroke-width multiples, default 6
+  orient?: "auto" | "auto-start-reverse" | number  // default "auto"
 }
 ```
 
@@ -197,12 +210,14 @@ All shapes share these presentation attributes:
 
 ### line
 ```typescript
-{ type: "line", x1: number, y1: number, x2: number, y2: number }
+{ type: "line", x1: number, y1: number, x2: number, y2: number,
+  markerStart?: string, markerEnd?: string }  // marker id from defs.markers
 ```
 
 ### polyline
 ```typescript
-{ type: "polyline", points: string }  // "10,20 50,80 90,20"
+{ type: "polyline", points: string,           // "10,20 50,80 90,20"
+  markerStart?: string, markerMid?: string, markerEnd?: string }
 ```
 
 ### polygon
@@ -212,7 +227,8 @@ All shapes share these presentation attributes:
 
 ### path
 ```typescript
-{ type: "path", d: string }  // SVG path commands: M L H V C Q A Z
+{ type: "path", d: string,   // SVG path commands: M L H V C Q A Z
+  markerStart?: string, markerMid?: string, markerEnd?: string }
 // For SMIL morphing: from/to paths must have identical command sequence
 ```
 
@@ -857,7 +873,7 @@ Pattern properties:
 
 ## How It's Tested
 
-Every release ships only after a feature-tailored dogfood run through the real MCP stdio layer: a design that exercises the change under test, iterated render → preview → critique → revise until it holds up. The full log with prompts, iteration counts and resulting assets is at https://github.com/arikusi/nakkas/blob/main/dogfooding.md. The animation frame sampler behind output.frames is verified against headless Chromium: sampled positions match the browser's animation engine to a tenth of a pixel (reproducible via scripts/easing-browser-truth.sh in the repository). 383 unit and integration tests cover the schema, renderers, audits and MCP stdio end to end.
+Every release ships only after a feature-tailored dogfood run through the real MCP stdio layer: a design that exercises the change under test, iterated render → preview → critique → revise until it holds up. The full log with prompts, iteration counts and resulting assets is at https://github.com/arikusi/nakkas/blob/main/dogfooding.md. The animation frame sampler behind output.frames is verified against headless Chromium: sampled positions match the browser's animation engine to a tenth of a pixel (reproducible via scripts/easing-browser-truth.sh in the repository). 392 unit and integration tests cover the schema, renderers, audits and MCP stdio end to end.
 
 ## Author
 

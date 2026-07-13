@@ -32,6 +32,7 @@ Nakkas exposes three MCP tools:
 * Parametric curves: rose, heart, star, lissajous, spiral, superformula, epitrochoid, hypotrochoid, wave
 * Gradients: linearGradient, radialGradient (with animated color stops)
 * SVG pattern tile fills for repeating textures
+* Arrowhead markers for diagrams (triangle, arrow, circle, square, diamond, bar) on line, polyline and path
 * Filter presets: glow, neon, blur, drop-shadow, glitch, chromatic-aberration, noise, outline, inner-shadow, emboss, grayscale, sepia, invert, saturate, hue-rotate (plus raw filter primitives)
 * CSS @keyframes animations (opacity, transform, fill, stroke, stroke-dashoffset draw-on and more)
 * SMIL animations (path morphing, motion path, animateTransform)

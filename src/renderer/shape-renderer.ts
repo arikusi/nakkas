@@ -9,6 +9,7 @@ import type { ShapeElement, Rect, Circle, Ellipse, Line, Polyline, Polygon, Path
 import { attrs, tag, num } from "./utils.js";
 import { renderBaseAttrs } from "./base-renderer.js";
 import { renderSMILAnimations } from "./animation-renderer.js";
+import { markerRefUrl } from "./marker-renderer.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -81,6 +82,19 @@ function renderEllipse(el: Ellipse): string {
   );
 }
 
+/** marker-start/mid/end attrs for line/polyline/path, normalized to url(#id). */
+function markerAttrs(el: {
+  markerStart?: string;
+  markerMid?: string;
+  markerEnd?: string;
+}): Record<string, string | undefined> {
+  return {
+    "marker-start": el.markerStart ? markerRefUrl(el.markerStart) : undefined,
+    "marker-mid": el.markerMid ? markerRefUrl(el.markerMid) : undefined,
+    "marker-end": el.markerEnd ? markerRefUrl(el.markerEnd) : undefined,
+  };
+}
+
 function renderLine(el: Line): string {
   const smil = renderSMILAnimations(el.smilAnimations);
   return shape(
@@ -90,6 +104,7 @@ function renderLine(el: Line): string {
       y1: num(el.y1),
       x2: num(el.x2),
       y2: num(el.y2),
+      ...markerAttrs(el),
     },
     el,
     smil || undefined
@@ -98,7 +113,7 @@ function renderLine(el: Line): string {
 
 function renderPolyline(el: Polyline): string {
   const smil = renderSMILAnimations(el.smilAnimations);
-  return shape("polyline", { points: el.points }, el, smil || undefined);
+  return shape("polyline", { points: el.points, ...markerAttrs(el) }, el, smil || undefined);
 }
 
 function renderPolygon(el: Polygon): string {
@@ -108,7 +123,7 @@ function renderPolygon(el: Polygon): string {
 
 function renderPath(el: Path): string {
   const smil = renderSMILAnimations(el.smilAnimations);
-  return shape("path", { d: el.d }, el, smil || undefined);
+  return shape("path", { d: el.d, ...markerAttrs(el) }, el, smil || undefined);
 }
 
 function renderImage(el: Image): string {

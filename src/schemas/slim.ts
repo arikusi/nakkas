@@ -32,6 +32,7 @@ export const SVGConfigSlimSchema = z.object({
     symbols: z.array(z.any()).optional(),
     paths: z.array(z.any()).optional(),
     patterns: z.array(z.any()).optional(),
+    markers: z.array(z.any()).optional(),
   }).passthrough().optional(),
 
   elements: z.array(z.any()),

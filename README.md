@@ -168,7 +168,9 @@ After rendering, the response may include design warnings about common issues su
     clipPaths?: ClipPath[],
     masks?: Mask[],
     symbols?: Symbol[],
-    paths?: { id, d }[]       // for textPath elements
+    paths?: { id, d }[],      // for textPath elements
+    patterns?: Pattern[],     // repeating tile fills
+    markers?: Marker[]        // arrowheads: triangle | arrow | circle | square | diamond | bar
   },
 
   elements: Element[],         // shapes, text, groups, use instances
@@ -184,8 +186,8 @@ After rendering, the response may include design warnings about common issues su
 | `rect` | `width`, `height` | `x`, `y` default 0; `rx`/`ry` for rounded corners |
 | `circle` | `r` | `cx`, `cy` default 0 |
 | `ellipse` | `rx`, `ry` | Independent horizontal/vertical radii |
-| `line` | `x1`, `y1`, `x2`, `y2` | |
-| `polyline` | `points` | Open path: `"10,20 50,80 90,20"` |
+| `line` | `x1`, `y1`, `x2`, `y2` | `markerStart`/`markerEnd` take a marker id from `defs.markers` |
+| `polyline` | `points` | Open path: `"10,20 50,80 90,20"`; supports `markerStart`/`markerMid`/`markerEnd` |
 | `polygon` | `points` | Auto-closed shape |
 | `path` | `d` | Full SVG path commands |
 | `image` | `href`, `width`, `height` | URL or `data:image/...` URI for embedded images |
@@ -350,7 +352,7 @@ Every release ships only after a dogfood run: a design produced through the real
 
 This ritual catches real bugs. The v0.3.0 easing dogfood found that CSS axis shorthands like `translateX` were baked verbatim into the SVG `transform` attribute, where they are invalid and silently freeze the element; the fix shipped in the same release. The animation frame sampler behind `output.frames` is verified against a real browser: the same animation frozen in headless Chromium via the negative animation-delay trick matches nakkas's sampled positions to a tenth of a pixel. That check is reproducible with [`scripts/easing-browser-truth.sh`](scripts/easing-browser-truth.sh).
 
-Alongside the dogfood runs there are 383 unit and integration tests, including MCP stdio end-to-end coverage.
+Alongside the dogfood runs there are 392 unit and integration tests, including MCP stdio end-to-end coverage.
 
 ## Tech Stack
 
@@ -358,7 +360,7 @@ Alongside the dogfood runs there are 383 unit and integration tests, including M
 * `@modelcontextprotocol/sdk` (MCP server)
 * `zod` (schema validation and AI type guidance)
 * No external SVG libraries, pure XML construction
-* Vitest (383 tests)
+* Vitest (392 tests)
 
 ## License
 
