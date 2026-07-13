@@ -28,7 +28,9 @@ import type { SVGConfig } from "../src/schemas/config.js";
 // ---------------------------------------------------------------------------
 
 function findChromium(): string | null {
-  const candidates = ["chromium", "google-chrome-stable", "google-chrome"];
+  // google-chrome-stable first: on CI runners "chromium" can resolve to a
+  // snap wrapper that fails headless without extra setup.
+  const candidates = ["google-chrome-stable", "google-chrome", "chromium"];
   for (const name of candidates) {
     try {
       const p = execFileSync("which", [name], {
@@ -158,16 +160,18 @@ function buildHtml(cases: Case[]): string {
     })
     .join("\n");
   const divs = cases.map((_, i) => `<div id="e${i}"></div>`).join("");
+  // The animations are paused with negative delays, so getComputedStyle
+  // resolves synchronously — no requestAnimationFrame, which is exactly the
+  // kind of timing that virtual-time headless runs get wrong.
   return `<!doctype html><html><head><style>${styles}</style></head><body>${divs}<pre id="out"></pre>
 <script>
-requestAnimationFrame(() => {
-  const vals = [];
-  for (let i = 0; i < ${cases.length}; i++) {
-    const m = getComputedStyle(document.getElementById("e" + i)).transform;
-    vals.push(new DOMMatrix(m).m41.toFixed(2));
-  }
-  document.getElementById("out").textContent = "BROWSER-TRUTH " + vals.join(" ");
-});
+const vals = [];
+for (let i = 0; i < ${cases.length}; i++) {
+  const m = getComputedStyle(document.getElementById("e" + i)).transform;
+  const tx = m && m !== "none" ? /matrix\\(([^)]+)\\)/.exec(m)[1].split(",")[4].trim() : "0";
+  vals.push(Number(tx).toFixed(2));
+}
+document.getElementById("out").textContent = "BROWSER-TRUTH " + vals.join(" ");
 </script></body></html>`;
 }
 
@@ -178,11 +182,16 @@ function browserTx(cases: Case[]): number[] {
     writeFileSync(file, buildHtml(cases));
     const dom = execFileSync(
       chromium!,
-      ["--headless", "--disable-gpu", "--no-sandbox", "--virtual-time-budget=500", "--dump-dom", `file://${file}`],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 30000 }
+      ["--headless", "--disable-gpu", "--no-sandbox", "--virtual-time-budget=2000", "--dump-dom", `file://${file}`],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 30000 }
     );
     const m = dom.match(/BROWSER-TRUTH ((?:-?[\d.]+ ?)+)/);
-    if (!m) throw new Error("browser output missing BROWSER-TRUTH line");
+    if (!m) {
+      throw new Error(
+        `browser output missing BROWSER-TRUTH line (binary: ${chromium}); dom tail:\n` +
+          dom.slice(-400)
+      );
+    }
     return m[1].trim().split(/\s+/).map(Number);
   } finally {
     rmSync(dir, { recursive: true, force: true });
