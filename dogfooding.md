@@ -4,6 +4,18 @@ Every significant change ships only after a dogfood run: a design produced throu
 
 Newest first.
 
+## v0.3.1 (model surface) — 2026-07-13, PASS
+
+**Under test:** the new guidance in the render_svg tool description: the radial-group "+x points outward" orientation rule and the design guide (spacing unit, edge clearance, 3-size type scale, contrast targets, easing choices). A description change can only be dogfooded indirectly, so the run produced a design by following the new guidance to the letter and checked whether it holds up on the first attempt where the old description used to cost an iteration.
+
+**Prompt (feature-tailored):** "A wall clock badge card (360x360, light background): a clock face with 12 tick marks as a radial-group, a two-tone second hand rotating continuously, title and caption typography. Follow the design guide: 8px spacing rhythm, 12/16/24 type scale, 4.5:1 contrast, linear easing for the continuous rotation. Verify the motion with output:{frames:4}."
+
+**Iterations:** 3. Iteration 1: the ticks came out pointing correctly outward on the first attempt (drawn long on x, as the new description line instructs) — in v0.1.7 this exact shape cost an extra round as a chord ring. Two design flaws remained: the tick ring at radius 84 with 14px length pierced the face rim at r=96, and the second hand (a single symmetric rect, needed so the bbox-center rotation origin lands on the pivot) read as a directionless bar. Iteration 2: ticks moved fully inside the face (radius 74, length 12) and the hand became a two-tone needle — a group of two rects symmetric about the pivot, red north and gray south, so the group's bbox center still equals the clock center and the rotation stays true. Iteration 3: output:{frames:4} confirmed the motion: the red tip hits 12, 3, 6, 9 o'clock across the strip (clockwise quarter turns of the 6s linear loop) with the needle pinned to the derived center in every frame. Neither audit produced a note: content clears the edges and both text fills pass their WCAG thresholds, as the design guide told the config to do in the first place.
+
+**Assets:** `assets/clock-2026-07-13.svg` and `.png` (saved via the artifact path), `assets/clock-frames-2026-07-13.png` (the 4-frame strip).
+
+**Findings:** the orientation line pays for itself immediately; the guide's numbers (spacing multiples, type jumps, contrast) translate directly into silent audits. The bbox-center rotation origin remains the one modeling constraint the config author must design around (symmetric geometry about the pivot); worth considering an explicit transformOrigin coordinate pair some day.
+
 ## v0.3.0 (the eyes) — 2026-07-09, PASS
 
 **Under test:** animation filmstrip sampling (`output.frames`) with its easing math, bounding-box overflow audit, text contrast audit.

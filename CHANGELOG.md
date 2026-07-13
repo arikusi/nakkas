@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1
+
+Model-surface release: the tool description learns the lessons the dogfood runs kept teaching. Dogfood record: see `dogfooding.md`.
+
+* The pattern-group paragraph in the `render_svg` description now states the orientation rule that cost an iteration in every radial design so far: the child is drawn at the local origin with local +x pointing outward, so spokes, rays and petals must be drawn long along the x axis or they render as a chord ring. This was documented in the README since 0.1.7 but never where the model actually reads.
+* New design guide block in the description: one spacing unit and multiples of it everywhere, edge clearance of at least 5% of the smaller canvas dimension, at most 3 font sizes with clear jumps, WCAG contrast targets (4.5:1 body, 3:1 from 24px), and easing choices (ease-out entrances, ease-in-out loops, linear only for continuous rotation or travel).
+* New regression tests pin the orientation line and the design guide in the description and cap its size, so the model surface cannot silently regress or creep past its token budget. 373 tests.
+
 ## 0.3.0
 
 The eyes release: the preview stops lying about motion and starts catching layout and readability mistakes. Dogfood record: see `dogfooding.md`.

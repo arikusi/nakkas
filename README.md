@@ -350,7 +350,7 @@ Every release ships only after a dogfood run: a design produced through the real
 
 This ritual catches real bugs. The v0.3.0 easing dogfood found that CSS axis shorthands like `translateX` were baked verbatim into the SVG `transform` attribute, where they are invalid and silently freeze the element; the fix shipped in the same release. The animation frame sampler behind `output.frames` is verified against a real browser: the same animation frozen in headless Chromium via the negative animation-delay trick matches nakkas's sampled positions to a tenth of a pixel. That check is reproducible with [`scripts/easing-browser-truth.sh`](scripts/easing-browser-truth.sh).
 
-Alongside the dogfood runs there are 370 unit and integration tests, including MCP stdio end-to-end coverage.
+Alongside the dogfood runs there are 373 unit and integration tests, including MCP stdio end-to-end coverage.
 
 ## Tech Stack
 
@@ -358,7 +358,7 @@ Alongside the dogfood runs there are 370 unit and integration tests, including M
 * `@modelcontextprotocol/sdk` (MCP server)
 * `zod` (schema validation and AI type guidance)
 * No external SVG libraries, pure XML construction
-* Vitest (370 tests)
+* Vitest (373 tests)
 
 ## License
 

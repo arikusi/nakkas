@@ -103,13 +103,15 @@ server.registerTool(
 
 **Element types:** rect, circle, ellipse, line, polyline, polygon, path, image, text, textPath, group, use, radial-group, arc-group, grid-group, scatter-group, path-group, parametric
 
-**Pattern groups** (use for repetitive designs): radial-group (circular: cx, cy, radius, count), arc-group (arc: cx, cy, radius, count, startAngle, endAngle), grid-group (matrix: cols, rows, colSpacing, rowSpacing), scatter-group (random: width, height, count, seed), path-group (along polyline: waypoints, count). Each takes ONE "child" element.
+**Pattern groups** (use for repetitive designs): radial-group (circular: cx, cy, radius, count), arc-group (arc: cx, cy, radius, count, startAngle, endAngle), grid-group (matrix: cols, rows, colSpacing, rowSpacing), scatter-group (random: width, height, count, seed), path-group (along polyline: waypoints, count). Each takes ONE "child" element. The child is drawn at the local origin and, with rotateChildren true (the default), rotates so local +x points outward from the center: draw spokes, rays and petals long along the x axis, never the y axis, or they render as a chord ring.
 
 **Parametric curves** (fn field): rose, heart, lissajous, spiral, star, superformula, epitrochoid, hypotrochoid, wave. Size via "scale" field. Server computes coordinates.
 
 **defs:** gradients (linear/radial, SMIL animated stops), filters (presets: glow, neon, blur, drop-shadow, glitch, chromatic-aberration, noise, outline, inner-shadow, emboss + 5 more), clipPaths, masks, patterns (tile fills).
 
 **Animations:** CSS @keyframes via animations array. Set cssClass on element matching animation name. For transforms add transformBox="fill-box" transformOrigin="center". SMIL via smilAnimations on elements (animate, animateTransform, animateMotion).
+
+**Design guide (what makes output look good):** Pick one spacing unit (e.g. 8) and use multiples of it for every gap and margin; keep content clear of the canvas edges by at least 5% of the smaller dimension (the bbox audit reports overflow in px). Use at most 3 font sizes per design with clear jumps (e.g. 12/16/24). Body-size text needs 4.5:1 contrast against its background, 3:1 from 24px up (the contrast audit checks plain hex pairs). Motion: ease-out for entrances, ease-in-out for back-and-forth loops, linear only for continuous rotation or travel; 0.8-3s durations read well for UI-scale loops.
 
 **Critical format rules:**
 - Gradient type must be "linearGradient" or "radialGradient" (not "linear"/"radial"). Each needs id, stops (array with offset 0-1, color).

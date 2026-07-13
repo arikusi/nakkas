@@ -855,7 +855,7 @@ Pattern properties:
 
 ## How It's Tested
 
-Every release ships only after a feature-tailored dogfood run through the real MCP stdio layer: a design that exercises the change under test, iterated render → preview → critique → revise until it holds up. The full log with prompts, iteration counts and resulting assets is at https://github.com/arikusi/nakkas/blob/main/dogfooding.md. The animation frame sampler behind output.frames is verified against headless Chromium: sampled positions match the browser's animation engine to a tenth of a pixel (reproducible via scripts/easing-browser-truth.sh in the repository). 370 unit and integration tests cover the schema, renderers, audits and MCP stdio end to end.
+Every release ships only after a feature-tailored dogfood run through the real MCP stdio layer: a design that exercises the change under test, iterated render → preview → critique → revise until it holds up. The full log with prompts, iteration counts and resulting assets is at https://github.com/arikusi/nakkas/blob/main/dogfooding.md. The animation frame sampler behind output.frames is verified against headless Chromium: sampled positions match the browser's animation engine to a tenth of a pixel (reproducible via scripts/easing-browser-truth.sh in the repository). 373 unit and integration tests cover the schema, renderers, audits and MCP stdio end to end.
 
 ## Author
 
