@@ -14,6 +14,7 @@ Nakkas exposes three MCP tools:
 
 * README: https://github.com/arikusi/nakkas/blob/main/README.md
 * Full documentation (single file for LLM context): https://github.com/arikusi/nakkas/blob/main/llms-full.txt
+* Dogfooding log (how each release is verified, prompts + iterations + assets): https://github.com/arikusi/nakkas/blob/main/dogfooding.md
 * npm package: https://www.npmjs.com/package/nakkas
 * Source code: https://github.com/arikusi/nakkas
 
