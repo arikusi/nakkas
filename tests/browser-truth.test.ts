@@ -194,20 +194,25 @@ function browserTx(cases: Case[]): number[] {
 // ---------------------------------------------------------------------------
 
 describe.skipIf(!chromium)("browser-vs-sampler ground truth", () => {
-  it(`matches Chromium within 1px on ${CASE_COUNT} randomized easing cases (seed ${SEED})`, () => {
-    const cases = buildCases(SEED);
-    const browser = browserTx(cases);
-    expect(browser).toHaveLength(cases.length);
+  it(
+    `matches Chromium within 1px on ${CASE_COUNT} randomized easing cases (seed ${SEED})`,
+    () => {
+      const cases = buildCases(SEED);
+      const browser = browserTx(cases);
+      expect(browser).toHaveLength(cases.length);
 
-    for (let i = 0; i < cases.length; i++) {
-      const ours = nakkasTx(cases[i]);
-      const theirs = browser[i];
-      expect(
-        Math.abs(ours - theirs),
-        `case ${i} (${JSON.stringify(cases[i])}): sampler=${ours} browser=${theirs}`
-      ).toBeLessThan(1);
-    }
-  });
+      for (let i = 0; i < cases.length; i++) {
+        const ours = nakkasTx(cases[i]);
+        const theirs = browser[i];
+        expect(
+          Math.abs(ours - theirs),
+          `case ${i} (${JSON.stringify(cases[i])}): sampler=${ours} browser=${theirs}`
+        ).toBeLessThan(1);
+      }
+    },
+    // Chromium cold-starts slowly on CI runners; the default 5s is not enough.
+    40000
+  );
 });
 
 if (!chromium) {
