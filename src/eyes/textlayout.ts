@@ -14,7 +14,7 @@ import { Resvg } from "@resvg/resvg-js";
 import type { SVGConfig, AnyElement } from "../schemas/config.js";
 import { renderSVG } from "../renderer/svg-renderer.js";
 import { drainRenderWarnings, num } from "../renderer/utils.js";
-import { buildFontOptions, resolveGenericFamilies } from "../preview.js";
+import { buildFontOptions, buildMeasureFontOptions, resolveGenericFamilies } from "../preview.js";
 
 export interface InkBox {
   x: number;
@@ -60,17 +60,23 @@ function isAnimated(el: AnyElement, config: SVGConfig): boolean {
  * the siblings stripped out. Pattern-group children are skipped: their
  * placements are generated and overlap among copies is usually the design.
  */
+/** Invisible text cannot visually collide or overflow; keep it out of the audit. */
+function isInvisible(el: AnyElement): boolean {
+  const p = el as { opacity?: number; fillOpacity?: number; visibility?: string };
+  return p.opacity === 0 || p.fillOpacity === 0 || p.visibility === "hidden";
+}
+
 function collectTexts(
   config: SVGConfig
 ): Array<{ el: AnyElement; isolated: AnyElement }> {
   const targets: Array<{ el: AnyElement; isolated: AnyElement }> = [];
   for (const el of config.elements) {
-    if (el.type === "text" || el.type === "textPath") {
+    if ((el.type === "text" || el.type === "textPath") && !isInvisible(el)) {
       targets.push({ el, isolated: el });
-    } else if (el.type === "group") {
+    } else if (el.type === "group" && !isInvisible(el)) {
       for (const child of el.children) {
         const c = child as AnyElement;
-        if (c.type === "text" || c.type === "textPath") {
+        if ((c.type === "text" || c.type === "textPath") && !isInvisible(c)) {
           targets.push({ el: c, isolated: { ...el, children: [child] } as AnyElement });
         }
       }
@@ -84,13 +90,43 @@ function collectTexts(
  * alone on a transparent canvas. Unmeasurable text (empty, unparseable,
  * zero ink) is skipped, not guessed at.
  */
+const GENERIC_FAMILIES = new Set(["sans-serif", "serif", "monospace", "cursive", "fantasy"]);
+
+/** True when every measured text sticks to generic font families (or none). */
+function onlyGenericFonts(targets: Array<{ el: AnyElement }>): boolean {
+  return targets.every((t) => {
+    const family = (t.el as { fontFamily?: string }).fontFamily;
+    if (family && !GENERIC_FAMILIES.has(family.trim().toLowerCase())) return false;
+    const content = (t.el as { content?: unknown }).content;
+    if (Array.isArray(content)) {
+      for (const part of content) {
+        const f = (part as { fontFamily?: string }).fontFamily;
+        if (f && !GENERIC_FAMILIES.has(f.trim().toLowerCase())) return false;
+      }
+    }
+    return true;
+  });
+}
+
+/**
+ * Best font options for a measurement-only render of this config: the fast
+ * font-file path when every text uses generic families, the full system
+ * scan otherwise. Exported for the other bbox-based audit.
+ */
+export function measurementFontOptions(config: SVGConfig): ReturnType<typeof buildFontOptions> {
+  return (onlyGenericFonts(collectTexts(config)) ? buildMeasureFontOptions() : null) ?? buildFontOptions();
+}
+
 export function measureTextInk(config: SVGConfig): {
   measured: MeasuredText[];
   skipped: number;
 } {
   const targets = collectTexts(config);
   const measured: MeasuredText[] = [];
-  const fontOptions = buildFontOptions();
+  // Generic families resolve to known font files, which skips resvg's
+  // ~90ms-per-instance system font scan. Custom font names keep the full
+  // scan so their real metrics are measured.
+  const fontOptions = measurementFontOptions(config);
 
   for (const target of targets.slice(0, TEXT_MEASURE_CAP)) {
     const isolated: SVGConfig = {

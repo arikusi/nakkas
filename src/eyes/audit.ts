@@ -6,7 +6,8 @@
 
 import { Resvg } from "@resvg/resvg-js";
 import type { SVGConfig, AnyElement } from "../schemas/config.js";
-import { buildFontOptions, resolveGenericFamilies } from "../preview.js";
+import { resolveGenericFamilies } from "../preview.js";
+import { measurementFontOptions } from "./textlayout.js";
 import { parseHexColor } from "./interpolate.js";
 import { num } from "../renderer/utils.js";
 
@@ -23,7 +24,9 @@ import { num } from "../renderer/utils.js";
 export function checkContentBounds(svg: string, config: SVGConfig): string[] {
   let bbox: { x: number; y: number; width: number; height: number } | undefined;
   try {
-    const resvg = new Resvg(resolveGenericFamilies(svg), { font: buildFontOptions() });
+    // measurementFontOptions skips the ~90ms system font scan when the
+    // config sticks to generic families; bbox math is unaffected.
+    const resvg = new Resvg(resolveGenericFamilies(svg), { font: measurementFontOptions(config) });
     bbox = resvg.getBBox() ?? resvg.innerBBox();
   } catch {
     return [];

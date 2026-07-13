@@ -79,6 +79,51 @@ export function buildFontOptions(): NonNullable<ResvgRenderOptions["font"]> {
   return cachedFontOptions;
 }
 
+let cachedMeasureFontOptions: NonNullable<ResvgRenderOptions["font"]> | null | undefined;
+
+/**
+ * Font options for measurement-only renders (bbox audits). loadSystemFonts
+ * scans the whole font database on every Resvg construction (~90ms); for
+ * measurement the generic families resolve to three known font files, so
+ * passing those directly is ~200x faster. Only valid when the SVG uses
+ * generic families exclusively — callers must check. Returns null when the
+ * files cannot be resolved (non-Linux or no fontconfig); fall back to
+ * buildFontOptions() then.
+ */
+export function buildMeasureFontOptions(): NonNullable<ResvgRenderOptions["font"]> | null {
+  if (cachedMeasureFontOptions !== undefined) return cachedMeasureFontOptions;
+  if (process.platform !== "linux") {
+    cachedMeasureFontOptions = null;
+    return null;
+  }
+  const fontFile = (generic: string): string | undefined => {
+    try {
+      const file = execFileSync("fc-match", ["-f", "%{file}", generic], {
+        encoding: "utf8",
+        timeout: 2000,
+      }).trim();
+      return file || undefined;
+    } catch {
+      return undefined;
+    }
+  };
+  const files = ["serif", "sans-serif", "monospace"].map(fontFile);
+  if (files.some((f) => !f)) {
+    cachedMeasureFontOptions = null;
+    return null;
+  }
+  const base = buildFontOptions();
+  cachedMeasureFontOptions = {
+    loadSystemFonts: false,
+    fontFiles: files as string[],
+    defaultFontFamily: base.defaultFontFamily,
+    serifFamily: base.serifFamily,
+    sansSerifFamily: base.sansSerifFamily,
+    monospaceFamily: base.monospaceFamily,
+  };
+  return cachedMeasureFontOptions;
+}
+
 /**
  * Replace CSS generic font families with concrete font names before handing
  * the SVG to resvg. resvg-js 2.x ignores its own serifFamily/monospaceFamily

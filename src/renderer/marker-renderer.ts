@@ -8,7 +8,7 @@
  */
 
 import type { Marker, MarkerShape } from "../schemas/markers.js";
-import { attrs, tag, blockTag } from "./utils.js";
+import { attrs, tag, blockTag, warnRender } from "./utils.js";
 
 const GLYPHS: Record<MarkerShape, { body: (color: string) => string; refX: number }> = {
   triangle: {
@@ -40,6 +40,16 @@ const GLYPHS: Record<MarkerShape, { body: (color: string) => string; refX: numbe
 export function renderMarker(marker: Marker): string {
   const glyph = GLYPHS[marker.shape];
   const size = marker.size ?? 6;
+  if (marker.orient === "auto-start-reverse") {
+    // Verified 2026-07-13 by pixel-diffing resvg against Chromium: browsers
+    // flip the start marker, resvg draws it unflipped. The preview must not
+    // lie silently.
+    warnRender(
+      `Marker "${marker.id}" uses orient "auto-start-reverse": browsers flip the start marker ` +
+        `but the preview (resvg) renders it unflipped. For a preview-accurate backward arrow, ` +
+        `use a separate marker with a numeric orient instead.`
+    );
+  }
   const a = attrs({
     id: marker.id,
     viewBox: "0 0 10 10",

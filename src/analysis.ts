@@ -169,6 +169,33 @@ function checkSharedCssClass(config: SVGConfig): string[] {
   return warnings;
 }
 
+function checkMarkersWithoutStroke(config: SVGConfig): string[] {
+  const warnings: string[] = [];
+
+  function check(el: AnyElement, where: string) {
+    if (el.type !== "line" && el.type !== "polyline" && el.type !== "path") return;
+    const m = el as { markerStart?: string; markerMid?: string; markerEnd?: string; stroke?: string; strokeWidth?: number };
+    if (!m.markerStart && !m.markerMid && !m.markerEnd) return;
+    if (!m.stroke) {
+      warnings.push(
+        `${where} (${el.type}) has markers but no stroke: the ${el.type} itself is invisible ` +
+          `and the markers stay at their smallest size (they scale with strokeWidth, default 1). ` +
+          `Set stroke and strokeWidth.`
+      );
+    }
+  }
+
+  config.elements.forEach((el, i) => {
+    check(el, `elements.${i}`);
+    if (el.type === "group" && "children" in el) {
+      el.children.forEach((c, j) => check(c as AnyElement, `elements.${i}.children.${j}`));
+    }
+    const child = (el as { child?: AnyElement }).child;
+    if (child) check(child, `elements.${i}.child`);
+  });
+  return warnings;
+}
+
 // ---------------------------------------------------------------------------
 // Main analysis entry point
 // ---------------------------------------------------------------------------
@@ -199,6 +226,7 @@ export function analyzeConfig(
   if (countWarn) warnings.push(countWarn);
 
   warnings.push(...checkSharedCssClass(config));
+  warnings.push(...checkMarkersWithoutStroke(config));
 
   return warnings;
 }

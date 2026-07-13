@@ -7,8 +7,10 @@
 import { describe, it, expect } from "vitest";
 import { SVGConfigSchema } from "../src/schemas/config.js";
 import { renderSVG } from "../src/renderer/svg-renderer.js";
+import { drainRenderWarnings } from "../src/renderer/utils.js";
 import { checkReferences } from "../src/refcheck.js";
 import { checkTextContrast } from "../src/eyes/audit.js";
+import { analyzeConfig } from "../src/analysis.js";
 import type { SVGConfig } from "../src/schemas/config.js";
 
 function parse(config: unknown): SVGConfig {
@@ -90,6 +92,40 @@ describe("marker rendering", () => {
       elements: [{ type: "line", x1: 0, y1: 0, x2: 10, y2: 10, stroke: "#000000" }],
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("marker edge cases", () => {
+  it("warns that resvg renders auto-start-reverse unflipped (pixel-verified vs Chromium)", () => {
+    drainRenderWarnings();
+    renderSVG(
+      parse({
+        canvas: { width: 100, height: 100 },
+        defs: { markers: [{ id: "rev", shape: "triangle", orient: "auto-start-reverse" }] },
+        elements: [
+          { type: "line", x1: 0, y1: 50, x2: 90, y2: 50, stroke: "#000000", strokeWidth: 2, markerStart: "rev" },
+        ],
+      })
+    );
+    const warnings = drainRenderWarnings();
+    expect(warnings.some((w) => w.includes("auto-start-reverse"))).toBe(true);
+  });
+
+  it("flags markers on a strokeless line", () => {
+    const config = parse({
+      canvas: { width: 100, height: 100 },
+      defs: arrowDefs,
+      elements: [{ type: "line", x1: 0, y1: 0, x2: 50, y2: 0, markerEnd: "head" }],
+    });
+    const warnings = analyzeConfig(config, 500);
+    expect(warnings.some((w) => w.includes("has markers but no stroke"))).toBe(true);
+
+    const stroked = parse({
+      canvas: { width: 100, height: 100 },
+      defs: arrowDefs,
+      elements: [{ type: "line", x1: 0, y1: 0, x2: 50, y2: 0, stroke: "#000000", markerEnd: "head" }],
+    });
+    expect(analyzeConfig(stroked, 500).some((w) => w.includes("markers"))).toBe(false);
   });
 });
 

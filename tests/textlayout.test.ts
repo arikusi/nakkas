@@ -73,6 +73,25 @@ describe("measureTextInk", () => {
     expect(measured).toHaveLength(0);
   });
 
+  it("fast font path (generic families) measures identically to the full system scan", () => {
+    const generic = config({
+      elements: [text({ x: 50, y: 60, content: "parity check", fontSize: 18 })] as SVGConfig["elements"],
+    });
+    // A custom font name anywhere forces the full-scan path for the whole config.
+    const forcedSlow = config({
+      elements: [
+        text({ x: 50, y: 60, content: "parity check", fontSize: 18 }),
+        text({ x: 50, y: 160, content: "x", fontFamily: "Liberation Sans" }),
+      ] as SVGConfig["elements"],
+    });
+    const fast = measureTextInk(generic).measured[0].box;
+    const slow = measureTextInk(forcedSlow).measured[0].box;
+    expect(fast.x).toBeCloseTo(slow.x, 1);
+    expect(fast.y).toBeCloseTo(slow.y, 1);
+    expect(fast.width).toBeCloseTo(slow.width, 1);
+    expect(fast.height).toBeCloseTo(slow.height, 1);
+  });
+
   it("caps the number of isolated renders and reports the rest", () => {
     const many = Array.from({ length: TEXT_MEASURE_CAP + 3 }, (_, i) =>
       text({ x: 10, y: 20 + i * 30, content: `line ${i}` })
@@ -147,6 +166,19 @@ describe("checkTextLayout", () => {
     );
     expect(warnings).toHaveLength(1);
     expect(warnings[0]).toContain("measured before animations run");
+  });
+
+  it("ignores invisible text (opacity 0 / visibility hidden) instead of false-positive overlaps", () => {
+    const warnings = checkTextLayout(
+      config({
+        elements: [
+          text({ x: 100, y: 100, content: "visible" }),
+          text({ x: 101, y: 101, content: "ghost a", opacity: 0 }),
+          text({ x: 102, y: 102, content: "ghost b", visibility: "hidden" }),
+        ] as SVGConfig["elements"],
+      })
+    );
+    expect(warnings).toEqual([]);
   });
 
   it("does not flag texts that merely sit close", () => {
