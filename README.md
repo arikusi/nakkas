@@ -30,6 +30,15 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="assets/orbital-system.svg" alt="Orbital system: rings of dots rotating at different speeds around a breathing sun, with a comet trailing its tail" width="36%" />
+  <img src="assets/lissajous-draw.svg" alt="Lissajous curve drawing itself stroke by stroke over a dot grid" width="58%" />
+</p>
+
+<p align="center">
+  <sub>Both drawn by an AI through nakkas, one JSON config each, iterated against its own PNG previews. Pure CSS animation, no JavaScript.</sub>
+</p>
+
 Nakkas is an MCP (Model Context Protocol) server that lets AI assistants like Claude create animated SVG graphics from a declarative JSON config: logos, icons, loading spinners, GitHub README banners, badges, and generative art. It renders CSS @keyframes and SMIL animations with no JavaScript, so the output works inside GitHub READMEs and anywhere an `<img>` tag renders SVG. Every render comes back as a PNG preview plus a server-side artifact id, so the AI sees its own work immediately and iterates without the SVG text ever passing through its context window.
 
 > *nakkaş* means painter/artist in Turkish (old).

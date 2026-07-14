@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="lisaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4ecdc4"/>
+      <stop offset="50%" stop-color="#5d8bf4"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <filter id="lineGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#5d8bf4" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="coloredGlow"/>
+      <feComponentTransfer in="coloredGlow" result="boosted">
+        <feFuncA type="linear" slope="2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+  @keyframes draw{0%{stroke-dashoffset:2290;opacity:1} 60%{stroke-dashoffset:0;opacity:1} 88%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:0;opacity:0}}
+  .draw{animation-name:draw;animation-duration:8s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+  @keyframes titleFade{0%{opacity:0.25} 60%{opacity:1} 88%{opacity:1} 100%{opacity:0.25}}
+  .titleFade{animation-name:titleFade;animation-duration:8s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+  </style>
+  <rect x="0" y="0" width="640" height="400" fill="#0f1117"/>
+  <g>
+    <defs>
+      <g id="nkp1">
+        <circle cx="0" cy="0" r="1.4" fill="#4a5478" opacity="0.9"/>
+      </g>
+    </defs>
+    <use href="#nkp1" transform="translate(44, 28)"/>
+    <use href="#nkp1" transform="translate(84, 28)"/>
+    <use href="#nkp1" transform="translate(124, 28)"/>
+    <use href="#nkp1" transform="translate(164, 28)"/>
+    <use href="#nkp1" transform="translate(204, 28)"/>
+    <use href="#nkp1" transform="translate(244, 28)"/>
+    <use href="#nkp1" transform="translate(284, 28)"/>
+    <use href="#nkp1" transform="translate(324, 28)"/>
+    <use href="#nkp1" transform="translate(364, 28)"/>
+    <use href="#nkp1" transform="translate(404, 28)"/>
+    <use href="#nkp1" transform="translate(444, 28)"/>
+    <use href="#nkp1" transform="translate(484, 28)"/>
+    <use href="#nkp1" transform="translate(524, 28)"/>
+    <use href="#nkp1" transform="translate(564, 28)"/>
+    <use href="#nkp1" transform="translate(604, 28)"/>
+    <use href="#nkp1" transform="translate(44, 68)"/>
+    <use href="#nkp1" transform="translate(84, 68)"/>
+    <use href="#nkp1" transform="translate(124, 68)"/>
+    <use href="#nkp1" transform="translate(164, 68)"/>
+    <use href="#nkp1" transform="translate(204, 68)"/>
+    <use href="#nkp1" transform="translate(244, 68)"/>
+    <use href="#nkp1" transform="translate(284, 68)"/>
+    <use href="#nkp1" transform="translate(324, 68)"/>
+    <use href="#nkp1" transform="translate(364, 68)"/>
+    <use href="#nkp1" transform="translate(404, 68)"/>
+    <use href="#nkp1" transform="translate(444, 68)"/>
+    <use href="#nkp1" transform="translate(484, 68)"/>
+    <use href="#nkp1" transform="translate(524, 68)"/>
+    <use href="#nkp1" transform="translate(564, 68)"/>
+    <use href="#nkp1" transform="translate(604, 68)"/>
+    <use href="#nkp1" transform="translate(44, 108)"/>
+    <use href="#nkp1" transform="translate(84, 108)"/>
+    <use href="#nkp1" transform="translate(124, 108)"/>
+    <use href="#nkp1" transform="translate(164, 108)"/>
+    <use href="#nkp1" transform="translate(204, 108)"/>
+    <use href="#nkp1" transform="translate(244, 108)"/>
+    <use href="#nkp1" transform="translate(284, 108)"/>
+    <use href="#nkp1" transform="translate(324, 108)"/>
+    <use href="#nkp1" transform="translate(364, 108)"/>
+    <use href="#nkp1" transform="translate(404, 108)"/>
+    <use href="#nkp1" transform="translate(444, 108)"/>
+    <use href="#nkp1" transform="translate(484, 108)"/>
+    <use href="#nkp1" transform="translate(524, 108)"/>
+    <use href="#nkp1" transform="translate(564, 108)"/>
+    <use href="#nkp1" transform="translate(604, 108)"/>
+    <use href="#nkp1" transform="translate(44, 148)"/>
+    <use href="#nkp1" transform="translate(84, 148)"/>
+    <use href="#nkp1" transform="translate(124, 148)"/>
+    <use href="#nkp1" transform="translate(164, 148)"/>
+    <use href="#nkp1" transform="translate(204, 148)"/>
+    <use href="#nkp1" transform="translate(244, 148)"/>
+    <use href="#nkp1" transform="translate(284, 148)"/>
+    <use href="#nkp1" transform="translate(324, 148)"/>
+    <use href="#nkp1" transform="translate(364, 148)"/>
+    <use href="#nkp1" transform="translate(404, 148)"/>
+    <use href="#nkp1" transform="translate(444, 148)"/>
+    <use href="#nkp1" transform="translate(484, 148)"/>
+    <use href="#nkp1" transform="translate(524, 148)"/>
+    <use href="#nkp1" transform="translate(564, 148)"/>
+    <use href="#nkp1" transform="translate(604, 148)"/>
+    <use href="#nkp1" transform="translate(44, 188)"/>
+    <use href="#nkp1" transform="translate(84, 188)"/>
+    <use href="#nkp1" transform="translate(124, 188)"/>
+    <use href="#nkp1" transform="translate(164, 188)"/>
+    <use href="#nkp1" transform="translate(204, 188)"/>
+    <use href="#nkp1" transform="translate(244, 188)"/>
+    <use href="#nkp1" transform="translate(284, 188)"/>
+    <use href="#nkp1" transform="translate(324, 188)"/>
+    <use href="#nkp1" transform="translate(364, 188)"/>
+    <use href="#nkp1" transform="translate(404, 188)"/>
+    <use href="#nkp1" transform="translate(444, 188)"/>
+    <use href="#nkp1" transform="translate(484, 188)"/>
+    <use href="#nkp1" transform="translate(524, 188)"/>
+    <use href="#nkp1" transform="translate(564, 188)"/>
+    <use href="#nkp1" transform="translate(604, 188)"/>
+    <use href="#nkp1" transform="translate(44, 228)"/>
+    <use href="#nkp1" transform="translate(84, 228)"/>
+    <use href="#nkp1" transform="translate(124, 228)"/>
+    <use href="#nkp1" transform="translate(164, 228)"/>
+    <use href="#nkp1" transform="translate(204, 228)"/>
+    <use href="#nkp1" transform="translate(244, 228)"/>
+    <use href="#nkp1" transform="translate(284, 228)"/>
+    <use href="#nkp1" transform="translate(324, 228)"/>
+    <use href="#nkp1" transform="translate(364, 228)"/>
+    <use href="#nkp1" transform="translate(404, 228)"/>
+    <use href="#nkp1" transform="translate(444, 228)"/>
+    <use href="#nkp1" transform="translate(484, 228)"/>
+    <use href="#nkp1" transform="translate(524, 228)"/>
+    <use href="#nkp1" transform="translate(564, 228)"/>
+    <use href="#nkp1" transform="translate(604, 228)"/>
+    <use href="#nkp1" transform="translate(44, 268)"/>
+    <use href="#nkp1" transform="translate(84, 268)"/>
+    <use href="#nkp1" transform="translate(124, 268)"/>
+    <use href="#nkp1" transform="translate(164, 268)"/>
+    <use href="#nkp1" transform="translate(204, 268)"/>
+    <use href="#nkp1" transform="translate(244, 268)"/>
+    <use href="#nkp1" transform="translate(284, 268)"/>
+    <use href="#nkp1" transform="translate(324, 268)"/>
+    <use href="#nkp1" transform="translate(364, 268)"/>
+    <use href="#nkp1" transform="translate(404, 268)"/>
+    <use href="#nkp1" transform="translate(444, 268)"/>
+    <use href="#nkp1" transform="translate(484, 268)"/>
+    <use href="#nkp1" transform="translate(524, 268)"/>
+    <use href="#nkp1" transform="translate(564, 268)"/>
+    <use href="#nkp1" transform="translate(604, 268)"/>
+    <use href="#nkp1" transform="translate(44, 308)"/>
+    <use href="#nkp1" transform="translate(84, 308)"/>
+    <use href="#nkp1" transform="translate(124, 308)"/>
+    <use href="#nkp1" transform="translate(164, 308)"/>
+    <use href="#nkp1" transform="translate(204, 308)"/>
+    <use href="#nkp1" transform="translate(244, 308)"/>
+    <use href="#nkp1" transform="translate(284, 308)"/>
+    <use href="#nkp1" transform="translate(324, 308)"/>
+    <use href="#nkp1" transform="translate(364, 308)"/>
+    <use href="#nkp1" transform="translate(404, 308)"/>
+    <use href="#nkp1" transform="translate(444, 308)"/>
+    <use href="#nkp1" transform="translate(484, 308)"/>
+    <use href="#nkp1" transform="translate(524, 308)"/>
+    <use href="#nkp1" transform="translate(564, 308)"/>
+    <use href="#nkp1" transform="translate(604, 308)"/>
+    <use href="#nkp1" transform="translate(44, 348)"/>
+    <use href="#nkp1" transform="translate(84, 348)"/>
+    <use href="#nkp1" transform="translate(124, 348)"/>
+    <use href="#nkp1" transform="translate(164, 348)"/>
+    <use href="#nkp1" transform="translate(204, 348)"/>
+    <use href="#nkp1" transform="translate(244, 348)"/>
+    <use href="#nkp1" transform="translate(284, 348)"/>
+    <use href="#nkp1" transform="translate(324, 348)"/>
+    <use href="#nkp1" transform="translate(364, 348)"/>
+    <use href="#nkp1" transform="translate(404, 348)"/>
+    <use href="#nkp1" transform="translate(444, 348)"/>
+    <use href="#nkp1" transform="translate(484, 348)"/>
+    <use href="#nkp1" transform="translate(524, 348)"/>
+    <use href="#nkp1" transform="translate(564, 348)"/>
+    <use href="#nkp1" transform="translate(604, 348)"/>
+  </g>
+  <path d="M 454.1 180 L 451.47 183.77 L 448.66 187.54 L 445.66 191.3 L 442.48 195.05 L 439.13 198.8 L 435.61 202.53 L 431.93 206.25 L 428.08 209.96 L 424.09 213.64 L 419.94 217.3 L 415.65 220.94 L 411.23 224.56 L 406.68 228.14 L 402 231.7 L 397.21 235.22 L 392.31 238.71 L 387.3 242.16 L 382.2 245.57 L 377.01 248.94 L 371.75 252.26 L 366.4 255.54 L 360.99 258.78 L 355.53 261.96 L 350.01 265.09 L 344.45 268.17 L 338.85 271.19 L 333.23 274.15 L 327.59 277.06 L 321.94 279.9 L 316.28 282.68 L 310.63 285.4 L 305 288.05 L 299.38 290.63 L 293.8 293.14 L 288.25 295.58 L 282.75 297.94 L 277.3 300.24 L 271.91 302.45 L 266.59 304.59 L 261.34 306.65 L 256.18 308.63 L 251.11 310.53 L 246.14 312.34 L 241.27 314.08 L 236.51 315.72 L 231.87 317.29 L 227.36 318.76 L 222.98 320.15 L 218.74 321.45 L 214.64 322.66 L 210.69 323.78 L 206.9 324.81 L 203.26 325.74 L 199.8 326.59 L 196.5 327.34 L 193.38 328 L 190.44 328.57 L 187.68 329.04 L 185.11 329.42 L 182.73 329.7 L 180.55 329.89 L 178.57 329.99 L 176.79 329.99 L 175.21 329.89 L 173.83 329.7 L 172.67 329.42 L 171.71 329.04 L 170.96 328.57 L 170.43 328 L 170.11 327.34 L 170 326.59 L 170.1 325.74 L 170.42 324.81 L 170.95 323.78 L 171.69 322.66 L 172.65 321.45 L 173.81 320.15 L 175.18 318.76 L 176.75 317.29 L 178.53 315.72 L 180.51 314.08 L 182.69 312.34 L 185.07 310.53 L 187.63 308.63 L 190.39 306.65 L 193.32 304.59 L 196.44 302.45 L 199.73 300.24 L 203.2 297.94 L 206.83 295.58 L 210.62 293.14 L 214.57 290.63 L 218.66 288.05 L 222.9 285.4 L 227.28 282.68 L 231.79 279.9 L 236.43 277.06 L 241.18 274.15 L 246.05 271.19 L 251.02 268.17 L 256.09 265.09 L 261.25 261.96 L 266.49 258.78 L 271.81 255.54 L 277.2 252.26 L 282.65 248.94 L 288.15 245.57 L 293.7 242.16 L 299.28 238.71 L 304.89 235.22 L 310.53 231.7 L 316.18 228.14 L 321.83 224.56 L 327.48 220.94 L 333.13 217.3 L 338.75 213.64 L 344.34 209.96 L 349.91 206.25 L 355.42 202.53 L 360.89 198.8 L 366.3 195.05 L 371.65 191.3 L 376.92 187.54 L 382.11 183.77 L 387.21 180 L 392.22 176.23 L 397.12 172.46 L 401.92 168.7 L 406.59 164.95 L 411.15 161.2 L 415.57 157.47 L 419.86 153.75 L 424.01 150.04 L 428.01 146.36 L 431.86 142.7 L 435.54 139.06 L 439.07 135.44 L 442.42 131.86 L 445.6 128.3 L 448.6 124.78 L 451.42 121.29 L 454.05 117.84 L 456.49 114.43 L 458.74 111.06 L 460.79 107.74 L 462.64 104.46 L 464.29 101.22 L 465.73 98.04 L 466.97 94.91 L 467.99 91.83 L 468.81 88.81 L 469.42 85.85 L 469.81 82.94 L 469.99 80.1 L 469.95 77.32 L 469.71 74.6 L 469.25 71.95 L 468.58 69.37 L 467.69 66.86 L 466.6 64.42 L 465.3 62.06 L 463.79 59.76 L 462.08 57.55 L 460.17 55.41 L 458.06 53.35 L 455.75 51.37 L 453.24 49.47 L 450.55 47.66 L 447.68 45.92 L 444.62 44.28 L 441.38 42.71 L 437.98 41.24 L 434.4 39.85 L 430.66 38.55 L 426.77 37.34 L 422.72 36.22 L 418.53 35.19 L 414.19 34.26 L 409.73 33.41 L 405.13 32.66 L 400.42 32 L 395.59 31.43 L 390.65 30.96 L 385.61 30.58 L 380.48 30.3 L 375.27 30.11 L 369.97 30.01 L 364.61 30.01 L 359.18 30.11 L 353.69 30.3 L 348.16 30.58 L 342.59 30.96 L 336.98 31.43 L 331.35 32 L 325.71 32.66 L 320.05 33.41 L 314.4 34.26 L 308.75 35.19 L 303.12 36.22 L 297.52 37.34 L 291.94 38.55 L 286.41 39.85 L 280.92 41.24 L 275.49 42.71 L 270.13 44.28 L 264.83 45.92 L 259.61 47.66 L 254.48 49.47 L 249.44 51.37 L 244.5 53.35 L 239.67 55.41 L 234.95 57.55 L 230.36 59.76 L 225.89 62.06 L 221.55 64.42 L 217.36 66.86 L 213.31 69.37 L 209.41 71.95 L 205.67 74.6 L 202.09 77.32 L 198.68 80.1 L 195.44 82.94 L 192.38 85.85 L 189.5 88.81 L 186.8 91.83 L 184.3 94.91 L 181.99 98.04 L 179.87 101.22 L 177.95 104.46 L 176.24 107.74 L 174.73 111.06 L 173.42 114.43 L 172.32 117.84 L 171.44 121.29 L 170.76 124.78 L 170.3 128.3 L 170.05 131.86 L 170.01 135.44 L 170.19 139.06 L 170.58 142.7 L 171.18 146.36 L 171.99 150.04 L 173.01 153.75 L 174.24 157.47 L 175.68 161.2 L 177.33 164.95 L 179.17 168.7 L 181.22 172.46 L 183.46 176.23 L 185.9 180 L 188.53 183.77 L 191.34 187.54 L 194.34 191.3 L 197.52 195.05 L 200.87 198.8 L 204.39 202.53 L 208.07 206.25 L 211.92 209.96 L 215.91 213.64 L 220.06 217.3 L 224.35 220.94 L 228.77 224.56 L 233.32 228.14 L 238 231.7 L 242.79 235.22 L 247.69 238.71 L 252.7 242.16 L 257.8 245.57 L 262.99 248.94 L 268.25 252.26 L 273.6 255.54 L 279.01 258.78 L 284.47 261.96 L 289.99 265.09 L 295.55 268.17 L 301.15 271.19 L 306.77 274.15 L 312.41 277.06 L 318.06 279.9 L 323.72 282.68 L 329.37 285.4 L 335 288.05 L 340.62 290.63 L 346.2 293.14 L 351.75 295.58 L 357.25 297.94 L 362.7 300.24 L 368.09 302.45 L 373.41 304.59 L 378.66 306.65 L 383.82 308.63 L 388.89 310.53 L 393.86 312.34 L 398.73 314.08 L 403.49 315.72 L 408.13 317.29 L 412.64 318.76 L 417.02 320.15 L 421.26 321.45 L 425.36 322.66 L 429.31 323.78 L 433.1 324.81 L 436.74 325.74 L 440.2 326.59 L 443.5 327.34 L 446.62 328 L 449.56 328.57 L 452.32 329.04 L 454.89 329.42 L 457.27 329.7 L 459.45 329.89 L 461.43 329.99 L 463.21 329.99 L 464.79 329.89 L 466.17 329.7 L 467.33 329.42 L 468.29 329.04 L 469.04 328.57 L 469.57 328 L 469.89 327.34 L 470 326.59 L 469.9 325.74 L 469.58 324.81 L 469.05 323.78 L 468.31 322.66 L 467.35 321.45 L 466.19 320.15 L 464.82 318.76 L 463.25 317.29 L 461.47 315.72 L 459.49 314.08 L 457.31 312.34 L 454.93 310.53 L 452.37 308.63 L 449.61 306.65 L 446.68 304.59 L 443.56 302.45 L 440.27 300.24 L 436.8 297.94 L 433.17 295.58 L 429.38 293.14 L 425.43 290.63 L 421.34 288.05 L 417.1 285.4 L 412.72 282.68 L 408.21 279.9 L 403.57 277.06 L 398.82 274.15 L 393.95 271.19 L 388.98 268.17 L 383.91 265.09 L 378.75 261.96 L 373.51 258.78 L 368.19 255.54 L 362.8 252.26 L 357.35 248.94 L 351.85 245.57 L 346.3 242.16 L 340.72 238.71 L 335.11 235.22 L 329.47 231.7 L 323.82 228.14 L 318.17 224.56 L 312.52 220.94 L 306.87 217.3 L 301.25 213.64 L 295.66 209.96 L 290.09 206.25 L 284.58 202.53 L 279.11 198.8 L 273.7 195.05 L 268.35 191.3 L 263.08 187.54 L 257.89 183.77 L 252.79 180 L 247.78 176.23 L 242.88 172.46 L 238.08 168.7 L 233.41 164.95 L 228.85 161.2 L 224.43 157.47 L 220.14 153.75 L 215.99 150.04 L 211.99 146.36 L 208.14 142.7 L 204.46 139.06 L 200.93 135.44 L 197.58 131.86 L 194.4 128.3 L 191.4 124.78 L 188.58 121.29 L 185.95 117.84 L 183.51 114.43 L 181.26 111.06 L 179.21 107.74 L 177.36 104.46 L 175.71 101.22 L 174.27 98.04 L 173.03 94.91 L 172.01 91.83 L 171.19 88.81 L 170.58 85.85 L 170.19 82.94 L 170.01 80.1 L 170.05 77.32 L 170.29 74.6 L 170.75 71.95 L 171.42 69.37 L 172.31 66.86 L 173.4 64.42 L 174.7 62.06 L 176.21 59.76 L 177.92 57.55 L 179.83 55.41 L 181.94 53.35 L 184.25 51.37 L 186.76 49.47 L 189.45 47.66 L 192.32 45.92 L 195.38 44.28 L 198.62 42.71 L 202.02 41.24 L 205.6 39.85 L 209.34 38.55 L 213.23 37.34 L 217.28 36.22 L 221.47 35.19 L 225.81 34.26 L 230.27 33.41 L 234.87 32.66 L 239.58 32 L 244.41 31.43 L 249.35 30.96 L 254.39 30.58 L 259.52 30.3 L 264.73 30.11 L 270.03 30.01 L 275.39 30.01 L 280.82 30.11 L 286.31 30.3 L 291.84 30.58 L 297.41 30.96 L 303.02 31.43 L 308.65 32 L 314.29 32.66 L 319.95 33.41 L 325.6 34.26 L 331.25 35.19 L 336.88 36.22 L 342.48 37.34 L 348.06 38.55 L 353.59 39.85 L 359.08 41.24 L 364.51 42.71 L 369.87 44.28 L 375.17 45.92 L 380.39 47.66 L 385.52 49.47 L 390.56 51.37 L 395.5 53.35 L 400.33 55.41 L 405.05 57.55 L 409.64 59.76 L 414.11 62.06 L 418.45 64.42 L 422.64 66.86 L 426.69 69.37 L 430.59 71.95 L 434.33 74.6 L 437.91 77.32 L 441.32 80.1 L 444.56 82.94 L 447.62 85.85 L 450.5 88.81 L 453.2 91.83 L 455.7 94.91 L 458.01 98.04 L 460.13 101.22 L 462.05 104.46 L 463.76 107.74 L 465.27 111.06 L 466.58 114.43 L 467.68 117.84 L 468.56 121.29 L 469.24 124.78 L 469.7 128.3 L 469.95 131.86 L 469.99 135.44 L 469.81 139.06 L 469.42 142.7 L 468.82 146.36 L 468.01 150.04 L 466.99 153.75 L 465.76 157.47 L 464.32 161.2 L 462.67 164.95 L 460.83 168.7 L 458.78 172.46 L 456.54 176.23 L 454.1 180" class="draw" fill="none" stroke="url(#lisaGrad)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2290" stroke-dashoffset="2290" filter="url(#lineGlow)"/>
+  <text x="320" y="356" font-family="monospace" font-size="34" font-weight="bold" letter-spacing="10" text-anchor="middle" class="titleFade" fill="#e8e9f0">nakkas</text>
+</svg>

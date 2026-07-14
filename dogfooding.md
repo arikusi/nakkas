@@ -4,6 +4,18 @@ Every significant change ships only after a dogfood run: a design produced throu
 
 Newest first.
 
+## Showcase run (Show HN examples) — 2026-07-14, PASS
+
+**Under test:** no new feature. The full v0.5.x surface exercised on real deliverables: demo pieces for the README header and a Show HN post, produced through the plugin MCP layer in one sitting.
+
+**Prompt (real use):** "a few beautiful animated SVG examples to introduce nakkas." Three pieces came out of it: a blooming parametric rose (k=5 rose curve opening from the center, a counter-rotating inner rose, twinkling scatter stars), an orbital system (three radial-group rings rotating at different speeds and directions around a breathing sun, a comet with a gradient tail orbiting between them), and a Lissajous curve drawing itself via the stroke-dashoffset technique over a grid-group dot field, with the wordmark fading in alongside.
+
+**Iterations:** 12 renders across the three pieces. The rose took 4: iteration 1 failed validation on gradient/filter discriminators and the error text listed the exact fixes; iteration 2 animated nothing, because the elements carried `class` instead of `cssClass` and the schema's strip policy dropped the key without a word (a minimal three-rect probe confirmed no animation ever bound); iteration 3 bound the animations but flung the flower off-canvas until the design notes' transformBox/transformOrigin advice was applied verbatim; iteration 4 added the translucent petal fill. The orbital took 4: the comet arrived in round 2 riding a base `translate(240,240)` plus identical keyframe translation; round 3 dropped the base transform and the bbox audit immediately reported content 6px past the top edge, which is exactly where the unanimated comet group sat; round 4 restored it and the note vanished. The Lissajous took 4: `pathLength: 100` was silently stripped, so `strokeDasharray "100"` against the real path produced marching dashes instead of a draw-on; the true length was measured from the saved artifact (501 polyline points summing to 2287px) and substituted, after which the draw-on worked first try; the dot-grid backdrop needed one visibility bump, verified in a full-size static preview.
+
+**Assets:** `assets/orbital-system.svg`, `assets/lissajous-draw.svg` (both embedded at the top of the README, sized 36% / 58% so their rendered heights match). The rose stayed out of the tree.
+
+**Findings:** two silent-strip casualties in a single run, `class` and `pathLength`, each costing a full iteration with zero feedback at render time. The cheapest repair is a refcheck warning for animations that no element's cssClass references; it would have flagged the rose's dead keyframes on the very first render. pathLength support, or a per-element path-length figure in the render response, would make the draw-on technique first-class instead of requiring an offline measurement. On the credit side, three separate eyes caught three real bugs in this run: the filmstrip exposed the unbound animations (a static preview looked perfectly fine), the transformBox design note named the origin fix before any debugging started, and the bbox audit caught the comet's base-state escape that no animated frame would ever show.
+
 ## v0.5.0 (markers + gradient contrast) — 2026-07-13, PASS
 
 **Under test:** defs.markers presets on line and path elements, marker reference integrity, and the contrast audit's new gradient branch.

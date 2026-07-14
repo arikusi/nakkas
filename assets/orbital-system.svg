@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">
+  <defs>
+    <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff7d6"/>
+      <stop offset="40%" stop-color="#ffd166"/>
+      <stop offset="100%" stop-color="#ff8c42"/>
+    </radialGradient>
+    <linearGradient id="tailGrad" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#7ef9e9"/>
+      <stop offset="100%" stop-color="#7ef9e900"/>
+    </linearGradient>
+    <filter id="coreGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feFlood flood-color="#ffd166" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="coloredGlow"/>
+      <feComponentTransfer in="coloredGlow" result="boosted">
+        <feFuncA type="linear" slope="2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="dotGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#4ecdc4" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="coloredGlow"/>
+      <feComponentTransfer in="coloredGlow" result="boosted">
+        <feFuncA type="linear" slope="2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="cometGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#7ef9e9" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="coloredGlow"/>
+      <feComponentTransfer in="coloredGlow" result="boosted">
+        <feFuncA type="linear" slope="2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="boosted"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+  @keyframes twinkle{0%{opacity:0.15} 50%{opacity:0.65} 100%{opacity:0.15}}
+  .twinkle{animation-name:twinkle;animation-duration:3.5s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+  @keyframes orbitCW{0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)}}
+  .orbitCW{animation-name:orbitCW;animation-duration:8s;animation-timing-function:linear;animation-iteration-count:infinite}
+  @keyframes orbitCCW{0%{transform:rotate(-360deg)} 100%{transform:rotate(0deg)}}
+  .orbitCCW{animation-name:orbitCCW;animation-duration:14s;animation-timing-function:linear;animation-iteration-count:infinite}
+  @keyframes orbitSlow{0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)}}
+  .orbitSlow{animation-name:orbitSlow;animation-duration:22s;animation-timing-function:linear;animation-iteration-count:infinite}
+  @keyframes comet{0%{transform:translate(240px,240px) rotate(0deg)} 100%{transform:translate(240px,240px) rotate(-360deg)}}
+  .comet{animation-name:comet;animation-duration:10s;animation-timing-function:linear;animation-iteration-count:infinite}
+  @keyframes breathe{0%{transform:scale(1)} 50%{transform:scale(1.15)} 100%{transform:scale(1)}}
+  .breathe{animation-name:breathe;animation-duration:4s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+  </style>
+  <rect x="0" y="0" width="480" height="480" fill="#0b0f1a"/>
+  <g>
+    <defs>
+      <g id="nkp1">
+        <circle cx="0" cy="0" r="1.1" class="twinkle" fill="#6b739c" opacity="0.6"/>
+      </g>
+    </defs>
+    <use href="#nkp1" transform="translate(115.545, 176.166)"/>
+    <use href="#nkp1" transform="translate(17.296, 53.79)"/>
+    <use href="#nkp1" transform="translate(183.203, 285.282)"/>
+    <use href="#nkp1" transform="translate(247.762, 304.258)"/>
+    <use href="#nkp1" transform="translate(293.933, 130.166)"/>
+    <use href="#nkp1" transform="translate(115.888, 458.55)"/>
+    <use href="#nkp1" transform="translate(161.359, 147.325)"/>
+    <use href="#nkp1" transform="translate(358.401, 51.789)"/>
+    <use href="#nkp1" transform="translate(261.88, 237.158)"/>
+    <use href="#nkp1" transform="translate(464.174, 137.303)"/>
+    <use href="#nkp1" transform="translate(392.591, 141.913)"/>
+    <use href="#nkp1" transform="translate(212.69, 51.688)"/>
+    <use href="#nkp1" transform="translate(202.171, 272.241)"/>
+    <use href="#nkp1" transform="translate(84.232, 392.227)"/>
+    <use href="#nkp1" transform="translate(82.239, 259.843)"/>
+    <use href="#nkp1" transform="translate(189.284, 424.137)"/>
+    <use href="#nkp1" transform="translate(446.682, 313.708)"/>
+    <use href="#nkp1" transform="translate(364.655, 335.178)"/>
+    <use href="#nkp1" transform="translate(426.45, 17.45)"/>
+    <use href="#nkp1" transform="translate(363.822, 155.087)"/>
+    <use href="#nkp1" transform="translate(7.318, 365.234)"/>
+    <use href="#nkp1" transform="translate(148.986, 237.375)"/>
+    <use href="#nkp1" transform="translate(158.12, 73.795)"/>
+    <use href="#nkp1" transform="translate(412.36, 160.949)"/>
+    <use href="#nkp1" transform="translate(416.951, 368.06)"/>
+    <use href="#nkp1" transform="translate(214.158, 229.093)"/>
+    <use href="#nkp1" transform="translate(242.832, 397.85)"/>
+    <use href="#nkp1" transform="translate(264.815, 263.281)"/>
+    <use href="#nkp1" transform="translate(0.356, 123.185)"/>
+    <use href="#nkp1" transform="translate(338.927, 109.343)"/>
+    <use href="#nkp1" transform="translate(444.791, 265.685)"/>
+    <use href="#nkp1" transform="translate(68.398, 153.472)"/>
+    <use href="#nkp1" transform="translate(175.154, 83.551)"/>
+    <use href="#nkp1" transform="translate(2.317, 265.569)"/>
+    <use href="#nkp1" transform="translate(242.761, 87.659)"/>
+    <use href="#nkp1" transform="translate(421.05, 27.437)"/>
+    <use href="#nkp1" transform="translate(262.74, 136.23)"/>
+    <use href="#nkp1" transform="translate(312.05, 343.325)"/>
+    <use href="#nkp1" transform="translate(256.008, 265.606)"/>
+    <use href="#nkp1" transform="translate(474.885, 410.298)"/>
+  </g>
+  <circle cx="240" cy="240" r="70" fill="none" stroke="#2a3352" stroke-width="1" stroke-dasharray="3 6"/>
+  <circle cx="240" cy="240" r="120" fill="none" stroke="#2a3352" stroke-width="1" stroke-dasharray="3 6"/>
+  <circle cx="240" cy="240" r="170" fill="none" stroke="#2a3352" stroke-width="1" stroke-dasharray="3 6"/>
+  <g class="orbitCW" style="transform-box:fill-box;transform-origin:center">
+    <defs>
+      <g id="nkp2">
+        <circle cx="0" cy="0" r="5" fill="#4ecdc4" filter="url(#dotGlow)"/>
+      </g>
+    </defs>
+    <use href="#nkp2" transform="translate(240, 170) rotate(-90)"/>
+    <use href="#nkp2" transform="translate(300.622, 205) rotate(-30)"/>
+    <use href="#nkp2" transform="translate(300.622, 275) rotate(30)"/>
+    <use href="#nkp2" transform="translate(240, 310) rotate(90)"/>
+    <use href="#nkp2" transform="translate(179.378, 275) rotate(150)"/>
+    <use href="#nkp2" transform="translate(179.378, 205) rotate(210)"/>
+  </g>
+  <g class="orbitCCW" style="transform-box:fill-box;transform-origin:center">
+    <defs>
+      <g id="nkp3">
+        <circle cx="0" cy="0" r="3.5" fill="#a78bfa"/>
+      </g>
+    </defs>
+    <use href="#nkp3" transform="translate(240, 120) rotate(-90)"/>
+    <use href="#nkp3" transform="translate(310.534, 142.918) rotate(-54)"/>
+    <use href="#nkp3" transform="translate(354.127, 202.918) rotate(-18)"/>
+    <use href="#nkp3" transform="translate(354.127, 277.082) rotate(18)"/>
+    <use href="#nkp3" transform="translate(310.534, 337.082) rotate(54)"/>
+    <use href="#nkp3" transform="translate(240, 360) rotate(90)"/>
+    <use href="#nkp3" transform="translate(169.466, 337.082) rotate(126)"/>
+    <use href="#nkp3" transform="translate(125.873, 277.082) rotate(162)"/>
+    <use href="#nkp3" transform="translate(125.873, 202.918) rotate(198)"/>
+    <use href="#nkp3" transform="translate(169.466, 142.918) rotate(234)"/>
+  </g>
+  <g class="orbitSlow" style="transform-box:fill-box;transform-origin:center">
+    <defs>
+      <g id="nkp4">
+        <circle cx="0" cy="0" r="2.8" fill="#7da2ff"/>
+      </g>
+    </defs>
+    <use href="#nkp4" transform="translate(240, 70) rotate(-90)"/>
+    <use href="#nkp4" transform="translate(313.76, 86.835) rotate(-64.286)"/>
+    <use href="#nkp4" transform="translate(372.911, 134.007) rotate(-38.571)"/>
+    <use href="#nkp4" transform="translate(405.738, 202.171) rotate(-12.857)"/>
+    <use href="#nkp4" transform="translate(405.738, 277.829) rotate(12.857)"/>
+    <use href="#nkp4" transform="translate(372.911, 345.993) rotate(38.571)"/>
+    <use href="#nkp4" transform="translate(313.76, 393.165) rotate(64.286)"/>
+    <use href="#nkp4" transform="translate(240, 410) rotate(90)"/>
+    <use href="#nkp4" transform="translate(166.24, 393.165) rotate(115.714)"/>
+    <use href="#nkp4" transform="translate(107.089, 345.993) rotate(141.429)"/>
+    <use href="#nkp4" transform="translate(74.262, 277.829) rotate(167.143)"/>
+    <use href="#nkp4" transform="translate(74.262, 202.171) rotate(192.857)"/>
+    <use href="#nkp4" transform="translate(107.089, 134.007) rotate(218.571)"/>
+    <use href="#nkp4" transform="translate(166.24, 86.835) rotate(244.286)"/>
+  </g>
+  <g class="comet" transform="translate(240,240)">
+    <path d="M 145 0 Q 118 26 96 62" fill="none" stroke="url(#tailGrad)" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+    <circle cx="145" cy="0" r="6" fill="#7ef9e9" filter="url(#cometGlow)"/>
+  </g>
+  <circle cx="240" cy="240" r="26" class="breathe" fill="url(#coreGrad)" filter="url(#coreGlow)" style="transform-box:fill-box;transform-origin:center"/>
+</svg>
